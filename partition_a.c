@@ -179,7 +179,7 @@ int main (int argc, char *argv[]){
    //Initialization of the processes
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&periodic_process.NAME), 0, sizeof(periodic_process.NAME));
-   sprintf((char*)(&periodic_process.NAME), "Process A                      ");
+   sprintf((char*)(&periodic_process.NAME), "Process A                    ");
    periodic_process.PERIOD = 20000000LL;
    periodic_process.TIME_CAPACITY = 0;
    periodic_process.STACK_SIZE = 0x5000000;
