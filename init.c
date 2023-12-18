@@ -1,6 +1,5 @@
 /**
  * @file      init.c
- * @copyright Airbus Defence and Space
  * @author    nicolaus.baer@airbus.com
  * @date      Tue Oct 24 15:53:18 CEST 2023
  * @brief     partition main function

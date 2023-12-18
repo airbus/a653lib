@@ -1,6 +1,5 @@
 /**
  * @file      main.c
- * @copyright Airbus Defence and Space
  * @author    nicolaus.baer@airbus.com
  * @date      Tue Oct 24 15:53:18 CEST 2023
  * @brief     partition main function
@@ -17,7 +16,6 @@
 #include <time.h>
 
 #include "apexInit.h"
-#include "apex_i_sync.h"
 #include "apex_config.h"
 
 /* apex_global_config_t global_config = APEX_PARTITION_CONFIG_DEF; */
@@ -29,7 +27,7 @@
 
 int main (int argc, char *argv[]){
 
-  time_t rawtime;
+  int64_t rawtime;
   struct tm * timeinfo;
 
   setDebug(5);

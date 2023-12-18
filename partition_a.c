@@ -1,6 +1,5 @@
 /**
  * @file      prcs_a.c
- * @copyright Airbus Defence and Space
  * @author    nicolaus.baer@airbus.com
  * @date      Tue Oct 24 15:53:18 CEST 2023
  * @brief     partition main function
@@ -61,10 +60,11 @@ void PeriodicProcess(void){
   GET_QUEUING_PORT_ID("QP_Prcs_B to Prcs A             ",
 		      &qp_id_rx,
 		      &return_code);
-  int index = 0;
   
   setDebug(5);
 
+  int index = 0;
+  
   while (1){
 
     count++;
@@ -118,14 +118,13 @@ int main (int argc, char *argv[]){
   PARTITION_STATUS_TYPE          Init_Status;
   RETURN_CODE_TYPE               Init_Process_ret;
   PROCESS_ID_TYPE                Init_periodic_process_ID;
-  RETURN_CODE_TYPE               Init_Process_start_ret;
+  /*RETURN_CODE_TYPE               Init_Process_start_ret;*/
   PROCESS_ATTRIBUTE_TYPE         periodic_process;
-  PROCESS_ID_TYPE                Init_aperiodic_process_ID;
+  /*PROCESS_ID_TYPE                Init_aperiodic_process_ID;*/
   
   APEX_INTEGER                   PortId;
   
   int ret_val = 0;
-  int index = 0;
 
   do {
     //Initialization of partition
@@ -222,15 +221,8 @@ int main (int argc, char *argv[]){
 
   
   printDebug(3,"a653 start prcs (%d)\n",getpid());
-
-  index = 0;
   
   while (1){
-    /* index++; */
-    /* if ((index % 1000) == 0){ */
-    /*   //   printDebug(3,"%06d test \n",index); */
-    /* } */
-    /* printDebug(3,"a653 restart prcs (%d)\n",getpid()); */
     apex_act_partition();
     usleep(50);	 
   }
