@@ -42,7 +42,7 @@ call and
 printDebug(int level, const char *format, ... ){
 ```
 
-can by used with the same interface as printf() with a leading debug level
+can by used with the same interface as `printf()` with a leading debug level
 
 ## Compilation
 
