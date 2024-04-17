@@ -1,0 +1,86 @@
+name: Nix
+permissions:
+  contents: write
+on:
+  pull_request: null
+  push:
+    branches:
+      - main
+jobs:
+  x86_64-linux---a653lib:
+    name: x86_64-linux.a653lib
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.a653lib --print-build-logs
+  x86_64-linux---a653lib-aarch64:
+    name: x86_64-linux.a653lib-aarch64
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.a653lib-aarch64 --print-build-logs
+  x86_64-linux---a653lib-armv7a:
+    name: x86_64-linux.a653lib-armv7a
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.a653lib-armv7a --print-build-logs
+  x86_64-linux---a653lib-debug:
+    name: x86_64-linux.a653lib-debug
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.a653lib-debug --print-build-logs
+  x86_64-linux---a653lib-gcc11:
+    name: x86_64-linux.a653lib-gcc11
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.a653lib-gcc11 --print-build-logs
+  x86_64-linux---default:
+    name: x86_64-linux.default
+    runs-on:
+      - ubuntu-latest
+    needs:
+      - x86_64-linux---a653lib
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.default --print-build-logs
+  x86_64-linux---check:
+    name: Check on x86_64-linux
+    runs-on:
+      - ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Check
+        run: nix flake check . --print-build-logs
