@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch",
+            "program": "${workspaceFolder}/bin/a653_main",
+            "args": [],
+            "cwd": "${workspaceFolder}/bin/",
+            "stopOnEntry": true
+        }
+    ]
+
+}
