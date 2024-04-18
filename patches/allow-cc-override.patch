@@ -1,0 +1,25 @@
+diff --git a/a653_lib/Makefile b/a653_lib/Makefile
+index 064fb1a..cc851f8 100644
+--- a/a653_lib/Makefile
++++ b/a653_lib/Makefile
+@@ -3,8 +3,9 @@
+ #
+ 
+ #CC = $(CC_PATH)/tools/gcc-810-ppc/bin/powerpc-linux-gnu-gcc
+-CC = gcc
+-AR = ar
++CC ?= gcc
++AR ?= ar
++RANLIB ?= ranlib
+ 
+ CFLAGS   = -Wall -g2 -fPIC -c -I../a653_inc $(COMMON_SWITCH)
+ LDFLAGS  = -g2 #-L /tools/gcc-810-ppc/lib
+@@ -20,7 +21,7 @@ all: clean mk_build_dir a653_lib
+ a653_lib: mk_build_dir $(OBJS) 
+ #	cd $(MY_BUILD_DIR); $(CC) $(LDFLAGS) -shared -o $(TARGET) $(OBJS) -lm -ldl
+ 	cd $(MY_BUILD_DIR); $(AR) crs $(TARGET) $(OBJS) # static lib
+-	cd $(MY_BUILD_DIR); ranlib $(TARGET)
++	cd $(MY_BUILD_DIR); $(RANLIB) $(TARGET)
+ 
+ copy: a653_lib
+ 	echo all
