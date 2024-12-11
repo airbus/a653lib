@@ -47,6 +47,8 @@
 #define MAX_S_PORT 10
 #define MAX_S_PORT_SIZE 200
 
+#define MAX_SEM_NUM 10
+
 typedef struct {
   char name_str[33];
 } a653_partition_config_t;
