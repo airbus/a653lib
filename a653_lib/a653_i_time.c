@@ -22,7 +22,7 @@
  * @file      a653_i_time.c
  * @copyright Airbus Defence and Space
  * @author    nicolaus.baer@airbus.com
- * @date      Tue Oct 24 15:53:18 CEST 2023
+ * @date      Wed 11 Dec 2024 04:07:47 AM EST
  * @brief     a653 timer handling
  * @details
  */
@@ -45,9 +45,11 @@
 #include "a653Process.h"
 
 
-void TIMED_WAIT (SYSTEM_TIME_TYPE DELAY_TIME, 
+void TIMED_WAIT (SYSTEM_TIME_TYPE DELAY_TIME, /* */
                  RETURN_CODE_TYPE * RETURN_CODE){
-  usleep(40000);
+
+  /*  int usleep(useconds_t usec); */
+  usleep(DELAY_TIME / 1000);
 }
 
 void PERIODIC_WAIT (RETURN_CODE_TYPE * RETURN_CODE){
@@ -58,10 +60,21 @@ void PERIODIC_WAIT (RETURN_CODE_TYPE * RETURN_CODE){
 
 void GET_TIME (SYSTEM_TIME_TYPE * SYSTEM_TIME,
                RETURN_CODE_TYPE * RETURN_CODE){
+
+  struct timespec tp;
+  
+  if (0 == clock_gettime(CLOCK_REALTIME, &tp)){
+    *SYSTEM_TIME = (tp.tv_sec * 10^9) + tp.tv_nsec;
+    *RETURN_CODE = NO_ERROR;
+  } else {
+    *SYSTEM_TIME = 0;
+    *RETURN_CODE = NOT_AVAILABLE;
+  }
 }
 
 void REPLENISH (SYSTEM_TIME_TYPE   BUDGET_TIME, 
                 RETURN_CODE_TYPE * RETURN_CODE){
+  printDebug(1,"not implemented yet!!!\n\n");
 }
 
 
