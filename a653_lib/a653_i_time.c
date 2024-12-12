@@ -64,7 +64,8 @@ void GET_TIME (SYSTEM_TIME_TYPE * SYSTEM_TIME,
   struct timespec tp;
   
   if (0 == clock_gettime(CLOCK_REALTIME, &tp)){
-    *SYSTEM_TIME = (tp.tv_sec * 10^9) + tp.tv_nsec;
+    printDebug(5,"GET_TIME >%d:%d< \n",tp.tv_sec,tp.tv_nsec);
+    *SYSTEM_TIME = tp.tv_sec * 1000000000 + tp.tv_nsec;
     *RETURN_CODE = NO_ERROR;
   } else {
     *SYSTEM_TIME = 0;

@@ -33,6 +33,8 @@ void PeriodicProcess(void){
   RETURN_CODE_TYPE return_code;
   MESSAGE_SIZE_TYPE length;
   VALIDITY_TYPE     validity;
+
+  SYSTEM_TIME_TYPE system_time;
   
   unsigned short  count = 0;  
 
@@ -106,6 +108,9 @@ void PeriodicProcess(void){
     } else {
       printDebug(3,"Prcs A: return >%d<\n",return_code);
     }
+
+    GET_TIME (&system_time, &return_code);
+    printDebug(2,"Prcs A: GET_TIME >%lld<\n",system_time);   
     
     PERIODIC_WAIT(&return_code);
   }
@@ -218,9 +223,8 @@ int main (int argc, char *argv[]){
    /* if( Init_Process_ret != NO_ERROR )
       RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */
 
-
   
-  printDebug(3,"a653 start prcs (%d)\n",getpid());
+   printDebug(0,"a653 start prcs (%d)\n",getpid());
   
   while (1){
     a653_act_partition();

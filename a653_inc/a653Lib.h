@@ -52,7 +52,7 @@
 #include <a653Process.h>
 #include <a653Queuing.h>
 #include <a653Sampling.h>
-//#include <a653Semaphore.h>
+#include <a653Semaphore.h>
 #include <a653Time.h>
 
 
