@@ -27,18 +27,75 @@
  * @details    
  */
 
+/*
+The semaphores defined in this standard are counting semaphores, and are commonly used to
+provide controlled access to partition resources. A process waits on a semaphore to gain access to
+the partition resource, and then signals the semaphore when it is finished. A semaphore’s value in
+this example indicates the number of currently available partition resources.
+
+The CREATE_SEMAPHORE operation creates a semaphore for use by any of the process in the
+partition. At creation, the semaphore’s initial value, maximum value, and queuing discipline are
+defined.
+Processes waiting on a semaphore are queued in FIFO or priority order. In the case of priority
+order, for the same priority, processes are also queued in FIFO order (with the oldest waiting
+process being at the front of the FIFO).
+
+The WAIT_SEMAPHORE operation decrements the semaphore’s value if the semaphore is not
+already at its minimum value of zero. If the value is already zero, the calling process may optionally
+be queued until either the semaphore is signaled or until a specified (as part of the service call)
+duration of real-time expires.
+
+The SIGNAL_SEMAPHORE operation increments the semaphore’s value. If there are processes
+waiting on the semaphore, the queuing discipline algorithm, FIFO or priority order, will be applied to
+determine which queue process will receive the signal. Signaling a semaphore where processes
+are waiting increments and decrements the semaphores value in one request. The end result is
+there are still no available resources, and the semaphore value remains zero.
+Rescheduling of processes will occur when a process attempts to wait on a zero value semaphore,
+and when a semaphore is signaled that has processes queued on it.
+When a process is removed from the queue, either by the semaphore being signaled or by the
+expiration of the specified time-out period, the process will be moved into the ready state (unless
+another process has suspended it).
+*/
+
 /* includes */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <semaphore.h>
 
 #include "a653Init.h"
 #include "a653Type.h"
 #include "a653Error.h"
 #include "a653Semaphore.h"
 #include "a653Partition.h"
+
+#define MAX_SEM_NAME_LEN 35
+
+typedef struct {
+  int next_free;
+  struct {
+    int max_value;
+    int cur_value;
+    int waiting_processes; /*number of processes waiting */
+    sem_t sem;
+    char name[MAX_SEM_NAME_LEN];
+  } imp [MAX_SEM_NUM];
+} sem_info_t;
+
+static sem_info_t sem_info;
+
+
+void init_semaphore(void){
+  int index = 0;
+
+  sem_info.next_free = 0;
+  for (index = 0; index < MAX_SEM_NUM; index++){
+    sem_info.imp[index].name[0] = 0;
+    
+  }
+}
 
 /*
   The CREATE_SEMAPHORE service request is used to create a semaphore of a specified current 
@@ -58,6 +115,20 @@ void CREATE_SEMAPHORE
   /*out*/ SEMAPHORE_ID_TYPE *SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+  if (sem_info.next_free < MAX_SEM_NUM){
+    if (0 == sem_init(&sem_info.imp[sem_info.next_free].sem,
+		      0, /* value 0, then the semaphore is shared between the threads of a process */
+		      CURRENT_VALUE)){
+      /* we got semaphore */
+      sem_info.imp[sem_info.next_free].max_value = MAXIMUM_VALUE;
+      strncpy(sem_info.imp[sem_info.next_free].name,SEMAPHORE_NAME,MAX_SEM_NAME_LEN);
+      *SEMAPHORE_ID = sem_info.next_free;
+      *RETURN_CODE = NO_ERROR;
+      sem_info.next_free++;
+    } else {
+      *RETURN_CODE = NOT_AVAILABLE;
+    }
+  }
 }
 
 /*
@@ -73,6 +144,15 @@ void WAIT_SEMAPHORE
   /*in */ SYSTEM_TIME_TYPE TIME_OUT,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+  if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
+    
+
+    
+    sem_wait(&sem_info.imp[sem_info.next_free].sem);
+    *RETURN_CODE = NO_ERROR;
+  } else {
+    *RETURN_CODE = NOT_AVAILABLE;
+  }
 }
 /*
   If the semaphore’s value is not equal to its maximum, the SIGNAL_SEMAPHORE service request 
@@ -85,6 +165,12 @@ void SIGNAL_SEMAPHORE
 ( /*in */ SEMAPHORE_ID_TYPE SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+   if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
+    sem_post(&sem_info.imp[sem_info.next_free].sem);
+    *RETURN_CODE = NO_ERROR;
+  } else {
+    *RETURN_CODE = NOT_AVAILABLE;
+  } 
 }
 /*
   The GET_SEMAPHORE_ID service request returns the semaphore identifier that corresponds to a 
@@ -95,6 +181,18 @@ void GET_SEMAPHORE_ID
   /*out*/ SEMAPHORE_ID_TYPE *SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+  int index = 0;
+  
+  *RETURN_CODE = NOT_AVAILABLE;
+  
+  for (index = 0; index < MAX_SEM_NUM; index++){   
+    if ((strncmp(sem_info.imp[sem_info.next_free].name,
+		 SEMAPHORE_NAME,
+		 MAX_SEM_NAME_LEN)) == 0) {
+      *SEMAPHORE_ID = index;
+      *RETURN_CODE = NO_ERROR;
+    }
+  }
 }
 
 /*
@@ -105,4 +203,16 @@ void GET_SEMAPHORE_STATUS
   /*out*/ SEMAPHORE_STATUS_TYPE *SEMAPHORE_STATUS,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+  int value;
+  
+  if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
+    
+    sem_getvalue(&sem_info.imp[sem_info.next_free].sem, &value);
+    SEMAPHORE_STATUS->CURRENT_VALUE =( SEMAPHORE_VALUE_TYPE) value;
+    *RETURN_CODE = NO_ERROR;
+    
+  } else {
+    *RETURN_CODE = NOT_AVAILABLE;
+  } 
 }
+
