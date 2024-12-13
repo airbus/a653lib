@@ -5,6 +5,8 @@
 
 #define PRCS_A 1
 #define PRCS_B 2
+#define PRCS_C 3
+#define PRCS_D 4
 
 /* pseudo processes */
 #define MILBUS_AV_NUM 50
@@ -53,9 +55,12 @@
 /* string must be 30 bytes long */
 #define A653_PROCESS_CONFIG_DEF { \
   /*process id                              */ \
-  /*|      name                             */ \
+  /*         | partition                    */ \
+  /*           |      name                  */ \
     {PRCS_A, 0,"Process A                      " },\
-    {PRCS_B, 1,"Process B                      " },	\
+    {PRCS_B, 1,"Process B                      " },\
+    {PRCS_C, 1,"Process C                      " },\
+    {PRCS_C, 1,"Process D                      " },\
     {0, 0,     "" }\
 }
 

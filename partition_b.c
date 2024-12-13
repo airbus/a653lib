@@ -111,6 +111,29 @@ void PeriodicProcess(void){
   }
 }
 
+void PeriodicProcess_2(void){
+  RETURN_CODE_TYPE return_code;
+
+  setDebug(5);
+  
+  while (1){
+    printDebug(3,"Prcs C: activated\n");  
+    PERIODIC_WAIT(&return_code);
+  }
+  
+}
+
+void APeriodicProcess(void){
+  RETURN_CODE_TYPE return_code;
+
+  setDebug(5);
+  
+  while (1){
+    printDebug(3,"Prcs D: activated\n");  
+    TIMED_WAIT(1000,&return_code);
+  }
+  
+}
 
 int main (int argc, char *argv[]){
 
@@ -119,7 +142,7 @@ int main (int argc, char *argv[]){
   RETURN_CODE_TYPE               Init_Process_ret;
   PROCESS_ID_TYPE                Init_periodic_process_ID;
   /*RETURN_CODE_TYPE               Init_Process_start_ret;*/
-  PROCESS_ATTRIBUTE_TYPE         periodic_process;
+  PROCESS_ATTRIBUTE_TYPE         process_data;
   /*PROCESS_ID_TYPE                Init_aperiodic_process_ID;*/
   
   A653_INTEGER                   PortId;
@@ -178,37 +201,48 @@ int main (int argc, char *argv[]){
 
    //Initialization of the processes
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
-   memset((char*)(&periodic_process.NAME), 0, sizeof(periodic_process.NAME));
-   sprintf((char*)(&periodic_process.NAME), "Process B                    ");
-   periodic_process.PERIOD = 20000000LL;
-   periodic_process.TIME_CAPACITY = 0;
-   periodic_process.STACK_SIZE = 0x500000;
-   periodic_process.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
-   periodic_process.BASE_PRIORITY = 10 ;
-   periodic_process.DEADLINE = SOFT;
+   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(&process_data.NAME), "Process B                    ");
+   process_data.PERIOD = 20000000LL;
+   process_data.TIME_CAPACITY = 0;
+   process_data.STACK_SIZE = 0x500000;
+   process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
+   process_data.BASE_PRIORITY = 10 ;
+   process_data.DEADLINE = SOFT;
 
-
-   CREATE_PROCESS(&periodic_process, &Init_periodic_process_ID, &Init_Process_ret);
-
-   /* if( Init_Process_ret != NO_ERROR )
-      RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */
-
-
-   //Creation of ports
-   /* for(portCnt=0;portCnt<NbOfPorts;portCnt++) */
-   /* { */
-   /*    CREATE_SAMPLING_PORT(Ports_cfg[portCnt].PortName, */
-   /*                         Ports_cfg[portCnt].MsgSize, */
-   /*                         Ports_cfg[portCnt].Direction, */
-   /*                         Ports_cfg[portCnt].RefreshPeriod, */
-   /*                        &(Ports[portCnt].PortID), */
-   /*                        &(Ports[portCnt].Create_ret)); */
-   /*    Ports[portCnt].size = Ports_cfg[portCnt].MsgSize; */
-   /* } */
-
+   CREATE_PROCESS(&process_data, &Init_periodic_process_ID, &Init_Process_ret);
    //Starting processes
    START(Init_periodic_process_ID, &Init_Process_ret);
+     
+   //Initialization of the processes
+   GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
+   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(&process_data.NAME), "Process C                    ");
+   process_data.PERIOD = 20000000LL;
+   process_data.TIME_CAPACITY = 0;
+   process_data.STACK_SIZE = 0x500000;
+   process_data.ENTRY_POINT = &PeriodicProcess_2; //Entrypoint to periodic process
+   process_data.BASE_PRIORITY = 10 ;
+   process_data.DEADLINE = SOFT;
 
+   CREATE_PROCESS(&process_data, &Init_periodic_process_ID, &Init_Process_ret);
+   //Starting processes
+   START(Init_periodic_process_ID, &Init_Process_ret);
+   
+   //Initialization of the processes
+   GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
+   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(&process_data.NAME), "Process D                    ");
+   process_data.PERIOD = -1LL;
+   process_data.TIME_CAPACITY = 0;
+   process_data.STACK_SIZE = 0x500000;
+   process_data.ENTRY_POINT = &APeriodicProcess; //Entrypoint to periodic process
+   process_data.BASE_PRIORITY = 10 ;
+   process_data.DEADLINE = SOFT;
+
+   CREATE_PROCESS(&process_data, &Init_periodic_process_ID, &Init_Process_ret);
+   //Starting processes
+   START(Init_periodic_process_ID, &Init_Process_ret);
    /* if( Init_Process_ret != NO_ERROR )
       RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */
 

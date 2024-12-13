@@ -121,7 +121,7 @@ void a653_act_prcs(void){
   
   for (idx = 0; idx < number_of_processes; idx++) {
     pthread_mutex_unlock(&prcs_info[idx].t_lock);
-    break;
+    //    break;
   }
   
 }
