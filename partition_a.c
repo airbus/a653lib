@@ -62,8 +62,7 @@ void PeriodicProcess(void){
   GET_QUEUING_PORT_ID("QP_Prcs_B to Prcs A             ",
 		      &qp_id_rx,
 		      &return_code);
-  
-  setDebug(5);
+
 
   int index = 0;
   
@@ -131,6 +130,8 @@ int main (int argc, char *argv[]){
   
   int ret_val = 0;
 
+  setDebug(5);
+  
   do {
     //Initialization of partition
     GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );

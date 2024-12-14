@@ -59,7 +59,7 @@
 //extern entry_point_t model_main;
 
 
-
+extern int own_partition_idx;
 
 int number_of_processes = 0;
 
@@ -262,15 +262,31 @@ void START (PROCESS_ID_TYPE PROCESS_ID,
   *RETURN_CODE = INVALID_CONFIG;
 
   idx = prcsHash[PROCESS_ID];
-  
-  pthread_mutex_init(&prcs_info[idx].t_lock,NULL);
-  pthread_mutex_lock(&prcs_info[idx].t_lock);
-  
-  pthread_create(&prcs_info[idx].t_ctx,
-		 NULL, /* attr NULL - default value*/
-		 (__start_routine) prcs_main,
-		 NULL); /* no arg*/
 
+  if(prcs_info[idx].timerPeriod > 0){
+    /* periodic process */
+    printDebug(1,"start periodic process : partition %d : %s\n",
+	       own_partition_idx,
+	       prcs_info[idx].name);
+     
+    pthread_mutex_init(&prcs_info[idx].t_lock,NULL);
+    pthread_mutex_lock(&prcs_info[idx].t_lock);
+    
+    pthread_create(&prcs_info[idx].t_ctx,
+		   NULL, /* attr NULL - default value*/
+		   (__start_routine) prcs_main,
+		   NULL); /* no arg*/
+  } else {
+    /* aperiodic process */
+    printDebug(1,"start aperiodic process : partition %d : %s\n",
+	       own_partition_idx,
+	       prcs_info[idx].name);
+    pthread_create(&prcs_info[idx].t_ctx,
+		   NULL, /* attr NULL - default value*/
+		   (__start_routine) prcs_info[idx].prcs_main_func,
+		   NULL); /* no arg*/
+    
+  }
   /*
   prcs_info[idx].timer = ptimer_start(prcs_info[idx].timerPeriod,
 				      a653_act_prcs,

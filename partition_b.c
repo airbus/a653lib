@@ -28,7 +28,12 @@
 /* a653_process_config_t A653_PROCESS_CONFIG[] = A653_PROCESS_CONFIG_DEF; */
 /* a653_sampling_port_config_t A653_SP_CONFIG[] = A653_SP_CONFIG_DEF; */
 /* a653_queuing_port_config_t A653_QP_CONFIG[] = A653_QP_CONFIG_DEF; */
-
+char semaphore_name[] = "myTestSem                     ";
+SEMAPHORE_VALUE_TYPE current_value = 1;
+SEMAPHORE_VALUE_TYPE maximum_value = 1;
+QUEUING_DISCIPLINE_TYPE queuing_discipline = 0;
+SEMAPHORE_ID_TYPE semaphore_id;
+//RETURN_CODE_TYPE return_code;
 
 void PeriodicProcess(void){
 
@@ -62,9 +67,7 @@ void PeriodicProcess(void){
 		      &return_code);
 
   int index = 0;
-
-  setDebug(5);
-  
+ 
   while (1){
 
     length = 0;
@@ -130,7 +133,7 @@ void APeriodicProcess(void){
   
   while (1){
     printDebug(3,"Prcs D: activated\n");  
-    TIMED_WAIT(1000,&return_code);
+    TIMED_WAIT(10000000,&return_code);
   }
   
 }
@@ -149,6 +152,8 @@ int main (int argc, char *argv[]){
   
   int ret_val = 0;
 
+  setDebug(5);
+  
   do {
     //Initialization of partition
     GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
@@ -195,6 +200,13 @@ int main (int argc, char *argv[]){
   		      &PortId,
   		      &return_code
   		      );
+
+  CREATE_SEMAPHORE( semaphore_name,
+		    current_value,
+		    maximum_value,
+		    queuing_discipline,
+		    &semaphore_id,
+		    &return_code );
   
   //Start initialization
   //InitSamplingPorts();
