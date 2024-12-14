@@ -121,10 +121,8 @@ int main (int argc, char *argv[]){
   RETURN_CODE_TYPE               return_code;
   PARTITION_STATUS_TYPE          Init_Status;
   RETURN_CODE_TYPE               Init_Process_ret;
-  PROCESS_ID_TYPE                Init_periodic_process_ID;
-  /*RETURN_CODE_TYPE               Init_Process_start_ret;*/
-  PROCESS_ATTRIBUTE_TYPE         periodic_process;
-  /*PROCESS_ID_TYPE                Init_aperiodic_process_ID;*/
+  PROCESS_ID_TYPE                Init_process_ID;
+  PROCESS_ATTRIBUTE_TYPE         process_data;
   
   A653_INTEGER                   PortId;
   
@@ -184,17 +182,17 @@ int main (int argc, char *argv[]){
 
    //Initialization of the processes
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
-   memset((char*)(&periodic_process.NAME), 0, sizeof(periodic_process.NAME));
-   sprintf((char*)(&periodic_process.NAME), "Process A                    ");
-   periodic_process.PERIOD = 20000000LL;
-   periodic_process.TIME_CAPACITY = 0;
-   periodic_process.STACK_SIZE = 0x5000000;
-   periodic_process.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
-   periodic_process.BASE_PRIORITY = 10 ;
-   periodic_process.DEADLINE = SOFT;
+   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(&process_data.NAME), "Process A                    ");
+   process_data.PERIOD = 20000000LL;
+   process_data.TIME_CAPACITY = 0;
+   process_data.STACK_SIZE = 0x5000000;
+   process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
+   process_data.BASE_PRIORITY = 10 ;
+   process_data.DEADLINE = SOFT;
 
 
-   CREATE_PROCESS(&periodic_process, &Init_periodic_process_ID, &Init_Process_ret);
+   CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
 
    /* if( Init_Process_ret != NO_ERROR )
       RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */
@@ -213,7 +211,7 @@ int main (int argc, char *argv[]){
    /* } */
 
    //Starting processes
-   START(Init_periodic_process_ID, &Init_Process_ret);
+   START(Init_process_ID, &Init_Process_ret);
 
    /* if( Init_Process_ret != NO_ERROR )
       RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */

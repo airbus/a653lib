@@ -117,8 +117,6 @@ void PeriodicProcess(void){
 void PeriodicProcess_2(void){
   RETURN_CODE_TYPE return_code;
 
-  setDebug(5);
-  
   while (1){
     printDebug(3,"Prcs C: activated\n");  
     PERIODIC_WAIT(&return_code);
@@ -129,8 +127,6 @@ void PeriodicProcess_2(void){
 void APeriodicProcess(void){
   RETURN_CODE_TYPE return_code;
 
-  setDebug(5);
-  
   while (1){
     printDebug(3,"Prcs D: activated\n");  
     TIMED_WAIT(10000000,&return_code);
@@ -143,10 +139,8 @@ int main (int argc, char *argv[]){
   RETURN_CODE_TYPE               return_code;
   PARTITION_STATUS_TYPE          Init_Status;
   RETURN_CODE_TYPE               Init_Process_ret;
-  PROCESS_ID_TYPE                Init_periodic_process_ID;
-  /*RETURN_CODE_TYPE               Init_Process_start_ret;*/
+  PROCESS_ID_TYPE                Init_process_ID;
   PROCESS_ATTRIBUTE_TYPE         process_data;
-  /*PROCESS_ID_TYPE                Init_aperiodic_process_ID;*/
   
   A653_INTEGER                   PortId;
   
@@ -222,9 +216,9 @@ int main (int argc, char *argv[]){
    process_data.BASE_PRIORITY = 10 ;
    process_data.DEADLINE = SOFT;
 
-   CREATE_PROCESS(&process_data, &Init_periodic_process_ID, &Init_Process_ret);
+   CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
    //Starting processes
-   START(Init_periodic_process_ID, &Init_Process_ret);
+   START(Init_process_ID, &Init_Process_ret);
      
    //Initialization of the processes
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
@@ -237,9 +231,9 @@ int main (int argc, char *argv[]){
    process_data.BASE_PRIORITY = 10 ;
    process_data.DEADLINE = SOFT;
 
-   CREATE_PROCESS(&process_data, &Init_periodic_process_ID, &Init_Process_ret);
+   CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
    //Starting processes
-   START(Init_periodic_process_ID, &Init_Process_ret);
+   START(Init_process_ID, &Init_Process_ret);
    
    //Initialization of the processes
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
@@ -252,9 +246,9 @@ int main (int argc, char *argv[]){
    process_data.BASE_PRIORITY = 10 ;
    process_data.DEADLINE = SOFT;
 
-   CREATE_PROCESS(&process_data, &Init_periodic_process_ID, &Init_Process_ret);
+   CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
    //Starting processes
-   START(Init_periodic_process_ID, &Init_Process_ret);
+   START(Init_process_ID, &Init_Process_ret);
    /* if( Init_Process_ret != NO_ERROR )
       RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */
 
