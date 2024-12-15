@@ -115,11 +115,17 @@ void CREATE_SEMAPHORE
   /*out*/ SEMAPHORE_ID_TYPE *SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+ int value;
+  
   if (sem_info.next_free < MAX_SEM_NUM){
+
+    sem_destroy(&sem_info.imp[sem_info.next_free].sem);
+    
     if (0 == sem_init(&sem_info.imp[sem_info.next_free].sem,
 		      0, /* value 0, then the semaphore is shared between the threads of a process */
-		      CURRENT_VALUE)){
+		      CURRENT_VALUE)){      
       /* we got semaphore */
+      sem_info.imp[sem_info.next_free].cur_value = CURRENT_VALUE;
       sem_info.imp[sem_info.next_free].max_value = MAXIMUM_VALUE;
       strncpy(sem_info.imp[sem_info.next_free].name,SEMAPHORE_NAME,MAX_SEM_NAME_LEN);
       *SEMAPHORE_ID = sem_info.next_free;
@@ -144,11 +150,14 @@ void WAIT_SEMAPHORE
   /*in */ SYSTEM_TIME_TYPE TIME_OUT,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
+  int value;
+  
   if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
-    
-
-    
-    sem_wait(&sem_info.imp[sem_info.next_free].sem);
+    /*   
+    sem_getvalue(&sem_info.imp[SEMAPHORE_ID].sem, &value);
+    printDebug(3,"sem wait value2 %d\n",value);
+    */  
+    sem_wait(&sem_info.imp[SEMAPHORE_ID].sem);
     *RETURN_CODE = NO_ERROR;
   } else {
     *RETURN_CODE = NOT_AVAILABLE;
@@ -166,7 +175,7 @@ void SIGNAL_SEMAPHORE
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
    if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
-    sem_post(&sem_info.imp[sem_info.next_free].sem);
+    sem_post(&sem_info.imp[SEMAPHORE_ID].sem);
     *RETURN_CODE = NO_ERROR;
   } else {
     *RETURN_CODE = NOT_AVAILABLE;
@@ -186,7 +195,7 @@ void GET_SEMAPHORE_ID
   *RETURN_CODE = NOT_AVAILABLE;
   
   for (index = 0; index < MAX_SEM_NUM; index++){   
-    if ((strncmp(sem_info.imp[sem_info.next_free].name,
+    if ((strncmp(sem_info.imp[index].name,
 		 SEMAPHORE_NAME,
 		 MAX_SEM_NAME_LEN)) == 0) {
       *SEMAPHORE_ID = index;
@@ -207,8 +216,9 @@ void GET_SEMAPHORE_STATUS
   
   if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
     
-    sem_getvalue(&sem_info.imp[sem_info.next_free].sem, &value);
-    SEMAPHORE_STATUS->CURRENT_VALUE =( SEMAPHORE_VALUE_TYPE) value;
+    sem_getvalue(&sem_info.imp[SEMAPHORE_ID].sem, &value);
+    SEMAPHORE_STATUS->CURRENT_VALUE = value;
+    SEMAPHORE_STATUS->MAXIMUM_VALUE = sem_info.imp[SEMAPHORE_ID].max_value;
     *RETURN_CODE = NO_ERROR;
     
   } else {

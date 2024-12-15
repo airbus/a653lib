@@ -79,8 +79,6 @@ mk_build_dir:
 	mkdir -p $(TMP_DIR)	
 	mkdir -p $(MY_BUILD_DIR)
 	mkdir -p $(BIN_DIR)
-	mkdir -p $(SRC_DIR)/../lib
-	mkdir -p $(SRC_DIR)/../lib/a653_nr
 
 clean:
 	make -C $(SRC_DIR)/a653_lib clean

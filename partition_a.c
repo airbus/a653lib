@@ -188,7 +188,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x5000000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 10 ;
+   process_data.BASE_PRIORITY = 40 ;
    process_data.DEADLINE = SOFT;
 
 

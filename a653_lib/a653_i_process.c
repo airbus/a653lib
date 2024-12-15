@@ -210,6 +210,7 @@ void CREATE_PROCESS (PROCESS_ATTRIBUTE_TYPE *ATTRIBUTES,
       strncpy(prcs_info[idx].name,ATTRIBUTES->NAME,25);
       
       prcs_info[idx].timerPeriod = (ATTRIBUTES->PERIOD); /* in nsec */
+      prcs_info[idx].priority = (ATTRIBUTES->BASE_PRIORITY);
       //      prcs_info[idx].timerCnt    = 0;
 
       prcsHash[a653_process_config[idx].PrcsId] = idx;
@@ -263,6 +264,8 @@ void START (PROCESS_ID_TYPE PROCESS_ID,
 
   idx = prcsHash[PROCESS_ID];
 
+  pthread_attr_init(&prcs_info[idx].t_attr);
+
   if(prcs_info[idx].timerPeriod > 0){
     /* periodic process */
     printDebug(1,"start periodic process : partition %d : %s\n",
@@ -271,21 +274,23 @@ void START (PROCESS_ID_TYPE PROCESS_ID,
      
     pthread_mutex_init(&prcs_info[idx].t_lock,NULL);
     pthread_mutex_lock(&prcs_info[idx].t_lock);
-    
+
     pthread_create(&prcs_info[idx].t_ctx,
-		   NULL, /* attr NULL - default value*/
+		   &prcs_info[idx].t_attr, 
 		   (__start_routine) prcs_main,
 		   NULL); /* no arg*/
+    pthread_setschedprio(&prcs_info[idx].t_ctx, prcs_info[idx].priority);
   } else {
     /* aperiodic process */
     printDebug(1,"start aperiodic process : partition %d : %s\n",
 	       own_partition_idx,
 	       prcs_info[idx].name);
+
     pthread_create(&prcs_info[idx].t_ctx,
-		   NULL, /* attr NULL - default value*/
+		   &prcs_info[idx].t_attr, 
 		   (__start_routine) prcs_info[idx].prcs_main_func,
 		   NULL); /* no arg*/
-    
+    pthread_setschedprio(&prcs_info[idx].t_ctx, prcs_info[idx].priority);
   }
   /*
   prcs_info[idx].timer = ptimer_start(prcs_info[idx].timerPeriod,

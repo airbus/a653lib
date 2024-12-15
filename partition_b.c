@@ -33,6 +33,9 @@ SEMAPHORE_VALUE_TYPE current_value = 1;
 SEMAPHORE_VALUE_TYPE maximum_value = 1;
 QUEUING_DISCIPLINE_TYPE queuing_discipline = 0;
 SEMAPHORE_ID_TYPE semaphore_id;
+
+SEMAPHORE_STATUS_TYPE semaphore_status;
+
 //RETURN_CODE_TYPE return_code;
 
 void PeriodicProcess(void){
@@ -109,7 +112,8 @@ void PeriodicProcess(void){
 			   &return_code);
       
     }
-    
+    SIGNAL_SEMAPHORE(semaphore_id,
+		     &return_code);
     PERIODIC_WAIT(&return_code);
   }
 }
@@ -118,7 +122,9 @@ void PeriodicProcess_2(void){
   RETURN_CODE_TYPE return_code;
 
   while (1){
-    printDebug(3,"Prcs C: activated\n");  
+    printDebug(3,"Prcs C: activated\n");
+    SIGNAL_SEMAPHORE(semaphore_id,
+		     &return_code);
     PERIODIC_WAIT(&return_code);
   }
   
@@ -128,6 +134,9 @@ void APeriodicProcess(void){
   RETURN_CODE_TYPE return_code;
 
   while (1){
+    WAIT_SEMAPHORE(semaphore_id,
+		   0,
+		   &return_code);   
     printDebug(3,"Prcs D: activated\n");  
     TIMED_WAIT(10000000,&return_code);
   }
@@ -195,12 +204,27 @@ int main (int argc, char *argv[]){
   		      &return_code
   		      );
 
-  CREATE_SEMAPHORE( semaphore_name,
-		    current_value,
-		    maximum_value,
-		    queuing_discipline,
-		    &semaphore_id,
-		    &return_code );
+  current_value = 2;
+  maximum_value = 2;
+  queuing_discipline = FIFO;
+  
+  CREATE_SEMAPHORE(semaphore_name,
+		   current_value,
+		   maximum_value,
+		   queuing_discipline,
+		   &semaphore_id,
+		   &return_code);
+
+  GET_SEMAPHORE_STATUS(semaphore_id,
+		       &semaphore_status,
+		       &return_code);
+
+  printDebug(3,"semaphore: %d : %d\n",
+	     semaphore_status.CURRENT_VALUE,
+	     semaphore_status.MAXIMUM_VALUE); 
+
+  usleep(50000);	 
+
   
   //Start initialization
   //InitSamplingPorts();
@@ -213,7 +237,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 10 ;
+   process_data.BASE_PRIORITY = 40 ;
    process_data.DEADLINE = SOFT;
 
    CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
@@ -228,7 +252,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess_2; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 10 ;
+   process_data.BASE_PRIORITY = 30 ;
    process_data.DEADLINE = SOFT;
 
    CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
@@ -243,7 +267,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &APeriodicProcess; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 10 ;
+   process_data.BASE_PRIORITY = 20 ;
    process_data.DEADLINE = SOFT;
 
    CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);

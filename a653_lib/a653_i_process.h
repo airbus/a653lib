@@ -44,7 +44,9 @@ typedef struct {
   //  PROCESS_ATTRIBUTE_TYPE attr;
   pthread_mutex_t        t_lock;
   pthread_t              t_ctx;
-  int64_t                 timerPeriod;
+  pthread_attr_t         t_attr;
+  int64_t                timerPeriod;
+  unsigned int           priority;
   unsigned int           cycle_cnt;
   char                   name[35];
   func_ptr               prcs_main_func;
