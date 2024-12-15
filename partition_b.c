@@ -237,7 +237,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 40 ;
+   process_data.BASE_PRIORITY = 10 ;
    process_data.DEADLINE = SOFT;
 
    CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
@@ -252,7 +252,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess_2; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 30 ;
+   process_data.BASE_PRIORITY = 20 ;
    process_data.DEADLINE = SOFT;
 
    CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);
@@ -267,7 +267,7 @@ int main (int argc, char *argv[]){
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &APeriodicProcess; //Entrypoint to periodic process
-   process_data.BASE_PRIORITY = 20 ;
+   process_data.BASE_PRIORITY = 30 ;
    process_data.DEADLINE = SOFT;
 
    CREATE_PROCESS(&process_data, &Init_process_ID, &Init_Process_ret);

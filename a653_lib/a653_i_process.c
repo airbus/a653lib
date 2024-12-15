@@ -279,7 +279,7 @@ void START (PROCESS_ID_TYPE PROCESS_ID,
 		   &prcs_info[idx].t_attr, 
 		   (__start_routine) prcs_main,
 		   NULL); /* no arg*/
-    pthread_setschedprio(&prcs_info[idx].t_ctx, prcs_info[idx].priority);
+    pthread_setschedprio(prcs_info[idx].t_ctx, prcs_info[idx].priority);
   } else {
     /* aperiodic process */
     printDebug(1,"start aperiodic process : partition %d : %s\n",
@@ -290,7 +290,7 @@ void START (PROCESS_ID_TYPE PROCESS_ID,
 		   &prcs_info[idx].t_attr, 
 		   (__start_routine) prcs_info[idx].prcs_main_func,
 		   NULL); /* no arg*/
-    pthread_setschedprio(&prcs_info[idx].t_ctx, prcs_info[idx].priority);
+    pthread_setschedprio(prcs_info[idx].t_ctx, prcs_info[idx].priority);
   }
   /*
   prcs_info[idx].timer = ptimer_start(prcs_info[idx].timerPeriod,

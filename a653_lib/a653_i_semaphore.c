@@ -114,9 +114,7 @@ void CREATE_SEMAPHORE
   /*in */ QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE,
   /*out*/ SEMAPHORE_ID_TYPE *SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
-{
- int value;
-  
+{ 
   if (sem_info.next_free < MAX_SEM_NUM){
 
     sem_destroy(&sem_info.imp[sem_info.next_free].sem);
@@ -150,13 +148,8 @@ void WAIT_SEMAPHORE
   /*in */ SYSTEM_TIME_TYPE TIME_OUT,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 {
-  int value;
   
   if (SEMAPHORE_ID >= 0 || SEMAPHORE_ID < MAX_SEM_NUM){
-    /*   
-    sem_getvalue(&sem_info.imp[SEMAPHORE_ID].sem, &value);
-    printDebug(3,"sem wait value2 %d\n",value);
-    */  
     sem_wait(&sem_info.imp[SEMAPHORE_ID].sem);
     *RETURN_CODE = NO_ERROR;
   } else {
