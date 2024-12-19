@@ -35,7 +35,7 @@ LDLIBS   = -lpthread -lrt -lm -ldl
 
 export CC
 
-OBJS = main.o init.o
+OBJS = main.o
 OBJS_A = partition_a.o init.o
 OBJS_B = partition_b.o init.o
 

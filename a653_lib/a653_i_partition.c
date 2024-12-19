@@ -135,14 +135,6 @@ void a653_act_partition(void){
 extern void GET_PARTITION_STATUS (
 /*out*/ PARTITION_STATUS_TYPE *PARTITION_STATUS,
 /*out*/ RETURN_CODE_TYPE *RETURN_CODE ){
-
-  if(shm_ptr->partition_info == NULL){
-    a653_init_partition();
-  }
-  
-  if(shm_ptr->partition_info[own_partition_idx].init == 1){
-    pertition_status.OPERATING_MODE = COLD_START;
-  }
   
   *PARTITION_STATUS = pertition_status;
   *RETURN_CODE      = NO_ERROR;

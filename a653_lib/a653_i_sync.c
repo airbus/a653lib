@@ -87,6 +87,9 @@ void a653_i_init_sync(void) {
     }
   
     for (idx = 0;idx < global_config.partition_number; idx++){
+
+      shm_ptr->partition_info[idx].init = 1;
+      
       sprintf(buf,"taskset --cpu-list %d ./%s &",idx,global_config.partition[idx].name_str);
 	
       printDebug(0,"> %s : \n\n",buf);
@@ -107,7 +110,7 @@ void a653_i_init_sync(void) {
       }
     
       strcpy(shm_ptr->partition_info[idx].name, global_config.partition[idx].name_str);
-      shm_ptr->partition_info[idx].init = 1;
+      
     
       while(shm_ptr->partition_info[idx].init){
 	usleep(50);

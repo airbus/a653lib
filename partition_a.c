@@ -115,7 +115,7 @@ void PeriodicProcess(void){
   }
 }
 
-
+/* have a look to init.c beforeMain is called before main!!!!! */
 int main (int argc, char *argv[]){
   
   RETURN_CODE_TYPE               return_code;
@@ -127,13 +127,6 @@ int main (int argc, char *argv[]){
   A653_INTEGER                   PortId;
   
   int ret_val = 0;
-
-  setDebug(5);
-  
-  do {
-    //Initialization of partition
-    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
-  } while (Init_Status.OPERATING_MODE == IDLE);
 
   /*                    0        1         2         3   */ 
   /*                    01234567890123456789012345678901 */ 
