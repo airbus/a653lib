@@ -38,7 +38,7 @@
 #define MAX_PRCS 5
 
 #define MAX_TIME_SLICE_NUM 10
-#define MAX_CORE_NUM 2
+#define MAX_CORE_NUM 4
 
 #define MAX_Q_PORT 3
 #define MAX_Q_PORT_ENTRIES 5
