@@ -159,6 +159,13 @@ extern void SET_PARTITION_MODE (
   }
   
   pertition_status.OPERATING_MODE = OPERATING_MODE;
+  
+  printDebug(1,"a653 start partition (%d)\n",getpid());
+  while (1){
+    a653_act_partition();
+    usleep(50);	 
+  }
+  
   *RETURN_CODE      = NO_ERROR;
 }
 

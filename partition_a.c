@@ -222,13 +222,5 @@ int main (int argc, char *argv[]){
    /* if( Init_Process_ret != NO_ERROR )
       RAISE_APPLICATION_ERROR( APPLICATION_ERROR, errorMsgs[Init_Process_ret], 10, &raiseErrorRet ); */
 
-  
-   printDebug(0,"a653 start prcs (%d)\n",getpid());
-  
-  while (1){
-    a653_act_partition();
-    usleep(50);	 
-  }
-  
-  return ret_val;
+   return ret_val;
 }
