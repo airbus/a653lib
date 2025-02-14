@@ -223,12 +223,12 @@ int a653_init_queuing_ports(int max_port_num, a653_queuing_port_config_t *config
   a653_qp_config = (a653_queuing_port_config_t *) malloc(sizeof(a653_queuing_port_config_t) * max_port_num);
   memcpy(a653_qp_config,config,sizeof(a653_queuing_port_config_t) * max_port_num);
 
-  qp_ptr = (queuing_port_data_t*) malloc(sizeof(queuing_port_data_t) * max_port_num);
+  qp_ptr = (queuing_port_data_t*) malloc(sizeof(queuing_port_data_t));
   if (qp_ptr == NULL){
     printDebug(3,"can not get shared memory for queuing ports!!!\n\n");
     exit(1);
   }
-  memset(qp_ptr,0,sizeof(queuing_port_data_t) * max_port_num);
+  memset(qp_ptr,0,sizeof(queuing_port_data_t));
 
   qp_ptr->PortsHash = (QUEUING_PORT_ID_TYPE*) malloc(sizeof(QUEUING_PORT_ID_TYPE) * highest_queuing_port_id);
   if (qp_ptr->PortsHash == NULL){

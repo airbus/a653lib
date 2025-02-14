@@ -94,12 +94,12 @@ int a653_init_sampling_ports(int max_port_num, a653_sampling_port_config_t *conf
     a653_sp_config = (a653_sampling_port_config_t *) malloc(sizeof(a653_sampling_port_config_t) * max_port_num);
     memcpy(a653_sp_config,config,sizeof(a653_sampling_port_config_t) * max_port_num);
 
-    sp_ptr = (sampling_port_data_t*) malloc(sizeof(sampling_port_data_t) * max_port_num);
+    sp_ptr = (sampling_port_data_t*) malloc(sizeof(sampling_port_data_t));
     if (sp_ptr == NULL){
       printDebug(3,"can not get shared memory for sampling ports!!!\n\n");
       ret_val = 1; // exit(1);
     } else {
-      memset(sp_ptr,0,sizeof(sampling_port_data_t) * max_port_num);
+      memset(sp_ptr,0,sizeof(sampling_port_data_t));
 
       sp_ptr->PortsHash = (SAMPLING_PORT_ID_TYPE *) malloc(sizeof(SAMPLING_PORT_ID_TYPE) * highest_sampling_port_id);
       if (sp_ptr->PortsHash == NULL){
