@@ -48,6 +48,7 @@ typedef struct {
   int64_t                timerPeriod;
   unsigned int           priority;
   unsigned int           cycle_cnt;
+  unsigned short         id;
   char                   name[35];
   func_ptr               prcs_main_func;
 } prcs_info_t;

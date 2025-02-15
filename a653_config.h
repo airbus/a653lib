@@ -52,22 +52,6 @@
 }
 
 
-/* string must be 30 bytes long */
-#define A653_PROCESS_CONFIG_DEF { \
-  /*process id                              */ \
-  /*         | partition                    */ \
-  /*           |      name                  */ \
-    {PRCS_A, 0,"Process A                      " },\
-    {PRCS_B, 1,"Process B                      " },\
-    {PRCS_C, 1,"Process C                      " },\
-    {PRCS_C, 1,"Process D                      " },\
-    {0, 0,     "" }\
-}
-
-
-
-
-
 
 /* string must be 30 bytes long */
 #define A653_SP_CONFIG_DEF { \

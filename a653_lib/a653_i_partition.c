@@ -47,7 +47,6 @@
 extern a653_shm_info_t *shm_ptr;
 
 extern a653_global_config_t global_config;
-extern a653_process_config_t A653_PROCESS_CONFIG[];
 extern a653_sampling_port_config_t A653_SP_CONFIG[];
 extern a653_queuing_port_config_t A653_QP_CONFIG[];
 
@@ -65,8 +64,6 @@ int a653_init_partition(void){
   int numOfQPorts = 0;
   int found = 0;
   pid_t ownPid = getpid();
-
-  a653_process_config_t *a653_process_config;
   
   a653_shm_init();
  
@@ -83,26 +80,8 @@ int a653_init_partition(void){
     }
   }
 
-  /* init all local processes */
-  idx = 0;
-  do {
-    if (A653_PROCESS_CONFIG[idx++].PartitionIdx == own_partition_idx){
-      numOfPrcs++;
-    }
-  } while (A653_PROCESS_CONFIG[idx].PrcsId != 0);
-  
-  a653_process_config = malloc(sizeof(a653_process_config_t) * numOfPrcs);
-
-  idx_i = idx_o = 0;
-  do {
-    if (A653_PROCESS_CONFIG[idx_i].PartitionIdx == own_partition_idx){
-      a653_process_config[idx_o] =  A653_PROCESS_CONFIG[idx_i];
-      idx_o++;
-    }
-    idx_i++;
-  } while (A653_PROCESS_CONFIG[idx_i].PrcsId != 0);
-      
-  if ( a653_prcs_init(numOfPrcs,a653_process_config) ){ ret_val = 1; }
+  /* init processes */    
+  if ( a653_prcs_init() ){ ret_val = 1; }
 
   /* init all sampling ports */
   idx = 0;

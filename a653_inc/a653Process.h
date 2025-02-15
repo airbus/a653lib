@@ -53,7 +53,7 @@ typedef struct {
 
 /* function declarations */
 
-int a653_prcs_init(int num_of_prcs, a653_process_config_t *config);
+int a653_prcs_init(void);
 
 int a653_sync_prcs(void);
 

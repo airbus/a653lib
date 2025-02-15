@@ -58,19 +58,23 @@
 
 //extern entry_point_t model_main;
 
+#define PRCS_START_ID 1000
+
 
 extern int own_partition_idx;
 
-int number_of_processes = 0;
 
-static a653_process_config_t *a653_process_config;
+
+int number_of_processes = 0;
+int prcs_id_next = 0;
+
 static prcs_info_t *prcs_info; 
 static int *prcsHash;
 
 static void prcs_main(void);
 
 
-int a653_prcs_init(int num_of_prcs, a653_process_config_t *config);
+int a653_prcs_init(void);
 
 /********************************************************************************************************************************/
 
@@ -78,24 +82,21 @@ int a653_prcs_init(int num_of_prcs, a653_process_config_t *config);
  * initialize of all a653 prozess data for this partition
  */
 
-int a653_prcs_init(int num_of_prcs, a653_process_config_t *config){
+int a653_prcs_init(void){
 
   int ret_val = 0;
 
-  prcs_info = (prcs_info_t *) malloc(sizeof(prcs_info_t) * num_of_prcs);
-  prcsHash = (int *) malloc(sizeof(int) * num_of_prcs);
+  prcs_info = (prcs_info_t *) malloc(sizeof(prcs_info_t) * MAX_PRCS);
+  prcsHash = (int *) malloc(sizeof(int) * MAX_PRCS);
   
-  if ((config != NULL) &&
-      (prcs_info != NULL) &&
+  if ((prcs_info != NULL) &&
       (prcsHash != NULL)){
-    
-    number_of_processes = num_of_prcs;
-    a653_process_config = config;
-        
+    number_of_processes = 0;
+    prcs_id_next = PRCS_START_ID;    
   } else {
     ret_val = 1;
   }
-  
+ 
   return ret_val;
 }
 
@@ -153,13 +154,13 @@ void GET_PROCESS_ID (PROCESS_NAME_TYPE PROCESS_NAME,
 
   *RETURN_CODE = INVALID_CONFIG;
 
-  while ((!found) && (a653_process_config[idx].PrcsId != 0)) {
-    if ((strncmp(a653_process_config[idx].name_str,PROCESS_NAME,25)) == 0) {   
+  while ((!found) && (prcs_info[idx].id != 0)) {
+    if ((strncmp(prcs_info[idx].name,PROCESS_NAME,25)) == 0) {   
  
       found = 1;
 
       /* set return values */
-      *PROCESS_ID  = a653_process_config[idx].PrcsId;
+      *PROCESS_ID  = prcs_info[idx].id;
       *RETURN_CODE = NO_ERROR;
     }
     idx++;
@@ -182,7 +183,7 @@ void GET_MY_ID (PROCESS_ID_TYPE  *PROCESS_ID,
       found = 1;
 
       /* set return values */
-      *PROCESS_ID  = a653_process_config[idx].PrcsId;
+      *PROCESS_ID  = prcs_info[idx].id;
       *RETURN_CODE = NO_ERROR;
     }
     idx++;
@@ -203,23 +204,29 @@ void CREATE_PROCESS (PROCESS_ATTRIBUTE_TYPE *ATTRIBUTES,
 
   *RETURN_CODE = INVALID_CONFIG;
 
-  while (a653_process_config[idx].PrcsId != 0) {
-    if ((strncmp(a653_process_config[idx].name_str,ATTRIBUTES->NAME,25)) == 0) {   
-      /* valid entry found */
-      
+  while ((number_of_processes < MAX_PRCS)) {
+    if (prcs_info[idx].id == 0) {
+      number_of_processes++;
+      prcs_info[idx].id = prcs_id_next++;
       strncpy(prcs_info[idx].name,ATTRIBUTES->NAME,25);
       
       prcs_info[idx].timerPeriod = (ATTRIBUTES->PERIOD); /* in nsec */
       prcs_info[idx].priority = (ATTRIBUTES->BASE_PRIORITY);
       //      prcs_info[idx].timerCnt    = 0;
 
-      prcsHash[a653_process_config[idx].PrcsId] = idx;
+      prcsHash[prcs_info[idx].id] = idx;
       prcs_info[idx].prcs_main_func = ATTRIBUTES->ENTRY_POINT;
 
                      
       /* set return values */
-      *PROCESS_ID  = a653_process_config[idx].PrcsId;
+      *PROCESS_ID  = prcs_info[idx].id;
       *RETURN_CODE = NO_ERROR;
+
+      printDebug(3,"create process: partition index: %d name: %s id: %d index: %d\n",
+		 own_partition_idx,
+		 prcs_info[idx].name,
+		 prcs_info[idx].id,
+		 idx);
 
       break;
     }

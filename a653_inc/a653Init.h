@@ -67,13 +67,6 @@ typedef struct {
   int magic;
 } a653_global_config_t;
 
-
-typedef struct {
-  unsigned short PrcsId;
-  unsigned short PartitionIdx;
-  char           name_str[33];
-} a653_process_config_t;
-
 typedef struct {
   unsigned short PortId;
   unsigned short SrcPartitionIdx;
