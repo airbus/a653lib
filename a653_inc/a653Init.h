@@ -99,7 +99,7 @@ typedef struct {
   a653_queuing_port_config_t qp_config[MAX_Q_PORT];
 } a653_partition_config_t;
 
-
+int a653_init_partition(void);
 void a653_act_partition(void);
 
 void a653_i_init_channels(void);

@@ -88,35 +88,43 @@ static queuing_port_data_t qp_data[MAX_Q_PORT];
 /* internal buffer handling */
 
 static int createFifo (t_queuing_port_shm_data *fifo_ptr, 
-                       unsigned int max_elem, 
-                       unsigned int max_elem_size){
+		   unsigned int max_elem, 
+		   unsigned int max_elem_size){
  
-  int           idx          = 0;
+  int idx     = 0;
+  int ret_val = 0; 
 
-  fifo_ptr->max_elem    = max_elem;
-  fifo_ptr->max_size    = max_elem_size;
-  fifo_ptr->cur_elem    = 0;
-  fifo_ptr->tx_next     = 0;
-  fifo_ptr->rx_next     = 0;
+  if ((max_elem <= MAX_Q_PORT_ENTRIES) &&
+      (max_elem_size <= MAX_Q_PORT_SIZE)){
   
-  sem_init(&(fifo_ptr->sem_lock),0,1);
+    fifo_ptr->max_elem    = max_elem;
+    fifo_ptr->max_size    = max_elem_size;
+    fifo_ptr->cur_elem    = 0;
+    fifo_ptr->tx_next     = 0;
+    fifo_ptr->rx_next     = 0;
+  
+    sem_init(&(fifo_ptr->sem_lock),0,1);
 
-  fifo_ptr->magic_number = 0xAA55AA55;
-  //  fifo_ptr->msg = &fifo_ptr->msg + sizeof(fifo_msg_header_t) * max_elem;
+    fifo_ptr->magic_number = 0xAA55AA55;
 
-  /* buid dynamic array */
-  for (idx = 0; idx < max_elem; idx++){
-    int d_idx = 0;
-
-    fifo_ptr->msg[idx].size = 0;
+    /* buid dynamic array */
+    for (idx = 0; idx < max_elem; idx++){
+      int d_idx = 0;
+      
+      fifo_ptr->msg[idx].size = 0;
     
-    for (d_idx = 0; d_idx < max_elem_size; d_idx++){
+      for (d_idx = 0; d_idx < max_elem_size; d_idx++){
       fifo_ptr->msg[idx].data[d_idx] = d_idx;
+      }
+      
     }
-    
-  }  
-  return 0;
+  } else {    
+    ret_val = -1;
+  }
+  printDebug(1,"createFifo : max_elem %d max_elem_size %d\n",max_elem,max_elem_size);
+  return ret_val;
 }
+
 
 static int putFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int size){
 
@@ -219,6 +227,8 @@ int a653_init_queuing_ports(a653_queuing_port_config_t *config){
   }
   
   PortsHash = (QUEUING_PORT_ID_TYPE *) malloc(sizeof(QUEUING_PORT_ID_TYPE) * (QP_START_ID + MAX_Q_PORT));
+
+  printDebug(3,"%s number of ports %d\n",__func__,found);
   
   return ret_val;
 }
@@ -226,13 +236,13 @@ int a653_init_queuing_ports(a653_queuing_port_config_t *config){
 
 /* external interface */
 
-void create_queuing_port_ip (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
-			     MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE, 
-			     MESSAGE_RANGE_TYPE      MAX_NB_MESSAGE,
-			     PORT_DIRECTION_TYPE     PORT_DIRECTION,
-			     QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE,
-			     QUEUING_PORT_ID_TYPE   *QUEUING_PORT_ID,
-			     RETURN_CODE_TYPE       *RETURN_CODE){
+void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
+			  MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE, 
+			  MESSAGE_RANGE_TYPE      MAX_NB_MESSAGE,
+			  PORT_DIRECTION_TYPE     PORT_DIRECTION,
+			  QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE,
+			  QUEUING_PORT_ID_TYPE   *QUEUING_PORT_ID,
+			  RETURN_CODE_TYPE       *RETURN_CODE){
     
   int p_idx   = 0;
   int found = 0;
@@ -259,40 +269,37 @@ void create_queuing_port_ip (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
       } else {
 	/* RX */
         
-	if (shm_ptr->channel_info[p_idx].maxMsgSize >= MAX_MESSAGE_SIZE){
+	if (shm_ptr->channel_info[p_idx].maxMsgSize <= MAX_MESSAGE_SIZE){
 	  *RETURN_CODE = NOT_AVAILABLE;
 	} else {
 	  /* update internel struct */
 
-	  /* createFifo (qp_data[p_idx].Port, */
-	  /* 	      MAX_NB_MESSAGE, */
-	  /* 	      MAX_MESSAGE_SIZE); */
-	  
-	  qp_data[p_idx].Port->init_done = 1;  
-	  /* save link to instance*/
-	  PortsHash[qp_data[p_idx].PortId] = p_idx;
-	  
-	  /* set return values */
-	  *QUEUING_PORT_ID = qp_data[p_idx].PortId;
-	  *RETURN_CODE     = NO_ERROR;
-
+	  if (createFifo (qp_data[p_idx].Port,MAX_NB_MESSAGE,MAX_MESSAGE_SIZE) == 0){	  
+	    qp_data[p_idx].Port->init_done = 1;  
+	    /* save link to instance*/
+	    PortsHash[qp_data[p_idx].PortId] = p_idx;
+	    
+	    /* set return values */
+	    *QUEUING_PORT_ID = qp_data[p_idx].PortId;
+	    *RETURN_CODE     = NO_ERROR;
+	  } 
 	  break;
 	}
       }
     }
     p_idx++;
   }
-
-  /* if (*RETURN_CODE != NO_ERROR){ */
-    printDebug(3,"CREATE_QUEUING_PORT return: %d\n",*RETURN_CODE);
-  /* } */
+  
+  if (*RETURN_CODE != NO_ERROR){
+    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
+  }
 }
 
-void send_queuing_message_ip (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
-			      MESSAGE_ADDR_TYPE      MESSAGE_ADDR,
-			      MESSAGE_SIZE_TYPE      LENGTH,
-			      SYSTEM_TIME_TYPE       TIME_OUT,
-			      RETURN_CODE_TYPE     * RETURN_CODE){
+void SEND_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
+			   MESSAGE_ADDR_TYPE      MESSAGE_ADDR,
+			   MESSAGE_SIZE_TYPE      LENGTH,
+			   SYSTEM_TIME_TYPE       TIME_OUT,
+			   RETURN_CODE_TYPE     * RETURN_CODE){
 
   int p_idx = PortsHash[QUEUING_PORT_ID];
 
@@ -306,20 +313,24 @@ void send_queuing_message_ip (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
       *RETURN_CODE = INVALID_CONFIG;
     } else {
 				
-      /* if( 0 == putFifo (qp_data[p_idx].Port, */
-      /* 			MESSAGE_ADDR, /\* src  *\/ */
-      /* 			LENGTH)){ */
-      /* 	*RETURN_CODE = NO_ERROR;           */
-      /* } */
+      if( 0 == putFifo (qp_data[p_idx].Port,
+			MESSAGE_ADDR, /* src  */
+			LENGTH)){
+	*RETURN_CODE = NO_ERROR;
+      }
     }  
+  }
+  
+  if (*RETURN_CODE != NO_ERROR){
+    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
   }
 }
 
-void receive_queuing_message_ip (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
-				 SYSTEM_TIME_TYPE     TIME_OUT,
-				 MESSAGE_ADDR_TYPE    MESSAGE_ADDR,
-				 MESSAGE_SIZE_TYPE  * LENGTH,
-				 RETURN_CODE_TYPE   * RETURN_CODE){
+void RECEIVE_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
+			      SYSTEM_TIME_TYPE     TIME_OUT,
+			      MESSAGE_ADDR_TYPE    MESSAGE_ADDR,
+			      MESSAGE_SIZE_TYPE  * LENGTH,
+			      RETURN_CODE_TYPE   * RETURN_CODE){
 
   int p_idx = PortsHash[QUEUING_PORT_ID];
 
@@ -334,124 +345,22 @@ void receive_queuing_message_ip (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
       
     } else {
   
-      /* if (0 == getFifo (qp_data[p_idx].Port, */
-      /*                   MESSAGE_ADDR, /\* dest *\/ */
-      /*                   (int *)LENGTH)){ */
-      /*   *RETURN_CODE = NO_ERROR; */
-      /* } else { */
-      /*   *LENGTH      = 0; */
-      /*   *RETURN_CODE = NO_ACTION; */
-      /* } */
+      if (0 == getFifo (qp_data[p_idx].Port,
+                        MESSAGE_ADDR, /* dest */
+                        (int *)LENGTH)){
+        *RETURN_CODE = NO_ERROR;
+      } else {
+        *LENGTH      = 0;
+        *RETURN_CODE = NO_ACTION;
+      }
     }
+  }
+  
+  if (*RETURN_CODE != NO_ERROR){
+    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
   }
 }
  
-/****************************************************************************************************************/
-
-
-void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
-			  MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE, 
-			  MESSAGE_RANGE_TYPE      MAX_NB_MESSAGE,
-			  PORT_DIRECTION_TYPE     PORT_DIRECTION,
-			  QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE,
-			  QUEUING_PORT_ID_TYPE  * QUEUING_PORT_ID,
-			  RETURN_CODE_TYPE      * RETURN_CODE){
-
-  QUEUING_PORT_ID_TYPE l_port_id;
-  RETURN_CODE_TYPE  l_return_code;
-
-  GET_QUEUING_PORT_ID (QUEUING_PORT_NAME,
-                       &l_port_id,
-                       &l_return_code);
-
-  if (l_return_code != INVALID_CONFIG){
-  
-    /* if (l_port_id < 2000){ */
-    
-      create_queuing_port_ip (QUEUING_PORT_NAME,
-			      MAX_MESSAGE_SIZE, 
-			      MAX_NB_MESSAGE,
-			      PORT_DIRECTION,
-			      QUEUING_DISCIPLINE,
-			      QUEUING_PORT_ID,
-			      RETURN_CODE);
-    
-    /* } else if (l_port_id < 3000) { */
-    
-    /*   create_queuing_port_pp (QUEUING_PORT_NAME, */
-    /* 			      MAX_MESSAGE_SIZE,  */
-    /* 			      MAX_NB_MESSAGE, */
-    /* 			      PORT_DIRECTION, */
-    /* 			      QUEUING_DISCIPLINE, */
-    /* 			      QUEUING_PORT_ID, */
-    /* 			      RETURN_CODE); */
-    /*   *QUEUING_PORT_ID = l_port_id; */
-      
-    /* } else { */
-    /*   printDebug(3,"error: wrong port range\n\n"); */
-    /* } */
-  
-  } else {
-    printDebug(3,"%s error: invalid prot config\n\n",__func__);
-  }
-  
-}
-
-void SEND_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
-                           MESSAGE_ADDR_TYPE      MESSAGE_ADDR,
-                           MESSAGE_SIZE_TYPE      LENGTH,
-                           SYSTEM_TIME_TYPE       TIME_OUT,
-                           RETURN_CODE_TYPE     * RETURN_CODE){
-  
-  /* if (QUEUING_PORT_ID < 2000){ */
-    
-    send_queuing_message_ip (QUEUING_PORT_ID,
-			     MESSAGE_ADDR,
-			     LENGTH,
-			     TIME_OUT,
-			     RETURN_CODE);
-    
-  /* } else if (QUEUING_PORT_ID < 3000) { */
-
-  /*   send_queuing_message_pp (QUEUING_PORT_ID, */
-  /* 			     MESSAGE_ADDR, */
-  /* 			     LENGTH, */
-  /* 			     TIME_OUT, */
-  /* 			     RETURN_CODE); */
-      
-  /* } else { */
-  /*   printDebug(3,"error: wrong port range\n\n"); */
-  /* }   */
-}
-
-void RECEIVE_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
-                              SYSTEM_TIME_TYPE     TIME_OUT,
-                              MESSAGE_ADDR_TYPE    MESSAGE_ADDR,
-                              MESSAGE_SIZE_TYPE  * LENGTH,
-                              RETURN_CODE_TYPE   * RETURN_CODE){
-  
-  /* if (QUEUING_PORT_ID < 2000){ */
-    
-    receive_queuing_message_ip(QUEUING_PORT_ID,
-                               TIME_OUT,
-                               MESSAGE_ADDR,
-                               LENGTH,
- 			       RETURN_CODE);
-			       
-  /* } else if (QUEUING_PORT_ID < 3000) { */
-      
-  /*   receive_queuing_message_pp(QUEUING_PORT_ID, */
-  /*                              TIME_OUT, */
-  /*                              MESSAGE_ADDR, */
-  /*                              LENGTH, */
-  /* 			       RETURN_CODE); */
-  /* } else { */
-  /*   printDebug(3,"error: wrong port range\n\n"); */
-  /* }    */ 
-}
-
-
-
 void GET_QUEUING_PORT_ID (QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
                           QUEUING_PORT_ID_TYPE   * QUEUING_PORT_ID,
                           RETURN_CODE_TYPE       * RETURN_CODE){
@@ -471,6 +380,10 @@ void GET_QUEUING_PORT_ID (QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
       break;
     }	
     p_idx++;
+  }
+    
+  if (*RETURN_CODE != NO_ERROR){
+    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
   }
 }
 

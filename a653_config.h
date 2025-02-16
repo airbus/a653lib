@@ -78,7 +78,7 @@ typedef struct {
 */
 
 #define A653_PART_CONFIG_DEF { \
-  { 1, PART_NAME_A, \   
+  { 1, PART_NAME_A,\
     {\
         /* 01 */ {1,SOURCE,"SP_Prcs_A to Prcs B             "},\
 	/* 02 */ {2,DESTINATION,"SP_Prcs_B to Prcs A             "},\
@@ -104,7 +104,7 @@ typedef struct {
 	/* 10 */ {0,0,0,""},\
     }\
   },\
-  { 2, PART_NAME_B, \   
+  { 2, PART_NAME_B,\
     {\
         /* 01 */ {1,DESTINATION, "SP_Prcs_A to Prcs B             "},\
 	/* 02 */ {2,SOURCE, "SP_Prcs_B to Prcs A             "},\
@@ -131,22 +131,6 @@ typedef struct {
     }\
   },\
 }
-
-
-/* #include "a653_pseudo_ports.h" */
-
-
-
-
-/* #define A653_PSEUDO_SAMPLING_PORT_CONFIG_DEF { \ */
-/*     { 2000 , D_AV_MILBUS, {{{ D_MODE_TX, 7, 1, 8, 0 }}} },		\ */
-/*     { 0, 0,               {{{         0, 0, 0, 0, 0 }}} }		\ */
-/* }  */
-
-/* #define A653_PSEUDO_QUEUING_PORT_CONFIG_DEF { \ */
-/*     { 2000, D_AV_MILBUS,  {{{ D_MODE_TX, 0, 0, 32, 0 }}} },	\ */
-/*     { 0, 0,               {{{         0, 0, 0, 0, 0 }}} }	\ */
-/* } */
 
 #endif /* __A653_CONFIG_H */
 

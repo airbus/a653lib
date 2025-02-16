@@ -27,7 +27,7 @@ int main (int argc, char *argv[]){
   struct tm * timeinfo;
 
   setDebug(5);
-  
+
   time ( &rawtime );
   timeinfo = localtime ( &rawtime );
   printDebug(0,"Current local time and date: %s", asctime (timeinfo) );

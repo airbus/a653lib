@@ -62,14 +62,13 @@ a653_partition_config_t own_partition_config;
 int a653_init_partition(void){
   
   int ret_val = 0;
-  int idx = 0;
-  int numOfPrcs = 0; 
+  int idx = 0; 
   int found = 0;
   pid_t ownPid = getpid();
 
   a653_shm_init();
 
-  
+ 
   while(found ==0){
     for (idx = 0;idx < global_config.partition_number; idx++){
       if (shm_ptr->partition_info[idx].pid == ownPid){
@@ -101,10 +100,10 @@ int a653_init_partition(void){
 
   
   /* init all sampling ports */
-  if (a653_init_sampling_ports(&own_partition_config.sp_config)){ ret_val = 1; }
+  if (a653_init_sampling_ports((a653_sampling_port_config_t *)&own_partition_config.sp_config)){ ret_val = 1; }
   
   /* init al queuing ports */  
-  if (a653_init_queuing_ports(&own_partition_config.qp_config)){ ret_val = 1; }
+  if (a653_init_queuing_ports((a653_queuing_port_config_t *)&own_partition_config.qp_config)){ ret_val = 1; }
   
   return ret_val;
 }

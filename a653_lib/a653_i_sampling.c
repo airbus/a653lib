@@ -118,12 +118,12 @@ int a653_init_sampling_ports(a653_sampling_port_config_t *config){
 }
 
 
-static void create_sampling_port_ip (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME, 
-				     MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE, 
-				     PORT_DIRECTION_TYPE      PORT_DIRECTION, 
-				     SYSTEM_TIME_TYPE         REFRESH_PERIOD, 
-				     SAMPLING_PORT_ID_TYPE   *SAMPLING_PORT_ID, 
-				     RETURN_CODE_TYPE        *RETURN_CODE){
+void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME, 
+			   MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE, 
+			   PORT_DIRECTION_TYPE      PORT_DIRECTION, 
+			   SYSTEM_TIME_TYPE         REFRESH_PERIOD, 
+			   SAMPLING_PORT_ID_TYPE   *SAMPLING_PORT_ID, 
+			   RETURN_CODE_TYPE        *RETURN_CODE){
   int p_idx   = 0;
   int found = 0;
 
@@ -154,17 +154,17 @@ static void create_sampling_port_ip (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME
     }    
     p_idx++;
   }
-  
-  //  if (*RETURN_CODE != NO_ERROR){
-    printDebug(3,"CREATE_SAMPLING_PORT return: %d\n",*RETURN_CODE);
-    // }
+
+  if (*RETURN_CODE != NO_ERROR){
+    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
+  }
 }
 
 
-static void write_sampling_message_ip (SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID, 
-				       MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
-				       MESSAGE_SIZE_TYPE       LENGTH, 
-				       RETURN_CODE_TYPE      * RETURN_CODE){
+void WRITE_SAMPLING_MESSAGE(SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID, 
+			    MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
+			    MESSAGE_SIZE_TYPE       LENGTH, 
+			    RETURN_CODE_TYPE      * RETURN_CODE){
   
   int p_idx = PortsHash[SAMPLING_PORT_ID];
 
@@ -196,11 +196,11 @@ static void write_sampling_message_ip (SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID,
   }
 }
 
-static void read_sampling_message_ip (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID, 
-				      MESSAGE_ADDR_TYPE        MESSAGE_ADDR, 
-				      MESSAGE_SIZE_TYPE      * LENGTH, 
-				      VALIDITY_TYPE          * VALIDITY, 
-				      RETURN_CODE_TYPE       * RETURN_CODE){
+void READ_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID, 
+			    MESSAGE_ADDR_TYPE        MESSAGE_ADDR, 
+			    MESSAGE_SIZE_TYPE      * LENGTH, 
+			    VALIDITY_TYPE          * VALIDITY, 
+			    RETURN_CODE_TYPE       * RETURN_CODE){
   
   int p_idx = PortsHash[SAMPLING_PORT_ID];
 
@@ -242,109 +242,7 @@ static void read_sampling_message_ip (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID,
 void INIT_SAMPLING_PORT (RETURN_CODE_TYPE        *RETURN_CODE){
 }
 
-void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME, 
-			   MESSAGE_SIZE_TYPE         MAX_MESSAGE_SIZE, 
-			   PORT_DIRECTION_TYPE       PORT_DIRECTION, 
-			   SYSTEM_TIME_TYPE          REFRESH_PERIOD, 
-			   SAMPLING_PORT_ID_TYPE   * SAMPLING_PORT_ID, 
-			   RETURN_CODE_TYPE        * RETURN_CODE){
-  
-  SAMPLING_PORT_ID_TYPE l_port_id; 
-  RETURN_CODE_TYPE  l_return_code;
 
-  GET_SAMPLING_PORT_ID (SAMPLING_PORT_NAME,
-			&l_port_id, 
-			&l_return_code);
-
-  if (l_return_code != INVALID_CONFIG){
-
-    /* if (l_port_id < 2000){  */
-    
-      create_sampling_port_ip (SAMPLING_PORT_NAME,
-			       MAX_MESSAGE_SIZE,
-			       PORT_DIRECTION,
-			       REFRESH_PERIOD,
-			       SAMPLING_PORT_ID,
-			       RETURN_CODE);
-    /* } else { */
-    /*   create_sampling_port_pp (SAMPLING_PORT_NAME,  */
-    /* 			       MAX_MESSAGE_SIZE,  */
-    /* 			       PORT_DIRECTION,  */
-    /* 			       REFRESH_PERIOD,  */
-    /* 			       SAMPLING_PORT_ID,  */
-    /* 			       RETURN_CODE);          */
-    /* } */
-      
-  } else {
-    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
-  } 
-}
-
-void WRITE_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID, 
-			     MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
-			     MESSAGE_SIZE_TYPE       LENGTH, 
-			     RETURN_CODE_TYPE      * RETURN_CODE){
-
-  *RETURN_CODE = NO_ACTION;
-
-  if ((SAMPLING_PORT_ID < 0) ||
-      (SAMPLING_PORT_ID > MAX_S_PORT)){
-
-    *RETURN_CODE = INVALID_CONFIG;
-    
-  } else {
-
-  
-    /* if (SAMPLING_PORT_ID < 2000){  */
-      write_sampling_message_ip(SAMPLING_PORT_ID,
-				MESSAGE_ADDR,
-				LENGTH,
-				RETURN_CODE);
-    /* } else { */
-    /*   write_sampling_message_pp(SAMPLING_PORT_ID,  */
-    /* 				MESSAGE_ADDR, */
-    /* 				LENGTH,  */
-    /* 				RETURN_CODE); */
-    /* } */
-  }
-  if (*RETURN_CODE > NO_ACTION){
-    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
-  }
-}
-
-void READ_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID, 
-			    MESSAGE_ADDR_TYPE        MESSAGE_ADDR, 
-			    MESSAGE_SIZE_TYPE      * LENGTH, 
-			    VALIDITY_TYPE          * VALIDITY, 
-			    RETURN_CODE_TYPE       * RETURN_CODE){
-
-  *RETURN_CODE = NO_ACTION;
-
-  if ((SAMPLING_PORT_ID < 0) ||
-      (SAMPLING_PORT_ID > MAX_S_PORT)){
-
-    *RETURN_CODE = INVALID_CONFIG;
-    
-  } else {
-    
-    /* if (SAMPLING_PORT_ID < 2000){  */
-      read_sampling_message_ip(SAMPLING_PORT_ID,
-			       MESSAGE_ADDR,
-			       LENGTH,
-			       VALIDITY,
-			       RETURN_CODE);
-    /* } else { */
-    /*   read_sampling_message_pp(SAMPLING_PORT_ID,  */
-    /* 			       MESSAGE_ADDR,  */
-    /* 			       LENGTH,  */
-    /* 			       VALIDITY,  */
-    /* 			       RETURN_CODE); */
-    /* } */
-  }
-  if (*RETURN_CODE > NO_ACTION){
-    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
-  }
-}
 
 void READ_UPDATED_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID,
                                     MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
