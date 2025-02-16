@@ -46,27 +46,30 @@
 
 extern a653_shm_info_t *shm_ptr;
 
+extern int a653_init_sampling_ports(a653_sampling_port_config_t *config);
+extern int a653_init_queuing_ports(a653_queuing_port_config_t *config);
+
 extern a653_global_config_t global_config;
-extern a653_sampling_port_config_t A653_SP_CONFIG[];
-extern a653_queuing_port_config_t A653_QP_CONFIG[];
+extern a653_partition_config_t partition_config[];
+extern a653_channel_config_t channel_config[];
 
 PARTITION_STATUS_TYPE pertition_status = {0,0,1,0,IDLE,NORMAL_START,1};
 
 int own_partition_idx;
+a653_partition_config_t own_partition_config;
 
 /* do not call main schaduler !!!!!! */
 int a653_init_partition(void){
   
   int ret_val = 0;
-  int idx,idx_i,idx_o = 0;
-  int numOfPrcs = 0;
-  int numOfSPorts = 0;
-  int numOfQPorts = 0;
+  int idx = 0;
+  int numOfPrcs = 0; 
   int found = 0;
   pid_t ownPid = getpid();
-  
+
   a653_shm_init();
- 
+
+  
   while(found ==0){
     for (idx = 0;idx < global_config.partition_number; idx++){
       if (shm_ptr->partition_info[idx].pid == ownPid){
@@ -78,27 +81,30 @@ int a653_init_partition(void){
 		   own_partition_idx);
       }  
     }
+     usleep(10);
+  }
+  
+  own_partition_config = partition_config[own_partition_idx];
+
+  for (idx = 0;idx < MAX_CHANNEL; idx++){
+    if (channel_config[idx].ChannelId != 0){
+      /* found valid entry */
+      shm_ptr->channel_info[idx].Id         = channel_config[idx].ChannelId;
+      shm_ptr->channel_info[idx].ch_type    = channel_config[idx].ChannelType;
+      shm_ptr->channel_info[idx].maxMsgSize = channel_config[idx].maxMsgSize;      
+    }
   }
 
+  
   /* init processes */    
   if ( a653_prcs_init() ){ ret_val = 1; }
 
+  
   /* init all sampling ports */
-  idx = 0;
-  while (A653_SP_CONFIG[idx++].PortId != 0){
-    numOfSPorts++;
-  }
+  if (a653_init_sampling_ports(&own_partition_config.sp_config)){ ret_val = 1; }
   
-  if (a653_init_sampling_ports(numOfSPorts,A653_SP_CONFIG)){ ret_val = 1; }
-
-  /* init al queuing ports */
-  idx = 0;
-  while (A653_QP_CONFIG[idx++].PortId != 0){
-    numOfQPorts++;
-  }
-  
-  if (a653_init_queuing_ports(numOfSPorts,A653_QP_CONFIG)){ ret_val = 1; }
-  
+  /* init al queuing ports */  
+  if (a653_init_queuing_ports(&own_partition_config.qp_config)){ ret_val = 1; }
   
   return ret_val;
 }

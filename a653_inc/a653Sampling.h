@@ -90,7 +90,6 @@ typedef struct sample_port_funcs_s {
 /* function declarations */
 
 
-//int a653_init_sampling_ports(int max_port_num, int max_port_size, a653_sampling_port_config_t *config);
 
 void INIT_SAMPLING_PORT (RETURN_CODE_TYPE        *RETURN_CODE);
 

@@ -56,11 +56,21 @@ struct timespec t2;
 
 int64_t diff;
 
-extern a653_global_config_t global_config;
 extern a653_shm_info_t *shm_ptr;
+
+extern a653_global_config_t global_config;
+extern a653_channel_config_t channel_config[];
+
 
 partition_local_info_t l_p_info;
 
+void a653_i_init_channels(void) {
+  int idx;
+  for (idx = 0; idx < MAX_CHANNEL; idx++){
+    memset(&shm_ptr->channel_info[idx],0,sizeof(a653_channel_shm_info_t));
+    shm_ptr->channel_info[idx].Id = channel_config[idx].ChannelId;
+  }
+}
 
 void a653_i_init_sync(void) {
 
@@ -70,6 +80,9 @@ void a653_i_init_sync(void) {
   if (a653_shm_init()){
       
     memset(shm_ptr,0,sizeof(a653_shm_info_t));
+
+    /* create channels on shared memory */
+    a653_i_init_channels();
 
     /* t1 = getTime(); */
     /* sleep(1); */

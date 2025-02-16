@@ -31,11 +31,10 @@ extern int own_partition_idx;
 extern PARTITION_STATUS_TYPE pertition_status;
 
 a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF;
+a653_channel_config_t channel_config[] = A653_CH_CONFIG_DEF;
+a653_partition_config_t partition_config[] = A653_PART_CONFIG_DEF;
 
-a653_sampling_port_config_t A653_SP_CONFIG[] = A653_SP_CONFIG_DEF;
-a653_queuing_port_config_t A653_QP_CONFIG[] = A653_QP_CONFIG_DEF;
-
-/**/
+/* */
 void beforeMain (void) __attribute__ ((constructor));
 
 void beforeMain (void)

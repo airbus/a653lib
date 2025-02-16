@@ -34,13 +34,17 @@
 
 #define MAX_PRCS_ID 0xff
 
-#define MAX_PARTITION 10
-#define MAX_PRCS 5
+#define MAX_PARTITION 10           /* maxilmal number of partitions */
+#define MAX_PRCS 5                 /* maximal number of processes per partition */
+			         
+#define MAX_CHANNEL     50         /* Number of maximal posible channels */
+#define MAX_CHANNEL_DST 10         /* maximal number of destinations of a channel */
+#define MAX_CHANNEL_DATA_SIZE 1024 /* maximal message size over a channel */
 
 #define MAX_TIME_SLICE_NUM 10
 #define MAX_CORE_NUM 4
 
-#define MAX_Q_PORT 3
+#define MAX_Q_PORT 10
 #define MAX_Q_PORT_ENTRIES 5
 #define MAX_Q_PORT_SIZE 200
 
@@ -51,7 +55,7 @@
 
 typedef struct {
   char name_str[33];
-} a653_partition_config_t;
+} a653_partition_entry_t;
 
 typedef struct {
   unsigned short PatitionIdx;
@@ -62,35 +66,43 @@ typedef struct {
   int partition_number;
   int time_slice_number;
   int64_t time_slice_size; /* value in nsec */
-  a653_partition_config_t partition[MAX_PARTITION];
+  a653_partition_entry_t partition[MAX_PARTITION];
   a653_time_slice_config_t time_slice[MAX_TIME_SLICE_NUM][MAX_CORE_NUM];
   int magic;
 } a653_global_config_t;
 
 typedef struct {
-  unsigned short PortId;
-  unsigned short SrcPartitionIdx;
-  unsigned short DstPartitionIdx;
+  unsigned short ChannelId;
+  unsigned short ChannelType;
+  unsigned short maxMsgSize;
+  unsigned short SrcPartitionId;
+  unsigned short DstPartitionId[MAX_CHANNEL_DST];
+} a653_channel_config_t;
+
+typedef struct {
+  unsigned short ChannelId;
+  unsigned short Dir;
   char           name_str[32];
 } a653_sampling_port_config_t;
 
 typedef struct {
-  unsigned short PortId;
-  unsigned short SrcPartitionIdx;
-  unsigned short DstPartitionIdx;
+  unsigned short ChannelId;
+  unsigned short Dir;
   unsigned short Type;
-  char           name_str[32];
-  
+  char           name_str[32];  
 } a653_queuing_port_config_t;
 
+typedef struct {
+  unsigned short PartitionId;
+  char           name_str[32];
+  a653_sampling_port_config_t sp_config[MAX_S_PORT];
+  a653_queuing_port_config_t qp_config[MAX_Q_PORT];
+} a653_partition_config_t;
 
-
-
-int a653_init_queuing_ports(int max_port_num, a653_queuing_port_config_t *config);
-int a653_init_sampling_ports(int max_port_num, a653_sampling_port_config_t *config);
 
 void a653_act_partition(void);
 
+void a653_i_init_channels(void);
 void a653_i_init_sync(void);
 void a653_i_set_first(void);
 void a653_i_set_next(void);

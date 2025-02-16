@@ -36,15 +36,16 @@
 #include "a653Type.h"
 #include "a653Sampling.h"
 
+/* sampling ports */
 
-typedef struct {
-  int pid;
-  int kill;
-  int init;
-  int go;
-  char name[64];
-} partition_info_t;
+typedef struct{
+  int                      init_done;  
+  VALIDITY_TYPE            LAST_MSG_VALIDITY;  /* message validity */
+  MESSAGE_SIZE_TYPE        LAST_SIZE;          /* msg size */
+  char                     data[MAX_S_PORT_SIZE];  
+} t_sampling_port_shm_data;
 
+/* queuing ports*/
 typedef struct {
   int   size;
   char  data[MAX_Q_PORT_SIZE];
@@ -52,8 +53,6 @@ typedef struct {
 
 
 typedef struct {
-  char                    QUEUING_PORT_NAME[34];
-  unsigned short          PortId;
   int                     init_done;
   int                     max_elem;
   int                     max_size;
@@ -65,19 +64,31 @@ typedef struct {
   fifo_msg_header_t       msg[MAX_Q_PORT_ENTRIES];
 } t_queuing_port_shm_data;
 
-typedef struct{
-  char                     SAMPLING_PORT_NAME[34];
-  unsigned short           PortId;
-  VALIDITY_TYPE            LAST_MSG_VALIDITY;  /* message validity */
-  MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE;   /* port size */
-  int                      init_done;
-  char                     data[MAX_S_PORT_SIZE];  
-} t_sampling_port_shm_data;
+
+/* partition */
+typedef struct {
+  int pid;
+  int kill;
+  int init;
+  int go;
+  char name[64];
+} partition_info_t;
+
+
+/* channel */
+typedef struct {
+  unsigned short Id;
+  unsigned short ch_type;
+  unsigned short maxMsgSize;
+  union port_data_u {
+    t_sampling_port_shm_data sp_d;
+    t_queuing_port_shm_data qp_d;
+  } data;
+} a653_channel_shm_info_t;
 
 typedef struct {
   partition_info_t          partition_info[MAX_PARTITION];
-  t_queuing_port_shm_data   q_port_data[MAX_Q_PORT];
-  t_sampling_port_shm_data  s_port_data[MAX_S_PORT];
+  a653_channel_shm_info_t   channel_info[MAX_CHANNEL];
 } a653_shm_info_t;
 
 /* function declarations */
@@ -89,10 +100,6 @@ int a653_shm_remove( int* shm_id);
 //void *a653_shm_get_ptr(void);
 
 partition_info_t *a653_shm_partitions(void);
-t_queuing_port_shm_data *a653_shm_qports(void);
-t_sampling_port_shm_data *a653_shm_sports(void);
 
-//unsigned int a653_shm_malloc(size_t size);
-// void a653_shm_free(void *ptr);
 
 #endif /* __A653_SHM_IF_H__ */

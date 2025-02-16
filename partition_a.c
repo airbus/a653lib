@@ -99,7 +99,7 @@ void PeriodicProcess(void){
     
     RECEIVE_QUEUING_MESSAGE(qp_id_rx,        
 			    0,                /* time out */
-    			    data_qp_rx,          /* pointer to data */
+    			    data_qp_rx,       /* pointer to data */
     			    &length,          /* received length */
     			    &return_code);    /* return code */
     if(return_code == NO_ERROR && length !=0){

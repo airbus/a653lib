@@ -45,18 +45,23 @@
 
 #include "a653_i_shm_if.h"
 
+#define QP_START_ID 1
 
-/*internal types and data */
+extern a653_shm_info_t *shm_ptr;
+extern int own_partition_idx;
+extern a653_channel_config_t channel_config[];
+
+int qp_id_next = QP_START_ID;
+
+/* local data */
 
 /* typedef struct { */
 /*   int   size; */
-/*   char  *data; */
+/*   char  data[MAX_Q_PORT_SIZE]; */
 /* } fifo_msg_header_t; */
 
-/* this data is shared !!!! */
+
 /* typedef struct { */
-/*   char                    QUEUING_PORT_NAME[34]; */
-/*   unsigned short          PortId; */
 /*   int                     init_done; */
 /*   int                     max_elem; */
 /*   int                     max_size; */
@@ -65,30 +70,22 @@
 /*   int                     rx_next; */
 /*   sem_t                   sem_lock; */
 /*   int                     magic_number; */
-/*   fifo_msg_header_t       msg[]; */
+/*   fifo_msg_header_t       msg[MAX_Q_PORT_ENTRIES]; */
 /* } t_queuing_port_shm_data; */
 
-extern a653_shm_info_t *shm_ptr;
-extern int own_partition_idx;
 
-/* local data */
 typedef struct {
-  int                          max_port_id;
-  int                          max_port_num;
-  int                          max_port_data_size;
-  t_queuing_port_shm_data    **Ports;
-  QUEUING_PORT_ID_TYPE        *PortsHash;
+  unsigned short              PortId;
+  unsigned short              ChannelIdx;
+  unsigned short              Dir;
+  char                        QUEUING_PORT_NAME[34];
+  t_queuing_port_shm_data    *Port;
 } queuing_port_data_t;
 
-
-/* be very carefull!!! pointer to shared memory can be different in each process!!! */
-static a653_queuing_port_config_t *a653_qp_config = NULL;
-static queuing_port_data_t *qp_ptr = NULL;
-
-
+static QUEUING_PORT_ID_TYPE *PortsHash = NULL;
+static queuing_port_data_t qp_data[MAX_Q_PORT];
 
 /* internal buffer handling */
-
 
 static int createFifo (t_queuing_port_shm_data *fifo_ptr, 
                        unsigned int max_elem, 
@@ -192,65 +189,36 @@ static int getFifo (t_queuing_port_shm_data *fifo_ptr, void *dest_ptr, int *size
   return(ret_val);
 }
 
-/* external interface */
 
-
-
-/* todo init for QUEUING_PORT data !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-
-
-int a653_init_queuing_ports(int max_port_num, a653_queuing_port_config_t *config){
+int a653_init_queuing_ports(a653_queuing_port_config_t *config){
   int ret_val = 0;
-  int idx = 0;
-  int highest_queuing_port_id = 0;
-
-  printDebug(3,"%s number of ports %d\n",__func__,max_port_num);
+  int p_idx = 0;
+  int c_idx = 0;
+  int found = 0;
   
-  for(idx=0; idx <= QUEUING_PORT_ID_MAX; idx++){
+  for (p_idx = 0; p_idx < MAX_Q_PORT; p_idx++){
 
-    if (config[idx].PortId == 0){
-      break;
-    }
-    if (highest_queuing_port_id < config[idx].PortId)
-      highest_queuing_port_id = config[idx].PortId;   
+    c_idx = 0;
+    while (channel_config[c_idx].ChannelId != 0){
+      if (channel_config[c_idx].ChannelId == config[p_idx].ChannelId){
+
+	if (shm_ptr->channel_info[c_idx].Id != config[p_idx].ChannelId){
+	  ret_val = -1;
+	} else {
+	qp_data[p_idx].ChannelIdx = c_idx;
+	qp_data[p_idx].PortId     = qp_id_next++;
+	qp_data[p_idx].Dir        = config[p_idx].Dir;
+	qp_data[p_idx].Port       = (t_queuing_port_shm_data *)&shm_ptr->channel_info[c_idx].data.qp_d;
+	
+	strcpy(qp_data[p_idx].QUEUING_PORT_NAME, config[p_idx].name_str);
+	found++;
+	}
+      }
+      c_idx++;
+    }      
   }
   
-  if(highest_queuing_port_id > QUEUING_PORT_ID_MAX){
-    printDebug(3," queuing port id range error !!!\n\n");
-    exit(1);
-  }
-  
-  a653_qp_config = (a653_queuing_port_config_t *) malloc(sizeof(a653_queuing_port_config_t) * max_port_num);
-  memcpy(a653_qp_config,config,sizeof(a653_queuing_port_config_t) * max_port_num);
-
-  qp_ptr = (queuing_port_data_t*) malloc(sizeof(queuing_port_data_t));
-  if (qp_ptr == NULL){
-    printDebug(3,"can not get shared memory for queuing ports!!!\n\n");
-    exit(1);
-  }
-  memset(qp_ptr,0,sizeof(queuing_port_data_t));
-
-  qp_ptr->PortsHash = (QUEUING_PORT_ID_TYPE*) malloc(sizeof(QUEUING_PORT_ID_TYPE) * highest_queuing_port_id);
-  if (qp_ptr->PortsHash == NULL){
-    printDebug(3,"can not get shared memory for queuing ports!!!\n\n");
-    exit(1);
-  }
-  memset(qp_ptr->PortsHash,0,sizeof(QUEUING_PORT_ID_TYPE) * max_port_num);
-
-  qp_ptr->Ports = (t_queuing_port_shm_data **) malloc(sizeof(t_queuing_port_shm_data *) * max_port_num);
-    if (qp_ptr->Ports == NULL){
-    printDebug(3,"can not get shared memory fpr queuings ports!!!\n\n");
-    exit(1);
-  }
-  memset(qp_ptr->Ports,0,sizeof(t_queuing_port_shm_data *) * max_port_num);
-
-  qp_ptr->max_port_id        = highest_queuing_port_id;
-  qp_ptr->max_port_num       = max_port_num;
-  qp_ptr->max_port_data_size = MAX_Q_PORT_SIZE;
-  
-  for(idx=0; idx < max_port_num; idx++){
-    qp_ptr->Ports[idx] = &shm_ptr->q_port_data[idx];
-  }
+  PortsHash = (QUEUING_PORT_ID_TYPE *) malloc(sizeof(QUEUING_PORT_ID_TYPE) * (QP_START_ID + MAX_Q_PORT));
   
   return ret_val;
 }
@@ -266,71 +234,58 @@ void create_queuing_port_ip (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
 			     QUEUING_PORT_ID_TYPE   *QUEUING_PORT_ID,
 			     RETURN_CODE_TYPE       *RETURN_CODE){
     
-  int idx   = 0;
+  int p_idx   = 0;
   int found = 0;
     
   *RETURN_CODE = INVALID_CONFIG;
 
-  while ((!found) && (a653_qp_config[idx].PortId != 0)) {
+  while ((!found) && (qp_data[p_idx].PortId != 0)) {
 
-    if ((strncmp(a653_qp_config[idx].name_str,QUEUING_PORT_NAME,25)) == 0) {
-
+    if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,25)) == 0) {
+      
       found = 1;
 
       /* todo handle direction !!!!!!!!!!!!!!!!!!!!*/
-      if (own_partition_idx == a653_qp_config[idx].DstPartitionIdx){
-	
+      if (qp_data[p_idx].Dir == SOURCE){
+	/* TX */
 	/* save link to instance*/
-	qp_ptr->PortsHash[a653_qp_config[idx].PortId] = idx;
-	
+	PortsHash[qp_data[p_idx].PortId] = p_idx;
 	/* set return values */
-        *QUEUING_PORT_ID = a653_qp_config[idx].PortId;
+        *QUEUING_PORT_ID = qp_data[p_idx].PortId;
         *RETURN_CODE     = NO_ERROR;
 
 	break;
 	
       } else {
-	
-        /* int space_needed = 0; */
+	/* RX */
         
-        /* if (MAX_MESSAGE_SIZE & 0x00000003) { */
-        /*   MAX_MESSAGE_SIZE = (MAX_MESSAGE_SIZE & 0xfffffffC) +4; */
-        /* } */
-
-	
-        /* space_needed = sizeof(t_queuing_port_shm_data) + sizeFifo (MAX_NB_MESSAGE, */
-        /*                                                               MAX_MESSAGE_SIZE); */
-        
-	if (MAX_MESSAGE_SIZE > qp_ptr->max_port_data_size) {
+	if (shm_ptr->channel_info[p_idx].maxMsgSize >= MAX_MESSAGE_SIZE){
 	  *RETURN_CODE = NOT_AVAILABLE;
 	} else {
 	  /* update internel struct */
-	  qp_ptr->Ports[idx]->PortId = a653_qp_config[idx].PortId;
-	  strcpy(qp_ptr->Ports[idx]->QUEUING_PORT_NAME,
-		 a653_qp_config[idx].name_str);
 
-	  createFifo (qp_ptr->Ports[idx],
-		      MAX_NB_MESSAGE,
-		      MAX_MESSAGE_SIZE);
+	  /* createFifo (qp_data[p_idx].Port, */
+	  /* 	      MAX_NB_MESSAGE, */
+	  /* 	      MAX_MESSAGE_SIZE); */
 	  
-	  qp_ptr->Ports[idx]->PortId = a653_qp_config[idx].PortId;
-	  qp_ptr->Ports[idx]->init_done = 1;  
-	  qp_ptr->PortsHash[a653_qp_config[idx].PortId] = idx;
+	  qp_data[p_idx].Port->init_done = 1;  
+	  /* save link to instance*/
+	  PortsHash[qp_data[p_idx].PortId] = p_idx;
 	  
 	  /* set return values */
-	  *QUEUING_PORT_ID = a653_qp_config[idx].PortId;
+	  *QUEUING_PORT_ID = qp_data[p_idx].PortId;
 	  *RETURN_CODE     = NO_ERROR;
 
 	  break;
 	}
       }
     }
-    idx++;
+    p_idx++;
   }
 
-  if (*RETURN_CODE != NO_ERROR){
-    printDebug(3,"CREATE_QUEUING_PORT error: %d\n",*RETURN_CODE);
-  }
+  /* if (*RETURN_CODE != NO_ERROR){ */
+    printDebug(3,"CREATE_QUEUING_PORT return: %d\n",*RETURN_CODE);
+  /* } */
 }
 
 void send_queuing_message_ip (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
@@ -339,31 +294,25 @@ void send_queuing_message_ip (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
 			      SYSTEM_TIME_TYPE       TIME_OUT,
 			      RETURN_CODE_TYPE     * RETURN_CODE){
 
-  int idx = qp_ptr->PortsHash[QUEUING_PORT_ID];
+  int p_idx = PortsHash[QUEUING_PORT_ID];
 
   *RETURN_CODE = NO_ACTION;
 
-  if (idx < qp_ptr->max_port_num){
+  if (p_idx < MAX_Q_PORT){
 
-    if (qp_ptr->Ports[idx]->init_done == 0) {
-      *RETURN_CODE = NOT_AVAILABLE;
+    if ((qp_data[p_idx].Port->init_done == 0) &&
+	(qp_data[p_idx].Dir != SOURCE) &&
+	(shm_ptr->channel_info[p_idx].maxMsgSize <= LENGTH)){
+      *RETURN_CODE = INVALID_CONFIG;
     } else {
-      /*       if ((LENGTH > qp_ptr->Ports[idx]->Queuing_Port_Status.MAX_MESSAGE_SIZE) ||  */
-      /*           (qp_ptr->Ports[idx]->Queuing_Port_Status.PORT_DIRECTION != SOURCE)) { */
-      if (LENGTH > qp_ptr->Ports[idx]->max_size){
-        *RETURN_CODE = INVALID_CONFIG;
-      } else {
-
-        if( 0 == putFifo (qp_ptr->Ports[idx],
-                          MESSAGE_ADDR, /* src  */
-                          LENGTH)){
-          *RETURN_CODE = NO_ERROR;          
-        } else {
-          *RETURN_CODE = NO_ACTION;
-        }
-      }
-    }
-  }  
+				
+      /* if( 0 == putFifo (qp_data[p_idx].Port, */
+      /* 			MESSAGE_ADDR, /\* src  *\/ */
+      /* 			LENGTH)){ */
+      /* 	*RETURN_CODE = NO_ERROR;           */
+      /* } */
+    }  
+  }
 }
 
 void receive_queuing_message_ip (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
@@ -372,32 +321,31 @@ void receive_queuing_message_ip (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
 				 MESSAGE_SIZE_TYPE  * LENGTH,
 				 RETURN_CODE_TYPE   * RETURN_CODE){
 
-  int idx = qp_ptr->PortsHash[QUEUING_PORT_ID];
+  int p_idx = PortsHash[QUEUING_PORT_ID];
 
   *RETURN_CODE = NO_ACTION;
 
-  if (idx < qp_ptr->max_port_num){
+  if (p_idx < MAX_Q_PORT){
 
-    if (qp_ptr->Ports[idx]->init_done == 0) {
-      *RETURN_CODE = NOT_AVAILABLE;
+    if (( qp_data[p_idx].Port->init_done == 0) &&
+	(qp_data[p_idx].Dir != DESTINATION)) {
+      
+      *RETURN_CODE = INVALID_CONFIG;
+      
     } else {
-      /*       if (qp_ptr->Ports[idx]->Queuing_Port_Status.PORT_DIRECTION != DESTINATION) { */
-      /*         *RETURN_CODE = INVALID_CONFIG; */
-      /*       } else { */
-      
-      if (0 == getFifo (qp_ptr->Ports[idx], 
-                        MESSAGE_ADDR, /* dest */ 
-                        (int *)LENGTH)){
-        *RETURN_CODE = NO_ERROR;
-      } else {
-        *LENGTH      = 0;
-        *RETURN_CODE = NO_ACTION;
-      }
-      
-      /*   } */
+  
+      /* if (0 == getFifo (qp_data[p_idx].Port, */
+      /*                   MESSAGE_ADDR, /\* dest *\/ */
+      /*                   (int *)LENGTH)){ */
+      /*   *RETURN_CODE = NO_ERROR; */
+      /* } else { */
+      /*   *LENGTH      = 0; */
+      /*   *RETURN_CODE = NO_ACTION; */
+      /* } */
     }
   }
 }
+ 
 /****************************************************************************************************************/
 
 
@@ -507,25 +455,22 @@ void RECEIVE_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
 void GET_QUEUING_PORT_ID (QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
                           QUEUING_PORT_ID_TYPE   * QUEUING_PORT_ID,
                           RETURN_CODE_TYPE       * RETURN_CODE){
-  int idx   = 0;
-  int found = 0;
+  int p_idx   = 0;
   
   *QUEUING_PORT_ID = 0;    
   *RETURN_CODE     = INVALID_CONFIG;
   
-  while ((!found) && (a653_qp_config[idx].PortId != 0)) {
+  while ( qp_data[p_idx].PortId != 0) {
 
-    if ((strncmp(a653_qp_config[idx].name_str,QUEUING_PORT_NAME,25)) == 0) {
+    if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,25)) == 0) {
 
-      found = 1;
-	
       /* set return values */
-      *QUEUING_PORT_ID = a653_qp_config[idx].PortId;
+      *QUEUING_PORT_ID = qp_data[p_idx].PortId;
       *RETURN_CODE     = NO_ERROR;
 
       break;
     }	
-    idx++;
+    p_idx++;
   }
 }
 

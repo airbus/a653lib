@@ -19,8 +19,7 @@
 #include "a653_config.h"
 
 a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; 
-a653_sampling_port_config_t A653_SP_CONFIG[] = A653_SP_CONFIG_DEF; 
-a653_queuing_port_config_t A653_QP_CONFIG[] = A653_QP_CONFIG_DEF; 
+a653_channel_config_t channel_config[] = A653_CH_CONFIG_DEF;
 
 int main (int argc, char *argv[]){
 
@@ -32,7 +31,7 @@ int main (int argc, char *argv[]){
   time ( &rawtime );
   timeinfo = localtime ( &rawtime );
   printDebug(0,"Current local time and date: %s", asctime (timeinfo) );
-  
+
   a653_i_init_sync();
   
   a653_i_set_first();

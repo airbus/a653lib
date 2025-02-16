@@ -40,5 +40,7 @@ void a653_i_set_next(void);
 void a653_i_wait_next(void);
 void a653_i_update_partitions(void);
 
+void a653_update_queuing_ports(void);
+
 
 #endif /* __A653_I_SYNC_H__ */

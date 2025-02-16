@@ -43,91 +43,77 @@
 
 #include "a653_i_shm_if.h"
 
+
+#define SP_START_ID 1
+
 typedef unsigned int offset_t;
 
 
+extern a653_shm_info_t *shm_ptr;
+extern int own_partition_idx;
+extern a653_channel_config_t channel_config[];
+
+
+int sp_id_next = SP_START_ID;
+
 /* typedef struct{ */
-/*   char                     SAMPLING_PORT_NAME[34]; */
-/*   unsigned short           PortId; */
 /*   VALIDITY_TYPE            LAST_MSG_VALIDITY;  /\* message validity *\/ */
 /*   MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE;   /\* port size *\/ */
 /*   int                      init_done; */
-/*   char                     *data;   */
+/*   char                     data[MAX_S_PORT_SIZE];   */
 /* } t_sampling_port_shm_data; */
-
-extern a653_shm_info_t *shm_ptr;
-extern int own_partition_idx;
 
 
 typedef struct {
-  int                         max_port_id;
-  int                         max_port_num;
-  int                         max_port_data_size;
-  t_sampling_port_shm_data  **Ports;
-  SAMPLING_PORT_ID_TYPE      *PortsHash;
+  unsigned short              PortId;
+  unsigned short              ChannelIdx;
+  unsigned short              Dir;
+  char                        SAMPLING_PORT_NAME[34];
+  t_sampling_port_shm_data   *Port;
 } sampling_port_data_t;
 
-/* be very carefull!!! pointer to shared memory can be different in each process!!! */
-static sampling_port_data_t *sp_ptr = NULL;
-static a653_sampling_port_config_t *a653_sp_config = NULL;
+static SAMPLING_PORT_ID_TYPE  *PortsHash = NULL;
+static sampling_port_data_t   sp_data[MAX_S_PORT];
 
+/* typedef struct { */
+/*   unsigned short ChannelId; */
+/*   unsigned short Dir; */
+/*   char           name_str[32]; */
+/* } a653_sampling_port_config_t; */
 
-
-int a653_init_sampling_ports(int max_port_num, a653_sampling_port_config_t *config){
+int a653_init_sampling_ports(a653_sampling_port_config_t *config){
   int ret_val = 0;
-  int idx = 0;
-  int highest_sampling_port_id = 0;
-  
-  for(idx=0; idx <= SAMPLING_PORT_ID_MAX; idx++){
-    if (config[idx].PortId == 0){
-      break;
-    }
-    if (highest_sampling_port_id < config[idx].PortId)
-      highest_sampling_port_id = config[idx].PortId;   
-  }
-  
-  if(highest_sampling_port_id > SAMPLING_PORT_ID_MAX){
-    printDebug(3," sampling port id range error !!!\n\n");
-    ret_val = 1; // exit(1);
-  } else {
-  
-    a653_sp_config = (a653_sampling_port_config_t *) malloc(sizeof(a653_sampling_port_config_t) * max_port_num);
-    memcpy(a653_sp_config,config,sizeof(a653_sampling_port_config_t) * max_port_num);
+  int p_idx = 0;
+  int c_idx = 0;
+  int found = 0;
+ 
+  for (p_idx = 0; p_idx < MAX_S_PORT; p_idx++){
+ 
+    c_idx = 0;
+    while (channel_config[c_idx].ChannelId != 0){
+      if (channel_config[c_idx].ChannelId == config[p_idx].ChannelId){
 
-    sp_ptr = (sampling_port_data_t*) malloc(sizeof(sampling_port_data_t));
-    if (sp_ptr == NULL){
-      printDebug(3,"can not get shared memory for sampling ports!!!\n\n");
-      ret_val = 1; // exit(1);
-    } else {
-      memset(sp_ptr,0,sizeof(sampling_port_data_t));
-
-      sp_ptr->PortsHash = (SAMPLING_PORT_ID_TYPE *) malloc(sizeof(SAMPLING_PORT_ID_TYPE) * highest_sampling_port_id);
-      if (sp_ptr->PortsHash == NULL){
-	printDebug(3,"can not get shared memory for sampling ports!!!\n\n");
-	ret_val = 1; // exit(1);
-      } else {
-	memset(sp_ptr->PortsHash,0,sizeof(SAMPLING_PORT_ID_TYPE) * max_port_num);
-
-	sp_ptr->Ports = (t_sampling_port_shm_data **) malloc(sizeof(t_sampling_port_shm_data *) * max_port_num);
-	if (sp_ptr->Ports == NULL){
-	  printDebug(3,"can not get shared memory fpr sammpling ports!!!\n\n");
-	  ret_val = 1; // exit(1);
+	if (shm_ptr->channel_info[c_idx].Id != config[p_idx].ChannelId){
+	  ret_val = -1;
 	} else {
-	  memset(sp_ptr->Ports,0,sizeof(t_sampling_port_shm_data *) * max_port_num);
-
-	  sp_ptr->max_port_id        = highest_sampling_port_id;
-	  sp_ptr->max_port_num       = max_port_num;
-	  sp_ptr->max_port_data_size = MAX_S_PORT_SIZE;
-	  
-	  for(idx=0; idx < max_port_num; idx++){
-	    sp_ptr->Ports[idx] = &shm_ptr->s_port_data[idx];
-	  }
-	  printDebug(3,"%s number of ports %d\n",__func__,max_port_num);
+	sp_data[p_idx].ChannelIdx = c_idx;
+	sp_data[p_idx].PortId = sp_id_next++;
+	sp_data[p_idx].Dir = config[p_idx].Dir;
+	sp_data[p_idx].Port = (t_sampling_port_shm_data *)&shm_ptr->channel_info[c_idx].data.sp_d;
+	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID;
+	
+	strcpy(sp_data[p_idx].SAMPLING_PORT_NAME, config[p_idx].name_str);
+	found++;
 	}
       }
-    }
+      c_idx++;
+    }      
   }
   
+  PortsHash = (SAMPLING_PORT_ID_TYPE *) malloc(sizeof(SAMPLING_PORT_ID_TYPE) * (SP_START_ID + MAX_S_PORT));
+  
+  printDebug(3,"%s number of ports %d\n",__func__,found);
+					      
   return ret_val;
 }
 
@@ -138,43 +124,40 @@ static void create_sampling_port_ip (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME
 				     SYSTEM_TIME_TYPE         REFRESH_PERIOD, 
 				     SAMPLING_PORT_ID_TYPE   *SAMPLING_PORT_ID, 
 				     RETURN_CODE_TYPE        *RETURN_CODE){
-  int idx   = 0;
+  int p_idx   = 0;
   int found = 0;
 
   *RETURN_CODE = INVALID_CONFIG;
 
-  while ((!found) && (a653_sp_config[idx].PortId != 0)){
+  while ((!found) && (sp_data[p_idx].PortId != 0)){
 
-    if ((strncmp(a653_sp_config[idx].name_str,SAMPLING_PORT_NAME,25)) == 0) {
+    if ((strncmp(sp_data[p_idx].SAMPLING_PORT_NAME,SAMPLING_PORT_NAME,25)) == 0) {
 
       found = 1;
 
-      if (sp_ptr->max_port_data_size >= MAX_MESSAGE_SIZE){
+      if ((shm_ptr->channel_info[p_idx].maxMsgSize >= MAX_MESSAGE_SIZE) &&
+	  (sp_data[p_idx].Dir == PORT_DIRECTION)){
 
-	strcpy(sp_ptr->Ports[idx]->SAMPLING_PORT_NAME,
-	       a653_sp_config[idx].name_str);
+	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID;
+	sp_data[p_idx].Port->LAST_SIZE = 0;
 	
-        sp_ptr->Ports[idx]->LAST_MSG_VALIDITY = INVALID;
-        sp_ptr->Ports[idx]->MAX_MESSAGE_SIZE  = MAX_MESSAGE_SIZE;
 	/*
 	 PORT_DIRECTION
 	 REFRESH_PERIOD
 	 */
-	sp_ptr->Ports[idx]->PortId = a653_sp_config[idx].PortId;
 	/* save link to instance*/
-	sp_ptr->PortsHash[a653_sp_config[idx].PortId] = idx;
-	
+	PortsHash[sp_data[p_idx].PortId] = p_idx;
         /* set return values */
-        *SAMPLING_PORT_ID = a653_sp_config[idx].PortId;
+        *SAMPLING_PORT_ID = sp_data[p_idx].PortId;
         *RETURN_CODE      = NO_ERROR;          
       }
     }    
-    idx++;
+    p_idx++;
   }
   
-  if (*RETURN_CODE != NO_ERROR){
-    printDebug(3,"CREATE_SAMPLING_PORT error: %d\n",*RETURN_CODE);
-  }
+  //  if (*RETURN_CODE != NO_ERROR){
+    printDebug(3,"CREATE_SAMPLING_PORT return: %d\n",*RETURN_CODE);
+    // }
 }
 
 
@@ -183,30 +166,31 @@ static void write_sampling_message_ip (SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID,
 				       MESSAGE_SIZE_TYPE       LENGTH, 
 				       RETURN_CODE_TYPE      * RETURN_CODE){
   
-  int idx = sp_ptr->PortsHash[SAMPLING_PORT_ID];
+  int p_idx = PortsHash[SAMPLING_PORT_ID];
 
-  //  printDebug(3,"%s sp_id %d idx: %d\n",__func__,SAMPLING_PORT_ID,idx);
+  printDebug(3,"%s sp_id %d idx: %d\n",__func__,SAMPLING_PORT_ID,p_idx);
 
-  if (idx < sp_ptr->max_port_num){
+  if (p_idx < MAX_S_PORT){
 
-    if (sp_ptr->Ports[idx]->data == NULL) {
-      *RETURN_CODE = NOT_AVAILABLE;
-    } else {
-      if ((LENGTH > sp_ptr->Ports[idx]->MAX_MESSAGE_SIZE)){ // || 
-	//          (sp_ptr->Ports[idx]->Sampling_Port_Status.PORT_DIRECTION != SOURCE)) {
-	*RETURN_CODE = INVALID_CONFIG;
+    if ((sp_data[p_idx].Port->init_done == 0) &&
+	(sp_data[p_idx].Dir != SOURCE) &&
+	(shm_ptr->channel_info[p_idx].maxMsgSize <= LENGTH)) {
+      
+      *RETURN_CODE = INVALID_CONFIG;
+      
       } else {
-	memcpy(sp_ptr->Ports[idx]->data,             /* dest */
-	       MESSAGE_ADDR,                         /* src  */
-	       LENGTH);
-	sp_ptr->Ports[idx]->LAST_MSG_VALIDITY = VALID;
-
-	//	printDebug(3,"%s LAST_MSG_VALIDITY %d (%p)\n",__func__,sp_ptr->Ports[idx]->LAST_MSG_VALIDITY, &sp_ptr->Ports[idx]->LAST_MSG_VALIDITY);
+      
+      memcpy(sp_data[p_idx].Port->data,     /* dest */
+	     MESSAGE_ADDR,                /* src  */
+	     LENGTH);
+	       
+      sp_data[p_idx].Port->LAST_MSG_VALIDITY = VALID;
+      sp_data[p_idx].Port->LAST_SIZE = LENGTH;
 	
-	*RETURN_CODE = NO_ERROR;
-      }
+      *RETURN_CODE = NO_ERROR;
     }
   }
+  
   if (*RETURN_CODE != NO_ERROR){
     printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
   }
@@ -218,39 +202,35 @@ static void read_sampling_message_ip (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID,
 				      VALIDITY_TYPE          * VALIDITY, 
 				      RETURN_CODE_TYPE       * RETURN_CODE){
   
-  int idx = sp_ptr->PortsHash[SAMPLING_PORT_ID];
+  int p_idx = PortsHash[SAMPLING_PORT_ID];
 
-  //  printDebug(3,"%s sp_id %d idx: %d\n",__func__,SAMPLING_PORT_ID,idx);
-  
-  if (idx < sp_ptr->max_port_num){
+  if (p_idx < MAX_S_PORT){
 
-    if (sp_ptr->Ports[idx]->data == NULL) {
-      *RETURN_CODE = NOT_AVAILABLE;
-    } else {
-      //      printDebug(3,"%s LAST_MSG_VALIDITY %d (%p)\n",__func__,sp_ptr->Ports[idx]->LAST_MSG_VALIDITY, &sp_ptr->Ports[idx]->LAST_MSG_VALIDITY);
+    if ((sp_data[p_idx].Port->init_done == 0) &&
+	(sp_data[p_idx].Dir != DESTINATION)) {
       
-      /*       if (sp_ptr->Ports[idx]->Sampling_Port_Status.PORT_DIRECTION != DESTINATION) { */
-      /*         *RETURN_CODE = INVALID_CONFIG; */
-      /*       } else { */
-      if (sp_ptr->Ports[idx]->LAST_MSG_VALIDITY == INVALID){
+      *RETURN_CODE = INVALID_CONFIG;
+      
+    } else {
+       
+      if ( sp_data[p_idx].Port->LAST_MSG_VALIDITY == INVALID){
 	/* no data available */
 	*VALIDITY    = INVALID;
 	*RETURN_CODE = NO_ACTION;
       } else {
 	/* return last data */
-	*LENGTH   = sp_ptr->Ports[idx]->MAX_MESSAGE_SIZE;
+	*LENGTH   = sp_data[p_idx].Port->LAST_SIZE;
 	*VALIDITY = VALID;
         
-	memcpy(MESSAGE_ADDR,                             /* dest */ 
-	       (sp_ptr->Ports[idx]->data),               /* src  */             
+	memcpy(MESSAGE_ADDR,                        /* dest */ 
+	       sp_data[p_idx].Port->data,           /* src  */             
 	       *LENGTH);
 
-	sp_ptr->Ports[idx]->LAST_MSG_VALIDITY = INVALID;
+	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID;
 
 	*RETURN_CODE = NO_ERROR;
       }
     }
-    /*     } */
   }
   if (*RETURN_CODE != NO_ERROR){
     printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
@@ -308,7 +288,7 @@ void WRITE_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID,
   *RETURN_CODE = NO_ACTION;
 
   if ((SAMPLING_PORT_ID < 0) ||
-      (SAMPLING_PORT_ID > sp_ptr->max_port_id)){
+      (SAMPLING_PORT_ID > MAX_S_PORT)){
 
     *RETURN_CODE = INVALID_CONFIG;
     
@@ -341,7 +321,7 @@ void READ_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID,
   *RETURN_CODE = NO_ACTION;
 
   if ((SAMPLING_PORT_ID < 0) ||
-      (SAMPLING_PORT_ID > sp_ptr->max_port_id)){
+      (SAMPLING_PORT_ID > MAX_S_PORT)){
 
     *RETURN_CODE = INVALID_CONFIG;
     
@@ -385,28 +365,28 @@ void GET_SAMPLING_PORT_ID (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME,
                            SAMPLING_PORT_ID_TYPE   * SAMPLING_PORT_ID, 
                            RETURN_CODE_TYPE        * RETURN_CODE){
 
-  int idx   = 0;
+  int p_idx   = 0;
 
   *RETURN_CODE = INVALID_CONFIG;
 
-  while (a653_sp_config[idx].PortId != 0){
+  while (sp_data[p_idx].PortId != 0){
 
-    if ((strncmp(a653_sp_config[idx].name_str,SAMPLING_PORT_NAME,25)) == 0) {
+    if ((strncmp(sp_data[p_idx].SAMPLING_PORT_NAME,SAMPLING_PORT_NAME,25)) == 0) {
       
       /* set return values */
-      *SAMPLING_PORT_ID = a653_sp_config[idx].PortId;
+      *SAMPLING_PORT_ID = sp_data[p_idx].PortId;
 
       if ((*SAMPLING_PORT_ID < 0) ||
-	  (*SAMPLING_PORT_ID > sp_ptr->max_port_id)){
+	  (*SAMPLING_PORT_ID > MAX_S_PORT)){
 	*SAMPLING_PORT_ID = 0;
 	*RETURN_CODE = INVALID_CONFIG;
       } else {
-	*SAMPLING_PORT_ID = a653_sp_config[idx].PortId;
+	*SAMPLING_PORT_ID = sp_data[p_idx].PortId;
 	*RETURN_CODE = NO_ERROR;	
       }
       break;
     }    
-    idx++;
+    p_idx++;
   }
   
   if (*RETURN_CODE > NO_ACTION){
