@@ -56,19 +56,32 @@
 /*
 typedef struct {
   unsigned short ChannelId;
+  unsigned short ChannelType;
   unsigned short maxMsgSize;
-  unsigned short SrcPartitionId;
-  unsigned short DstPartitionId[MAX_CHANNEL_DST];
 } a653_channel_config_t;
 */
 #define A653_CH_CONFIG_DEF {\
-    { 1, CHANNEL_SP_TYPE, 50, 1 , { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0} },\
-    { 2, CHANNEL_SP_TYPE, 50, 2 , { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },\
-    { 3, CHANNEL_QP_TYPE, 50, 1 , { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0} },\
-    { 4, CHANNEL_QP_TYPE, 50, 2 , { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0} },\
-    { 0, 0              , 0 , 0 , { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} }\
+    { 1, CHANNEL_SP_TYPE, 50 },\
+    { 2, CHANNEL_SP_TYPE, 50 },\
+    { 3, CHANNEL_QP_TYPE, 50 },\
+    { 4, CHANNEL_QP_TYPE, 50 },\
+    { 0, 0              , 0  }\
 }
 /*
+typedef struct {
+  unsigned short ChannelId;
+  unsigned short Dir;
+  char           name_str[32];
+} a653_sampling_port_config_t;
+
+typedef struct {
+  unsigned short ChannelId;
+  unsigned short Dir;
+  unsigned short Type;
+  char           name_str[32];  
+} a653_queuing_port_config_t;
+
+
 typedef struct {
   unsigned short PartitionId;
   char           name_str[32];

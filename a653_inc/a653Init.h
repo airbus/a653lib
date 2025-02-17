@@ -75,8 +75,6 @@ typedef struct {
   unsigned short ChannelId;
   unsigned short ChannelType;
   unsigned short maxMsgSize;
-  unsigned short SrcPartitionId;
-  unsigned short DstPartitionId[MAX_CHANNEL_DST];
 } a653_channel_config_t;
 
 typedef struct {

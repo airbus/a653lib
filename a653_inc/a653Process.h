@@ -33,21 +33,21 @@ typedef enum DEADLINE_VALUE_TYPE {
 
 /* process attribute type    */
 typedef struct {
-  PROCESS_NAME_TYPE     NAME;                 /* process name              */
+  SYSTEM_TIME_TYPE      PERIOD;               /* process period            */
+  SYSTEM_TIME_TYPE      TIME_CAPACITY;        /* time capacity             */
   SYSTEM_ADDRESS_TYPE   ENTRY_POINT;          /* starting address          */
   STACK_SIZE_TYPE       STACK_SIZE;           /* stack size                */
   PRIORITY_TYPE         BASE_PRIORITY;        /* process base priority     */
-  SYSTEM_TIME_TYPE      PERIOD;               /* process period            */
-  SYSTEM_TIME_TYPE      TIME_CAPACITY;        /* time capacity             */
   DEADLINE_TYPE         DEADLINE;             /* deadline type (soft/hard) */
+  PROCESS_NAME_TYPE     NAME;                 /* process name              */
 } PROCESS_ATTRIBUTE_TYPE;
 
 /* process status type      */
 typedef struct {
-  PROCESS_ATTRIBUTE_TYPE ATTRIBUTES;          /* process attributes       */
-  PRIORITY_TYPE          CURRENT_PRIORITY;    /* process current priority */
   SYSTEM_TIME_TYPE       DEADLINE_TIME;       /* time to next deadline    */
+  PRIORITY_TYPE          CURRENT_PRIORITY;    /* process current priority */
   PROCESS_STATE_TYPE     PROCESS_STATE;       /* process state            */
+  PROCESS_ATTRIBUTE_TYPE ATTRIBUTES;          /* process attributes       */
 } PROCESS_STATUS_TYPE;
 
 
