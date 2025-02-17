@@ -103,7 +103,7 @@ void a653_i_init_sync(void) {
 
       shm_ptr->partition_info[idx].init = 1;
       
-      sprintf(buf,"taskset --cpu-list %d ./%s &",idx,global_config.partition[idx].name_str);
+      sprintf(buf,"taskset --cp %d ./%s &",idx,global_config.partition[idx].name_str);
 	
       printDebug(0,"> %s : \n\n",buf);
       system(buf);
