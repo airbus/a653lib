@@ -245,13 +245,16 @@ void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
 			  RETURN_CODE_TYPE       *RETURN_CODE){
     
   int p_idx   = 0;
+  int length  = 0;
   int found = 0;
     
   *RETURN_CODE = INVALID_CONFIG;
 
   while ((!found) && (qp_data[p_idx].PortId != 0)) {
+    
+    length = strnlen(qp_data[p_idx].QUEUING_PORT_NAME, 32);
 
-    if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,25)) == 0) {
+    if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,length)) == 0) {
       
       found = 1;
 
@@ -365,13 +368,16 @@ void GET_QUEUING_PORT_ID (QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
                           QUEUING_PORT_ID_TYPE   * QUEUING_PORT_ID,
                           RETURN_CODE_TYPE       * RETURN_CODE){
   int p_idx   = 0;
-  
+  int length  = 0;
+    
   *QUEUING_PORT_ID = 0;    
   *RETURN_CODE     = INVALID_CONFIG;
   
   while ( qp_data[p_idx].PortId != 0) {
+    
+    length = strnlen(qp_data[p_idx].QUEUING_PORT_NAME, 32);
 
-    if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,25)) == 0) {
+    if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,length)) == 0) {
 
       /* set return values */
       *QUEUING_PORT_ID = qp_data[p_idx].PortId;

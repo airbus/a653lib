@@ -125,13 +125,16 @@ void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME,
 			   SAMPLING_PORT_ID_TYPE   *SAMPLING_PORT_ID, 
 			   RETURN_CODE_TYPE        *RETURN_CODE){
   int p_idx   = 0;
-  int found = 0;
+  int length  = 0;
+  int found   = 0;
 
   *RETURN_CODE = INVALID_CONFIG;
 
   while ((!found) && (sp_data[p_idx].PortId != 0)){
 
-    if ((strncmp(sp_data[p_idx].SAMPLING_PORT_NAME,SAMPLING_PORT_NAME,25)) == 0) {
+    length = strnlen(sp_data[p_idx].SAMPLING_PORT_NAME, 32);
+
+    if ((strncmp(sp_data[p_idx].SAMPLING_PORT_NAME,SAMPLING_PORT_NAME,length)) == 0) {
 
       found = 1;
 
@@ -156,7 +159,7 @@ void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME,
   }
 
   if (*RETURN_CODE != NO_ERROR){
-    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
+    printDebug(3,"%s error: %d name %s length %d\n",__func__,*RETURN_CODE,SAMPLING_PORT_NAME,length);
   }
 }
 
@@ -264,12 +267,15 @@ void GET_SAMPLING_PORT_ID (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME,
                            RETURN_CODE_TYPE        * RETURN_CODE){
 
   int p_idx   = 0;
+  int length  = 0;
 
   *RETURN_CODE = INVALID_CONFIG;
 
   while (sp_data[p_idx].PortId != 0){
 
-    if ((strncmp(sp_data[p_idx].SAMPLING_PORT_NAME,SAMPLING_PORT_NAME,25)) == 0) {
+    length = strnlen(sp_data[p_idx].SAMPLING_PORT_NAME, 32);
+
+    if ((strncmp(sp_data[p_idx].SAMPLING_PORT_NAME,SAMPLING_PORT_NAME,length)) == 0) {
       
       /* set return values */
       *SAMPLING_PORT_ID = sp_data[p_idx].PortId;
