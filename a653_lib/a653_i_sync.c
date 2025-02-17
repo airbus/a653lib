@@ -152,7 +152,7 @@ void a653_i_wait_next(void) {
   do {
     t1 = getTime();
     diff = my_time_diff(&t2,&t1);
-    usleep(10);
+    usleep(100);
   } while(diff > 0);
 
    a653_i_set_next();

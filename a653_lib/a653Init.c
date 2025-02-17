@@ -50,11 +50,11 @@ void printDebug(int level, const char *format, ... ){
   va_list arglist;
   struct timespec ts;
 
-  if (level < debugLevel){
+  if (level <= debugLevel){
 
     ts = getTime(); 
     
-    printf("pid: %d <%lu.%08lu>: ",getpid(),ts.tv_sec,ts.tv_nsec);
+    printf("pid: %d <%lu.%09lu>: ",getpid(),ts.tv_sec,ts.tv_nsec);
     
     va_start( arglist, format );
     vprintf(format,arglist);
