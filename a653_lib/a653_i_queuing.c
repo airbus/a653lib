@@ -78,6 +78,7 @@ typedef struct {
   unsigned short              PortId;
   unsigned short              ChannelIdx;
   unsigned short              Dir;
+  unsigned short              MaxMsgSize;
   char                        QUEUING_PORT_NAME[34];
   t_queuing_port_shm_data    *Port;
 } queuing_port_data_t;
@@ -216,6 +217,7 @@ int a653_init_queuing_ports(a653_queuing_port_config_t *config){
 	qp_data[p_idx].ChannelIdx = c_idx;
 	qp_data[p_idx].PortId     = qp_id_next++;
 	qp_data[p_idx].Dir        = config[p_idx].Dir;
+	qp_data[p_idx].MaxMsgSize = channel_config[c_idx].maxMsgSize;
 	qp_data[p_idx].Port       = (t_queuing_port_shm_data *)&shm_ptr->channel_info[c_idx].data.qp_d;
 	
 	strcpy(qp_data[p_idx].QUEUING_PORT_NAME, config[p_idx].name_str);
@@ -228,7 +230,7 @@ int a653_init_queuing_ports(a653_queuing_port_config_t *config){
   
   PortsHash = (QUEUING_PORT_ID_TYPE *) malloc(sizeof(QUEUING_PORT_ID_TYPE) * (QP_START_ID + MAX_Q_PORT));
 
-  printDebug(3,"%s number of ports %d\n",__func__,found);
+  printDebug(1,"%s number of ports %d\n",__func__,found);
   
   return ret_val;
 }
@@ -272,7 +274,8 @@ void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
       } else {
 	/* RX */
         
-	if (shm_ptr->channel_info[p_idx].maxMsgSize <= MAX_MESSAGE_SIZE){
+	if (qp_data[p_idx].MaxMsgSize < MAX_MESSAGE_SIZE){
+	  printDebug(1,"MAX_MESSAGE_SIZE : %d < %d \n",qp_data[p_idx].MaxMsgSize,MAX_MESSAGE_SIZE);
 	  *RETURN_CODE = NOT_AVAILABLE;
 	} else {
 	  /* update internel struct */
@@ -285,7 +288,9 @@ void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
 	    /* set return values */
 	    *QUEUING_PORT_ID = qp_data[p_idx].PortId;
 	    *RETURN_CODE     = NO_ERROR;
-	  } 
+	  } else {
+	    *RETURN_CODE = INVALID_PARAM;
+	  }
 	  break;
 	}
       }
@@ -294,9 +299,11 @@ void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
   }
   
   if (*RETURN_CODE != NO_ERROR){
-    printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
+    printDebug(1,"%s error: %d name %s length %d max_msg_size %d\n",__func__,*RETURN_CODE,QUEUING_PORT_NAME,length,MAX_MESSAGE_SIZE);
+  } else {
+    printDebug(1,"%s ok: %d name %s length %d max_msg_size %d\n",__func__,*RETURN_CODE,QUEUING_PORT_NAME,length,MAX_MESSAGE_SIZE);
   }
-}
+}  
 
 void SEND_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
 			   MESSAGE_ADDR_TYPE      MESSAGE_ADDR,

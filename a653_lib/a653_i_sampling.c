@@ -68,6 +68,7 @@ typedef struct {
   unsigned short              PortId;
   unsigned short              ChannelIdx;
   unsigned short              Dir;
+  unsigned short              MaxMsgSize;
   char                        SAMPLING_PORT_NAME[34];
   t_sampling_port_shm_data   *Port;
 } sampling_port_data_t;
@@ -99,6 +100,7 @@ int a653_init_sampling_ports(a653_sampling_port_config_t *config){
 	sp_data[p_idx].ChannelIdx = c_idx;
 	sp_data[p_idx].PortId = sp_id_next++;
 	sp_data[p_idx].Dir = config[p_idx].Dir;
+	sp_data[p_idx].MaxMsgSize = channel_config[c_idx].maxMsgSize;
 	sp_data[p_idx].Port = (t_sampling_port_shm_data *)&shm_ptr->channel_info[c_idx].data.sp_d;
 	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID;
 	
@@ -112,7 +114,7 @@ int a653_init_sampling_ports(a653_sampling_port_config_t *config){
   
   PortsHash = (SAMPLING_PORT_ID_TYPE *) malloc(sizeof(SAMPLING_PORT_ID_TYPE) * (SP_START_ID + MAX_S_PORT));
   
-  printDebug(3,"%s number of ports %d\n",__func__,found);
+  printDebug(1,"%s number of ports %d\n",__func__,found);
 					      
   return ret_val;
 }
@@ -138,7 +140,7 @@ void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME,
 
       found = 1;
 
-      if ((shm_ptr->channel_info[p_idx].maxMsgSize >= MAX_MESSAGE_SIZE) &&
+      if ((sp_data[p_idx].MaxMsgSize >= MAX_MESSAGE_SIZE) &&
 	  (sp_data[p_idx].Dir == PORT_DIRECTION)){
 
 	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID;
@@ -153,13 +155,18 @@ void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE  SAMPLING_PORT_NAME,
         /* set return values */
         *SAMPLING_PORT_ID = sp_data[p_idx].PortId;
         *RETURN_CODE      = NO_ERROR;          
+      } else {
+	*RETURN_CODE      = INVALID_PARAM;
       }
+      
     }    
     p_idx++;
   }
 
   if (*RETURN_CODE != NO_ERROR){
-    printDebug(3,"%s error: %d name %s length %d\n",__func__,*RETURN_CODE,SAMPLING_PORT_NAME,length);
+    printDebug(1,"%s error: %d name %s length %d max_msg_size %d\n",__func__,*RETURN_CODE,SAMPLING_PORT_NAME,length,MAX_MESSAGE_SIZE);
+  } else {
+    printDebug(1,"%s ok: %d name %s length %d max_msg_size %d\n",__func__,*RETURN_CODE,SAMPLING_PORT_NAME,length,MAX_MESSAGE_SIZE);
   }
 }
 
@@ -177,7 +184,7 @@ void WRITE_SAMPLING_MESSAGE(SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID,
 
     if ((sp_data[p_idx].Port->init_done == 0) &&
 	(sp_data[p_idx].Dir != SOURCE) &&
-	(shm_ptr->channel_info[p_idx].maxMsgSize <= LENGTH)) {
+	(sp_data[p_idx].MaxMsgSize <= LENGTH)) {
       
       *RETURN_CODE = INVALID_CONFIG;
       
