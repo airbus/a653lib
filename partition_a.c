@@ -177,7 +177,7 @@ int main (int argc, char *argv[]){
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process A                    ");
-   process_data.PERIOD = 20000000LL;
+   process_data.PERIOD = 1000000000LL;
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x5000000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process

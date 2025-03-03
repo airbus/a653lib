@@ -119,23 +119,34 @@ void a653_i_init_sync(void) {
 	if (fp != 0){
 	  fscanf(fp, "%d",&shm_ptr->partition_info[idx].pid);
 	  pclose(fp);
-	}
+	} else { printDebug(0,"Problem opening file\n");}
       }
     
       strcpy(shm_ptr->partition_info[idx].name, global_config.partition[idx].name_str);
       
     
-      while(shm_ptr->partition_info[idx].init){
+      while(shm_ptr->partition_info[idx].init == 1){
 	usleep(50);
       }
 
-      kill(shm_ptr->partition_info[idx].pid, SIGSTOP);
-      printDebug(3,"a653 start (other pid) %d\n", shm_ptr->partition_info[idx].pid);
+      //   kill(shm_ptr->partition_info[idx].pid, SIGSTOP);
+       
+      printDebug(1,"a653 start (other pid) %d\n", shm_ptr->partition_info[idx].pid);
 
+      usleep(500);
     } /* for */
-  
+   
     initTime();
+    usleep(500000);
 
+    for (idx = 0;idx < global_config.partition_number; idx++){
+      //    kill(shm_ptr->partition_info[idx].pid, SIGSTOP);
+      usleep(500);
+      shm_ptr->partition_info[idx].init = 1;
+    }
+    
+    usleep(500000);
+    
   }
 }
 
@@ -177,7 +188,9 @@ void a653_i_update_partitions(void){
 	  l_p_info.curr_partition_idx[core_idx] < global_config. partition_number) {
 	/* current partition must be stopped on this core */
 	//	printDebug(3,"SIGSTOP %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
+#if 1
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGSTOP);
+#endif
       }
       /* schedule new partition if needed */
       if (global_config.time_slice[l_p_info.time_slice][core_idx].PatitionIdx >= 0 &&
@@ -186,7 +199,9 @@ void a653_i_update_partitions(void){
 	l_p_info.curr_partition_idx[core_idx] = global_config.time_slice[l_p_info.time_slice][core_idx].PatitionIdx;
 	shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].go = 1;
 	//	printDebug(3,"SIGCONT %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
+#if 1
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGCONT);
+#endif
       } else {
 	/* no partition is scheduled in this time slice for this core */
 	l_p_info.curr_partition_idx[core_idx]  = -1;
@@ -194,7 +209,7 @@ void a653_i_update_partitions(void){
     }    
   } /* for all cores */
 
-  printDebug(3,"window %d\n",l_p_info.time_slice);
+  printDebug(6,"window %d\n",l_p_info.time_slice);
 
     /* update time slice */
   l_p_info.time_slice++;

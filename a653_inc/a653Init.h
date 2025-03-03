@@ -35,18 +35,18 @@
 #define MAX_PRCS_ID 0xff
 
 #define MAX_PARTITION 10           /* maxilmal number of partitions */
-#define MAX_PRCS 5                 /* maximal number of processes per partition */
+#define MAX_PRCS 12                /* maximal number of processes per partition */
 			         
-#define MAX_CHANNEL     50         /* Number of maximal posible channels */
+#define MAX_CHANNEL     60         /* Number of maximal posible channels */
 #define MAX_CHANNEL_DST 10         /* maximal number of destinations of a channel */
-#define MAX_CHANNEL_DATA_SIZE 1024 /* maximal message size over a channel */
+#define MAX_CHANNEL_DATA_SIZE 1500 /* maximal message size over a channel */
 
 #define MAX_TIME_SLICE_NUM 10
 #define MAX_CORE_NUM 4
 
-#define MAX_Q_PORT 10
-#define MAX_Q_PORT_ENTRIES 5
-#define MAX_Q_PORT_SIZE 200
+#define MAX_Q_PORT 45
+#define MAX_Q_PORT_ENTRIES 40
+#define MAX_Q_PORT_SIZE 1500
 
 #define MAX_S_PORT 10
 #define MAX_S_PORT_SIZE 200

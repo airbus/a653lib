@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
 
@@ -54,16 +55,27 @@
 #define A653_PROCESS_INTERN
 
 #include "a653_i_process.h"
-
+#include "a653_i_time_lib.h"
 
 //extern entry_point_t model_main;
 
 #define PRCS_START_ID 1000
 
+typedef struct {
+  //  PROCESS_ATTRIBUTE_TYPE attr;
+  pthread_mutex_t        t_lock;
+  pthread_t              t_ctx;
+  pthread_attr_t         t_attr;
+  int64_t                timerPeriod;
+  struct timespec        nextActivation;
+  unsigned int           priority;
+  unsigned int           cycle_cnt;
+  unsigned short         id;
+  char                   name[35];
+  func_ptr               prcs_main_func;
+} prcs_info_t;
 
 extern int own_partition_idx;
-
-
 
 int number_of_processes = 0;
 int prcs_id_next = 0;
@@ -108,7 +120,7 @@ int  a653_sync_prcs(void){
   for (idx = 0; idx < number_of_processes; idx++) {
     
     if (prcs_info[idx].t_ctx == pt_self){
-      
+      //     printDebug(1,"%s lock prcs %d\n",__func__,idx);
       pthread_mutex_lock(&prcs_info[idx].t_lock);
       break;
     }
@@ -119,9 +131,19 @@ int  a653_sync_prcs(void){
 void a653_act_prcs(void){
  
   int idx   = 0;
+  int64_t diff;
+  struct timespec t1 = getTime();
   
   for (idx = 0; idx < number_of_processes; idx++) {
-    pthread_mutex_unlock(&prcs_info[idx].t_lock);
+    //  printDebug(1,"%s unlock prcs %d\n",__func__,idx);
+
+    diff = my_time_diff(&prcs_info[idx].nextActivation,&t1);
+    
+    if (diff < 0) {
+      prcs_info[idx].nextActivation = getTime();
+      my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
+      pthread_mutex_unlock(&prcs_info[idx].t_lock);
+    }
     //    break;
   }
   
@@ -141,6 +163,8 @@ static void prcs_main(void){
     }
   }
 
+  my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
+    
   (*(prcs_info[idx].prcs_main_func))();
 }
 
@@ -211,6 +235,7 @@ void CREATE_PROCESS (PROCESS_ATTRIBUTE_TYPE *ATTRIBUTES,
       strncpy(prcs_info[idx].name,ATTRIBUTES->NAME,25);
       
       prcs_info[idx].timerPeriod = (ATTRIBUTES->PERIOD); /* in nsec */
+      
       prcs_info[idx].priority = (ATTRIBUTES->BASE_PRIORITY);
       //      prcs_info[idx].timerCnt    = 0;
 

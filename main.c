@@ -36,7 +36,7 @@ int main (int argc, char *argv[]){
   
   a653_i_set_first();
   while (1){
-    printDebug(2,"start next loop\n");
+    printDebug(6,"start next loop\n");
     a653_i_update_partitions();
     a653_i_wait_next();
   }

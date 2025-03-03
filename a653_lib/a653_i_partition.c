@@ -106,6 +106,12 @@ int a653_init_partition(void){
   if (a653_init_queuing_ports((a653_queuing_port_config_t *)&own_partition_config.qp_config)){ ret_val = 1; }
   
   return ret_val;
+
+  if (ret_val != 0){
+    printDebug(1,"%s error: %d name %s\n",__func__,ret_val,shm_ptr->partition_info[idx].name);
+  } else {
+    printDebug(1,"%s ok: %d name %s\n",__func__,ret_val,shm_ptr->partition_info[idx].name);
+  }
 }
 
 void a653_act_partition(void){
@@ -129,9 +135,9 @@ extern void SET_PARTITION_MODE (
 /*in */ OPERATING_MODE_TYPE OPERATING_MODE,
 /*out*/ RETURN_CODE_TYPE *RETURN_CODE ){
 
-  if (pertition_status.OPERATING_MODE != IDLE &&
-      OPERATING_MODE == NORMAL){
+  if (OPERATING_MODE == NORMAL){
     shm_ptr->partition_info[own_partition_idx].init = 0;
+    usleep(5000);
   }
   
   pertition_status.OPERATING_MODE = OPERATING_MODE;

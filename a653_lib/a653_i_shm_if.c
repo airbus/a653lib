@@ -123,10 +123,18 @@ int a653_shm_remove( int* shm_id) {
  */
 int a653_shm_init(void){
   int ret_val = 0;
+  int size = 0;
 
-  if (shm_ptr == NULL){
-    if ((shm_ptr = a653_shm_get(&shm_id, A653_SHM_KEY_FILE, TOTAL_A653_SHM_SIZE)) != 0){
-      ret_val = 1;
+  size = sizeof(a653_shm_info_t);
+
+  printDebug(0,"get shared memory: size needed %d : %d\n",size,TOTAL_A653_SHM_SIZE);
+  
+  if (TOTAL_A653_SHM_SIZE > size){
+  
+    if (shm_ptr == NULL){
+      if ((shm_ptr = a653_shm_get(&shm_id, A653_SHM_KEY_FILE, TOTAL_A653_SHM_SIZE)) != 0){
+	ret_val = 1;
+      }
     }
   }
   return(ret_val);

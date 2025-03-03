@@ -14,7 +14,7 @@
 
 #define MS10 10000000ll
 #define S1 1000000000ll
-#define WT 100000000ll
+#define WT 1000000ll
 
 #define PART_NAME_A "partition_a"
 #define PART_NAME_B "partition_b"

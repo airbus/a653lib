@@ -122,7 +122,7 @@ void PeriodicProcess_2(void){
   RETURN_CODE_TYPE return_code;
 
   while (1){
-    printDebug(3,"Prcs C: activated\n");
+    //   printDebug(3,"Prcs C: activated\n");
     SIGNAL_SEMAPHORE(semaphore_id,
 		     &return_code);
     PERIODIC_WAIT(&return_code);
@@ -137,7 +137,7 @@ void APeriodicProcess(void){
     WAIT_SEMAPHORE(semaphore_id,
 		   0,
 		   &return_code);   
-    printDebug(3,"Prcs D: activated\n");  
+    //   printDebug(3,"Prcs D: activated\n");  
     TIMED_WAIT(10000000,&return_code);
   }
   
@@ -227,7 +227,7 @@ int main (int argc, char *argv[]){
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process B                    ");
-   process_data.PERIOD = 20000000LL;
+   process_data.PERIOD = 1000000000LL;
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
@@ -242,7 +242,7 @@ int main (int argc, char *argv[]){
    GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process C                    ");
-   process_data.PERIOD = 20000000LL;
+   process_data.PERIOD = 2000000LL;
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess_2; //Entrypoint to periodic process

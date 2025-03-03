@@ -41,10 +41,22 @@ void beforeMain (void) __attribute__ ((constructor));
 
 void beforeMain (void)
 {
+  unsigned idx;
+  
   setDebug(5);
   
   printDebug(1,"a653 partition init (%d)\n",getpid());
   a653_init_partition();
   pertition_status.OPERATING_MODE = COLD_START;
-  shm_ptr->partition_info[own_partition_idx].init = 0;
+  shm_ptr->partition_info[own_partition_idx].init = 2;
+
+  printDebug(1,"a653 partition wait (%d)\n",getpid());
+  
+  while (shm_ptr->partition_info[own_partition_idx].init == 2){
+    if((idx++ % 0x100000) == 0){
+      printDebug(1,"a653 partition wait (%d)\n",getpid());
+      idx = 0;
+    }
+    usleep(5000);
+  }
 }
