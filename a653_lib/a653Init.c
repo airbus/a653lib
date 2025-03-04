@@ -54,7 +54,8 @@ void printDebug(int level, const char *format, ... ){
 
     ts = getTime(); 
     
-    printf("pid: %d <%lu.%09lu>: ",getpid(),ts.tv_sec,ts.tv_nsec);
+    //    printf("pid: %d <%lu.%09lu>: ",getpid(),ts.tv_sec,ts.tv_nsec);
+    printf("%lu.%09lu:%d: ",ts.tv_sec,ts.tv_nsec,getpid());
     
     va_start( arglist, format );
     vprintf(format,arglist);

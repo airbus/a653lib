@@ -135,13 +135,13 @@ void a653_act_prcs(void){
   struct timespec t1 = getTime();
   
   for (idx = 0; idx < number_of_processes; idx++) {
-    //  printDebug(1,"%s unlock prcs %d\n",__func__,idx);
-
+    
     diff = my_time_diff(&prcs_info[idx].nextActivation,&t1);
     
     if (diff < 0) {
       prcs_info[idx].nextActivation = getTime();
       my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
+      //      printDebug(1,"%s unlock prcs %d\n",__func__,idx);
       pthread_mutex_unlock(&prcs_info[idx].t_lock);
     }
     //    break;
