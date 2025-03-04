@@ -32,6 +32,10 @@
 #ifndef __A653INIT_H__
 #define __A653INIT_H__
 
+#define TRACE 1
+
+#define MAX_TRACE_ENTRIES 1000
+
 #define MAX_PRCS_ID 0xff
 
 #define MAX_PARTITION 10           /* maxilmal number of partitions */

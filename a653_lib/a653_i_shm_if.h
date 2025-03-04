@@ -36,6 +36,13 @@
 #include "a653Type.h"
 #include "a653Sampling.h"
 
+typedef enum trace_code {
+  T_EMPTY       = 0,
+  T_START       = 1,
+  T_STOP        = 2,
+} trace_code_t;
+
+
 /* sampling ports */
 
 typedef struct{
@@ -86,9 +93,22 @@ typedef struct {
   } data;
 } a653_channel_shm_info_t;
 
+/* trace */
+typedef struct {
+  unsigned int tIdx;      
+  struct {
+    struct timespec time;
+    int             pid;
+    int             tid;
+    trace_code_t    code;
+  } entry[MAX_TRACE_ENTRIES];
+} a653_trace_shm_info_t;
+
+
 typedef struct {
   partition_info_t          partition_info[MAX_PARTITION];
   a653_channel_shm_info_t   channel_info[MAX_CHANNEL];
+  a653_trace_shm_info_t     trace_info;
 } a653_shm_info_t;
 
 /* function declarations */

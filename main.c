@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 //--------------------
 #include <errno.h>
 
@@ -18,15 +19,65 @@
 #include "a653Init.h"
 #include "a653_config.h"
 
+#include "a653_i_shm_if.h"
+
+extern a653_shm_info_t *shm_ptr;
+
 a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; 
 a653_channel_config_t channel_config[] = A653_CH_CONFIG_DEF;
+
+void dump_trace(void){
+  int tIdx = 0;
+  FILE *fd;
+
+  fd=fopen("trace.txt","wb");
+
+  if (fd != -1){
+    
+
+  
+    fprintf(fd,"sec.usec:pid:tid:code\n");
+  
+  for(tIdx = 0; tIdx < MAX_TRACE_ENTRIES; tIdx++){
+    fprintf(fd,"%lu.%09lu-%d:%d:%d\n",
+	   shm_ptr->trace_info.entry[tIdx].time.tv_sec,
+	   shm_ptr->trace_info.entry[tIdx].time.tv_nsec,
+	   shm_ptr->trace_info.entry[tIdx].pid,
+	   shm_ptr->trace_info.entry[tIdx].tid,
+      (int)shm_ptr->trace_info.entry[tIdx].code);
+  }
+
+  close(fd);
+  }
+}
+
+void sig_handler(int sig){
+  switch(sig) {
+  case SIGSEGV:
+    fprintf(stderr,"SIGSEGV \n");
+    abort();
+  case SIGINT:
+  case SIGQUIT:
+  case SIGKILL:
+    fprintf(stderr,"scheduler was stopped\n");
+    dump_trace();
+    abort();
+  }
+}
+
+
 
 int main (int argc, char *argv[]){
 
   int64_t rawtime;
   struct tm * timeinfo;
 
-  setDebug(5);
+  signal(SIGINT,sig_handler);
+  signal(SIGQUIT,sig_handler);
+  signal(SIGKILL,sig_handler);
+  signal(SIGSEGV,sig_handler);
+  
+  setDebug(3);
 
   time ( &rawtime );
   timeinfo = localtime ( &rawtime );

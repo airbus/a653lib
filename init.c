@@ -43,7 +43,7 @@ void beforeMain (void)
 {
   unsigned idx;
   
-  setDebug(5);
+  setDebug(3);
   
   printDebug(1,"a653 partition init (%d)\n",getpid());
   a653_init_partition();

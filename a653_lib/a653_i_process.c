@@ -55,6 +55,7 @@
 #define A653_PROCESS_INTERN
 
 #include "a653_i_process.h"
+#include "a653_i_shm_if.h"
 #include "a653_i_time_lib.h"
 
 //extern entry_point_t model_main;
@@ -75,6 +76,7 @@ typedef struct {
   func_ptr               prcs_main_func;
 } prcs_info_t;
 
+extern a653_shm_info_t *shm_ptr;
 extern int own_partition_idx;
 
 int number_of_processes = 0;
@@ -114,6 +116,7 @@ int a653_prcs_init(void){
 
 int  a653_sync_prcs(void){
   int idx   = 0;
+  int ltIdx = 0;
   
   pthread_t pt_self = pthread_self();
 
@@ -121,6 +124,18 @@ int  a653_sync_prcs(void){
     
     if (prcs_info[idx].t_ctx == pt_self){
       //     printDebug(1,"%s lock prcs %d\n",__func__,idx);
+#ifdef TRACE
+      if (shm_ptr->trace_info.tIdx < MAX_TRACE_ENTRIES - 1){
+	ltIdx = shm_ptr->trace_info.tIdx++;
+      } else {
+	ltIdx = shm_ptr->trace_info.tIdx;
+	shm_ptr->trace_info.tIdx = 0;
+      }
+      shm_ptr->trace_info.entry[ltIdx].time = getTime();
+      shm_ptr->trace_info.entry[ltIdx].code = T_STOP;
+      shm_ptr->trace_info.entry[ltIdx].pid = own_partition_idx;
+      shm_ptr->trace_info.entry[ltIdx].tid = idx;
+#endif
       pthread_mutex_lock(&prcs_info[idx].t_lock);
       break;
     }
@@ -131,6 +146,7 @@ int  a653_sync_prcs(void){
 void a653_act_prcs(void){
  
   int idx   = 0;
+  int ltIdx = 0;
   int64_t diff;
   struct timespec t1 = getTime();
   
@@ -142,11 +158,22 @@ void a653_act_prcs(void){
       prcs_info[idx].nextActivation = getTime();
       my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
       //      printDebug(1,"%s unlock prcs %d\n",__func__,idx);
+#ifdef TRACE
+      if (shm_ptr->trace_info.tIdx < MAX_TRACE_ENTRIES - 1){
+	ltIdx = shm_ptr->trace_info.tIdx++;
+      } else {
+	ltIdx = shm_ptr->trace_info.tIdx;
+	shm_ptr->trace_info.tIdx = 0;
+      }
+      shm_ptr->trace_info.entry[ltIdx].time = getTime();
+      shm_ptr->trace_info.entry[ltIdx].code = T_START;
+      shm_ptr->trace_info.entry[ltIdx].pid = own_partition_idx;
+      shm_ptr->trace_info.entry[ltIdx].tid = idx;
+#endif     
       pthread_mutex_unlock(&prcs_info[idx].t_lock);
     }
     //    break;
   }
-  
 }
 
 static void prcs_main(void){
