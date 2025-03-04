@@ -143,7 +143,7 @@ extern void SET_PARTITION_MODE (
   pertition_status.OPERATING_MODE = OPERATING_MODE;
   
   printDebug(1,"a653 start partition (%d)\n",getpid());
-  while (1){
+  while (shm_ptr->partition_info[own_partition_idx].running == 1){
     a653_act_partition();
     usleep(50);	 
   }

@@ -68,7 +68,7 @@ typedef struct {
 /* partition */
 typedef struct {
   int pid;
-  int kill;
+  int running;
   int init;
   int go;
   char name[64];

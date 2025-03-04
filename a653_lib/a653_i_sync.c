@@ -80,6 +80,8 @@ void a653_i_init_sync(void) {
   if (a653_shm_init()){
       
     memset(shm_ptr,0,sizeof(a653_shm_info_t));
+    /* wait to kill running partitions - running will be zero */
+    usleep(500);
 
     /* create channels on shared memory */
     a653_i_init_channels();
@@ -102,6 +104,7 @@ void a653_i_init_sync(void) {
     for (idx = 0;idx < global_config.partition_number; idx++){
 
       shm_ptr->partition_info[idx].init = 1;
+      shm_ptr->partition_info[idx].running = 1;
       
       sprintf(buf,"taskset --cp %d ./%s &",idx,global_config.partition[idx].name_str);
 	
