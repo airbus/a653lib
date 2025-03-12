@@ -30,37 +30,36 @@ void dump_trace(void){
   int tIdx = 0;
   FILE *fd;
 
-  fd=fopen("trace.txt","wb");
+  fd=fopen("/tmp/trace.txt","wb");
 
   if (fd != -1){
     
-
-  
     fprintf(fd,"sec.usec:pid:tid:code\n");
   
-  for(tIdx = 0; tIdx < MAX_TRACE_ENTRIES; tIdx++){
-    fprintf(fd,"%lu.%09lu-%d:%d:%d\n",
-	   shm_ptr->trace_info.entry[tIdx].time.tv_sec,
-	   shm_ptr->trace_info.entry[tIdx].time.tv_nsec,
-	   shm_ptr->trace_info.entry[tIdx].pid,
-	   shm_ptr->trace_info.entry[tIdx].tid,
-      (int)shm_ptr->trace_info.entry[tIdx].code);
-  }
-
-  close(fd);
+    for(tIdx = 0; tIdx < MAX_TRACE_ENTRIES; tIdx++){
+      fprintf(fd,"%lu.%09lu;%d;%d;%d\n",
+	      shm_ptr->trace_info.entry[tIdx].time.tv_sec,
+	      shm_ptr->trace_info.entry[tIdx].time.tv_nsec,
+	      shm_ptr->trace_info.entry[tIdx].pid,
+	      shm_ptr->trace_info.entry[tIdx].tid,
+	      (int)shm_ptr->trace_info.entry[tIdx].code);
+    }
+    
+    close(fd);
   }
 }
 
 void sig_handler(int sig){
   switch(sig) {
   case SIGSEGV:
-    fprintf(stderr,"SIGSEGV \n");
+    fprintf(stderr,"SIGSEGV !!!! \n");
     abort();
   case SIGINT:
   case SIGQUIT:
   case SIGKILL:
     fprintf(stderr,"scheduler was stopped\n");
     dump_trace();
+    memset(shm_ptr,0,sizeof(a653_shm_info_t));	
     abort();
   }
 }
@@ -71,6 +70,7 @@ int main (int argc, char *argv[]){
 
   int64_t rawtime;
   struct tm * timeinfo;
+  int idx = 0;
 
   signal(SIGINT,sig_handler);
   signal(SIGQUIT,sig_handler);

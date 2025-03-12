@@ -191,7 +191,7 @@ void a653_i_update_partitions(void){
 	  l_p_info.curr_partition_idx[core_idx] < global_config. partition_number) {
 	/* current partition must be stopped on this core */
 	//	printDebug(3,"SIGSTOP %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
-#if 1
+#if 0
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGSTOP);
 #endif
       }
@@ -202,14 +202,18 @@ void a653_i_update_partitions(void){
 	l_p_info.curr_partition_idx[core_idx] = global_config.time_slice[l_p_info.time_slice][core_idx].PatitionIdx;
 	shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].go = 1;
 	//	printDebug(3,"SIGCONT %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
-#if 1
+#if 0
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGCONT);
 #endif
       } else {
 	/* no partition is scheduled in this time slice for this core */
 	l_p_info.curr_partition_idx[core_idx]  = -1;
       }
-    }    
+    } else {
+      if (l_p_info.time_slice == 0){
+	shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].go = 1;
+      }
+    }
   } /* for all cores */
 
   printDebug(6,"window %d\n",l_p_info.time_slice);

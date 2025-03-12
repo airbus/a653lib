@@ -106,10 +106,20 @@ int a653_init_sampling_ports(a653_sampling_port_config_t *config){
 	
 	strcpy(sp_data[p_idx].SAMPLING_PORT_NAME, config[p_idx].name_str);
 	found++;
+
+	 printDebug(2,"%s PortId %02d; ChannelIdx %04d; Dir %d; MaxMsgSize %04d; addr 0x%08x; name %s\n",
+		    __func__,
+		    sp_data[p_idx].PortId,
+		    sp_data[p_idx].ChannelIdx,
+		    sp_data[p_idx].Dir,
+		    sp_data[p_idx].MaxMsgSize,
+		    sp_data[p_idx].Port,
+		    sp_data[p_idx].SAMPLING_PORT_NAME);
 	}
       }
       c_idx++;
-    }      
+    }
+   
   }
   
   PortsHash = (SAMPLING_PORT_ID_TYPE *) malloc(sizeof(SAMPLING_PORT_ID_TYPE) * (SP_START_ID + MAX_S_PORT));
@@ -178,7 +188,7 @@ void WRITE_SAMPLING_MESSAGE(SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID,
   
   int p_idx = PortsHash[SAMPLING_PORT_ID];
 
-  printDebug(3,"%s sp_id %d idx: %d\n",__func__,SAMPLING_PORT_ID,p_idx);
+  // printDebug(3,"%s sp_id %d idx: %d\n",__func__,SAMPLING_PORT_ID,p_idx);
 
   if (p_idx < MAX_S_PORT){
 
@@ -236,13 +246,14 @@ void READ_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID,
 	       sp_data[p_idx].Port->data,           /* src  */             
 	       *LENGTH);
 
-	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID;
+	//	sp_data[p_idx].Port->LAST_MSG_VALIDITY = INVALID; todo bn add subvision
 
 	*RETURN_CODE = NO_ERROR;
       }
     }
   }
-  if (*RETURN_CODE != NO_ERROR){
+  if (*RETURN_CODE != NO_ERROR &&
+      *RETURN_CODE != NO_ACTION){
     printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
   }
 }
