@@ -64,6 +64,7 @@
 
 typedef struct {
   //  PROCESS_ATTRIBUTE_TYPE attr;
+  
   pthread_mutex_t        t_lock;
   pthread_t              t_ctx;
   pthread_attr_t         t_attr;
@@ -117,7 +118,7 @@ int a653_prcs_init(void){
 int  a653_sync_prcs(void){
   int idx   = 0;
   int ltIdx = 0;
-  
+
   pthread_t pt_self = pthread_self();
 
   for (idx = 0; idx < number_of_processes; idx++) {
@@ -151,28 +152,32 @@ void a653_act_prcs(void){
   struct timespec t1 = getTime();
   
   for (idx = 0; idx < number_of_processes; idx++) {
+    /* periodic process ?? */
+    if (prcs_info[idx].timerPeriod != -1){
+      
+      diff = my_time_diff(&prcs_info[idx].nextActivation,&t1);
     
-    diff = my_time_diff(&prcs_info[idx].nextActivation,&t1);
-    
-    if (diff < 0) {
-      prcs_info[idx].nextActivation = getTime();
-      my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
-      //      printDebug(1,"%s unlock prcs %d\n",__func__,idx);
+      if (diff < 1000) {
+	prcs_info[idx].nextActivation = getTime();
+	my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
+	//	printDebug(1,"%s unlock prcs %d\n",__func__,idx);
 #ifdef TRACE
-      if (shm_ptr->trace_info.tIdx < MAX_TRACE_ENTRIES - 1){
-	ltIdx = shm_ptr->trace_info.tIdx++;
-      } else {
-	ltIdx = shm_ptr->trace_info.tIdx;
-	shm_ptr->trace_info.tIdx = 0;
-      }
-      shm_ptr->trace_info.entry[ltIdx].time = getTime();
-      shm_ptr->trace_info.entry[ltIdx].code = T_START;
-      shm_ptr->trace_info.entry[ltIdx].pid = own_partition_idx;
-      shm_ptr->trace_info.entry[ltIdx].tid = idx;
+	if (shm_ptr->trace_info.tIdx < MAX_TRACE_ENTRIES - 1){
+	  ltIdx = shm_ptr->trace_info.tIdx++;
+	} else {
+	  ltIdx = shm_ptr->trace_info.tIdx;
+	  shm_ptr->trace_info.tIdx = 0;
+	}
+	shm_ptr->trace_info.entry[ltIdx].time = getTime();
+	shm_ptr->trace_info.entry[ltIdx].code = T_START;
+	shm_ptr->trace_info.entry[ltIdx].pid = own_partition_idx;
+	shm_ptr->trace_info.entry[ltIdx].tid = idx;
 #endif     
-      pthread_mutex_unlock(&prcs_info[idx].t_lock);
+	if (pthread_mutex_unlock(&prcs_info[idx].t_lock) != 0){
+	  printDebug(1,"%s unlock prcs error %d\n",__func__,idx);
+	}
+      }
     }
-    //    break;
   }
 }
 
@@ -186,13 +191,13 @@ static void prcs_main(void){
     if (prcs_info[idx].t_ctx == pt_self){
       
       pthread_mutex_lock(&prcs_info[idx].t_lock);
+      my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
+      /* call custom  process function now */
+      printDebug(1,"%s call custom process function %s now %d\n",__func__, prcs_info[idx].name,idx);
+      (*(prcs_info[idx].prcs_main_func))();
       break;
     }
   }
-
-  my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
-    
-  (*(prcs_info[idx].prcs_main_func))();
 }
 
 

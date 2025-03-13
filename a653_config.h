@@ -12,9 +12,7 @@
 #include "a653Init.h"
 
 
-#define MS10 10000000ll
-#define S1 1000000000ll
-#define WT 1000000ll
+#define D_TIME_SLICE 1000000ll  /* 1000000ns = 1ms */
 
 #define PART_NAME_A "partition_a"
 #define PART_NAME_B "partition_b"
@@ -24,7 +22,7 @@
   4,   /* core number used*/ \
   2,   /* number of partition */ \
   10,  /* number of time slices */ \
-  WT,  /* time slice size in nsec */ \
+  D_TIME_SLICE,  /* time slice size in nsec */ \
   { /*0*/{PART_NAME_A},\
     /*1*/{PART_NAME_B},\
     /*2*/{""},\

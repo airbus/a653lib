@@ -85,17 +85,7 @@ void a653_i_init_sync(void) {
 
     /* create channels on shared memory */
     a653_i_init_channels();
-
-    /* t1 = getTime(); */
-    /* sleep(1); */
-    /* t2 = getTime(); */
-
-    /* diff = my_time_diff(&t2,&t1); */
-
-    /* printDebug(3,"timediff: %ld\n\n",diff); */
-
-    /* l_p_info.time_slice = 0; */
-  
+ 
     /* go through all cores and set to idle */
     for (idx = 0;idx < global_config.core_number; idx++){
       l_p_info.curr_partition_idx[idx]  = -1;
@@ -105,6 +95,14 @@ void a653_i_init_sync(void) {
 
       shm_ptr->partition_info[idx].init = 1;
       shm_ptr->partition_info[idx].running = 1;
+      if (sem_init(&(shm_ptr->partition_info[idx].sem_lock),1,0) != 0) {
+	return;
+      }
+      //sem_wait(&(shm_ptr->partition_info[idx].sem_lock));
+      /*
+	sem_wait(&(fifo_ptr->sem_lock));
+	sem_post(&(fifo_ptr->sem_lock));
+      */
       
       sprintf(buf,"taskset --cp %d ./%s &",idx,global_config.partition[idx].name_str);
 	
@@ -132,6 +130,7 @@ void a653_i_init_sync(void) {
 	usleep(50);
       }
 
+ 
       //   kill(shm_ptr->partition_info[idx].pid, SIGSTOP);
        
       printDebug(1,"a653 start (other pid) %d\n", shm_ptr->partition_info[idx].pid);
@@ -143,12 +142,18 @@ void a653_i_init_sync(void) {
     usleep(500000);
 
     for (idx = 0;idx < global_config.partition_number; idx++){
-      //    kill(shm_ptr->partition_info[idx].pid, SIGSTOP);
+/* #ifndef S_DEBUG    */
+/*       kill(shm_ptr->partition_info[idx].pid, SIGSTOP); */
+/* #endif */
       usleep(500);
       shm_ptr->partition_info[idx].init = 1;
     }
-    
-    usleep(500000);
+
+    while(shm_ptr->partition_info[idx].init != 0){
+      usleep(50);
+    }
+
+    usleep(5000000);
     
   }
 }
@@ -163,6 +168,7 @@ void a653_i_set_next(void){
 }
 
 void a653_i_wait_next(void) {
+  
   do {
     t1 = getTime();
     diff = my_time_diff(&t2,&t1);
@@ -191,7 +197,7 @@ void a653_i_update_partitions(void){
 	  l_p_info.curr_partition_idx[core_idx] < global_config. partition_number) {
 	/* current partition must be stopped on this core */
 	//	printDebug(3,"SIGSTOP %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
-#if 0
+#ifndef S_DEBUG
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGSTOP);
 #endif
       }
@@ -200,9 +206,9 @@ void a653_i_update_partitions(void){
 	  global_config.time_slice[l_p_info.time_slice][core_idx].PatitionIdx < global_config. partition_number){
 	/* partition must be started on this core */
 	l_p_info.curr_partition_idx[core_idx] = global_config.time_slice[l_p_info.time_slice][core_idx].PatitionIdx;
-	shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].go = 1;
+	sem_post(&(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].sem_lock));
 	//	printDebug(3,"SIGCONT %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
-#if 0
+#ifndef S_DEBUG
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGCONT);
 #endif
       } else {
@@ -211,12 +217,12 @@ void a653_i_update_partitions(void){
       }
     } else {
       if (l_p_info.time_slice == 0){
-	shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].go = 1;
+	//	sem_post(&(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].sem_lock));
       }
     }
   } /* for all cores */
 
-  printDebug(6,"window %d\n",l_p_info.time_slice);
+  // printDebug(6,"window %d\n",l_p_info.time_slice);
 
     /* update time slice */
   l_p_info.time_slice++;

@@ -80,7 +80,7 @@ int a653_init_partition(void){
 		   own_partition_idx);
       }  
     }
-     usleep(10);
+     usleep(1000);
   }
   
   own_partition_config = partition_config[own_partition_idx];
@@ -115,10 +115,7 @@ int a653_init_partition(void){
 }
 
 void a653_act_partition(void){
-  if (shm_ptr->partition_info[own_partition_idx].go){
-    shm_ptr->partition_info[own_partition_idx].go = 0;
     a653_act_prcs();
-  }
 }
 
 
@@ -132,22 +129,24 @@ extern void GET_PARTITION_STATUS (
 }
 
 extern void SET_PARTITION_MODE (
-/*in */ OPERATING_MODE_TYPE OPERATING_MODE,
-/*out*/ RETURN_CODE_TYPE *RETURN_CODE ){
+				/*in */ OPERATING_MODE_TYPE OPERATING_MODE,
+				/*out*/ RETURN_CODE_TYPE *RETURN_CODE ){
 
   if (OPERATING_MODE == NORMAL){
     shm_ptr->partition_info[own_partition_idx].init = 0;
     usleep(5000);
+  
+  
+    pertition_status.OPERATING_MODE = OPERATING_MODE;
+  
+    printDebug(1,"a653 start partition (%d)\n",getpid());
+    sem_wait(&(shm_ptr->partition_info[own_partition_idx].sem_lock));
+  
+    while (1){
+      a653_act_partition();
+      sem_wait(&(shm_ptr->partition_info[own_partition_idx].sem_lock));
+    }
   }
-  
-  pertition_status.OPERATING_MODE = OPERATING_MODE;
-  
-  printDebug(1,"a653 start partition (%d)\n",getpid());
-  while (shm_ptr->partition_info[own_partition_idx].running == 1){
-    a653_act_partition();
-    usleep(50);	 
-  }
-  
   *RETURN_CODE      = NO_ERROR;
 }
 

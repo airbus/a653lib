@@ -136,7 +136,9 @@ static int fullFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int size)
     ret_val = 1; 
   }
 
-  sem_post(&(fifo_ptr->sem_lock)); 
+  sem_post(&(fifo_ptr->sem_lock));
+
+  return ret_val;
 }
 
 static int getFifo (t_queuing_port_shm_data *fifo_ptr, void *dest_ptr, int *size){
@@ -173,7 +175,6 @@ static int getFifo (t_queuing_port_shm_data *fifo_ptr, void *dest_ptr, int *size
 
   return(ret_val);
 }
-
 
 static int putFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int size){
 
@@ -250,8 +251,7 @@ static int putForceFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int s
 
   sem_post(&(fifo_ptr->sem_lock)); 
 
-  
-  printDebug(5,"%s : return %d\n",__func__,ret_val);  
+  //  printDebug(5,"%s : return %d\n",__func__,ret_val);  
   return(ret_val);
 }
 
