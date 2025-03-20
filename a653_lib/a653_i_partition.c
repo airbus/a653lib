@@ -142,7 +142,7 @@ extern void SET_PARTITION_MODE (
     printDebug(1,"a653 start partition (%d)\n",getpid());
     sem_wait(&(shm_ptr->partition_info[own_partition_idx].sem_lock));
   
-    while (1){
+    while (shm_ptr->partition_info[own_partition_idx].running){
       a653_act_partition();
       sem_wait(&(shm_ptr->partition_info[own_partition_idx].sem_lock));
     }

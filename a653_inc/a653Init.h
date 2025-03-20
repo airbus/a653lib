@@ -32,7 +32,8 @@
 #ifndef __A653INIT_H__
 #define __A653INIT_H__
 
-#define TRACE 1
+//#define TRACE 1
+//#define S_DEBUG 1
 
 #define MAX_TRACE_ENTRIES 1000
 

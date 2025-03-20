@@ -119,7 +119,6 @@ void PeriodicProcess(void){
 int main (int argc, char *argv[]){
   
   RETURN_CODE_TYPE               return_code;
-  PARTITION_STATUS_TYPE          Init_Status;
   RETURN_CODE_TYPE               Init_Process_ret;
   PROCESS_ID_TYPE                Init_process_ID;
   PROCESS_ATTRIBUTE_TYPE         process_data;
@@ -174,10 +173,9 @@ int main (int argc, char *argv[]){
   // InitSamplingPorts();
 
    //Initialization of the processes
-   GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process A                    ");
-   process_data.PERIOD = 1000000000LL; /* nsec 1 sec*/
+   process_data.PERIOD = 100000000LL; /* nsec 0,1 sec*/
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x5000000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process

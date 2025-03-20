@@ -89,57 +89,48 @@ static queuing_port_data_t qp_data[MAX_Q_PORT];
 /* internal buffer handling */
 
 static int createFifo (t_queuing_port_shm_data *fifo_ptr, 
-		   unsigned int max_elem, 
-		   unsigned int max_elem_size){
+		       unsigned int max_elem, 
+		       unsigned int max_elem_size){
  
   int idx     = 0;
   int ret_val = 0; 
 
   if ((max_elem <= MAX_Q_PORT_ENTRIES) &&
       (max_elem_size <= MAX_Q_PORT_SIZE)){
-  
-    fifo_ptr->max_elem    = max_elem;
-    fifo_ptr->max_size    = max_elem_size;
-    fifo_ptr->cur_elem    = 0;
-    fifo_ptr->tx_next     = 0;
-    fifo_ptr->rx_next     = 0;
-  
-    sem_init(&(fifo_ptr->sem_lock),0,1);
-
-    fifo_ptr->magic_number = 0xAA55AA55;
-
-    /* buid dynamic array */
-    for (idx = 0; idx < max_elem; idx++){
-      int d_idx = 0;
-      
-      fifo_ptr->msg[idx].size = 0;
     
-      for (d_idx = 0; d_idx < max_elem_size; d_idx++){
-      fifo_ptr->msg[idx].data[d_idx] = d_idx;
-      }
+    if (sem_init(&(fifo_ptr->sem_lock),1,1) == 0){
+
+      fifo_ptr->max_elem    = max_elem;
+      fifo_ptr->max_size    = max_elem_size;
+      fifo_ptr->cur_elem    = 0;
+      fifo_ptr->tx_next     = 0;
+      fifo_ptr->rx_next     = 0;
+
+      fifo_ptr->magic_number = 0xAA55AA55;
       
+      /* buid dynamic array */
+      for (idx = 0; idx < max_elem; idx++){
+	int d_idx = 0;
+	
+	fifo_ptr->msg[idx].size = 0;
+	
+	for (d_idx = 0; d_idx < max_elem_size; d_idx++){
+	  fifo_ptr->msg[idx].data[d_idx] = d_idx;
+	}
+	
+      }
+
+      printDebug(1,"createFifo : max_elem %d max_elem_size %d\n",max_elem,max_elem_size);
+    } else {
+      /* we con not get semaphore */
+      ret_val = -1;
     }
   } else {    
     ret_val = -1;
   }
-  printDebug(1,"createFifo : max_elem %d max_elem_size %d\n",max_elem,max_elem_size);
   return ret_val;
 }
 
-static int fullFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int size){
-
-  int ret_val = 0; 
-  
-  sem_wait(&(fifo_ptr->sem_lock));
-
-  if (fifo_ptr->cur_elem == fifo_ptr->max_elem){
-    ret_val = 1; 
-  }
-
-  sem_post(&(fifo_ptr->sem_lock));
-
-  return ret_val;
-}
 
 static int getFifo (t_queuing_port_shm_data *fifo_ptr, void *dest_ptr, int *size){
 
@@ -208,53 +199,9 @@ static int putFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int size){
   sem_post(&(fifo_ptr->sem_lock)); 
 
   
-  printDebug(5,"%s : return %d\n",__func__,ret_val);  
-  return(ret_val);
-}
-
-static int putForceFifo (t_queuing_port_shm_data *fifo_ptr, void *src_ptr, int size){
-
-  int ret_val = 0;
-  void *drop_ptr = NULL;
-  int drop_size = 0; 
-  
-  sem_wait(&(fifo_ptr->sem_lock)); 
-
-  if (fifo_ptr->cur_elem == fifo_ptr->max_elem){
-    getFifo (fifo_ptr, drop_ptr, &drop_size);
-        // Buffer overflow
-    ret_val = 0; 
-  }
-  
-  if (fifo_ptr->cur_elem == fifo_ptr->max_elem){
-    // Buffer overflow
-    ret_val = 1; 
-  } else if (fifo_ptr->max_size < size) {
-    // size to big 
-    ret_val = 2; 
-  } else {
-    /* set current size */
-    fifo_ptr->msg[fifo_ptr->tx_next].size = size;
-    /* copy data */
-    memcpy(fifo_ptr->msg[fifo_ptr->tx_next].data,   /* dest */ 
-           src_ptr,                                 /* src  */
-           fifo_ptr->msg[fifo_ptr->tx_next].size);  /* size */
-    /* update index */
-    if (fifo_ptr->tx_next == (fifo_ptr->max_elem - 1)) {
-      fifo_ptr->tx_next = 0;
-    } else {
-      fifo_ptr->tx_next += 1;
-    }
-    /* update counter */
-    fifo_ptr->cur_elem++;   
-  }
-
-  sem_post(&(fifo_ptr->sem_lock)); 
-
   //  printDebug(5,"%s : return %d\n",__func__,ret_val);  
   return(ret_val);
 }
-
 
 
 int a653_init_queuing_ports(a653_queuing_port_config_t *config){
@@ -272,23 +219,23 @@ int a653_init_queuing_ports(a653_queuing_port_config_t *config){
 	if (shm_ptr->channel_info[c_idx].Id != config[p_idx].ChannelId){
 	  ret_val = -1;
 	} else {
-	qp_data[p_idx].ChannelIdx = c_idx;
-	qp_data[p_idx].PortId     = qp_id_next++;
-	qp_data[p_idx].Dir        = config[p_idx].Dir;
-	qp_data[p_idx].MaxMsgSize = channel_config[c_idx].maxMsgSize;
-	qp_data[p_idx].Port       = (t_queuing_port_shm_data *)&shm_ptr->channel_info[c_idx].data.qp_d;
+	  qp_data[p_idx].ChannelIdx = c_idx;
+	  qp_data[p_idx].PortId     = qp_id_next++;
+	  qp_data[p_idx].Dir        = config[p_idx].Dir;
+	  qp_data[p_idx].MaxMsgSize = channel_config[c_idx].maxMsgSize;
+	  qp_data[p_idx].Port       = (t_queuing_port_shm_data *)&shm_ptr->channel_info[c_idx].data.qp_d;
 	
-	strcpy(qp_data[p_idx].QUEUING_PORT_NAME, config[p_idx].name_str);
-	found++;
+	  strcpy(qp_data[p_idx].QUEUING_PORT_NAME, config[p_idx].name_str);
+	  found++;
 	
-	printDebug(2,"%s PortId %02d; ChannelIdx %04d; Dir %d; MaxMsgSize %04d; addr 0x%08x; name %s\n",
-		   __func__,
-		   qp_data[p_idx].PortId,
-		   qp_data[p_idx].ChannelIdx,
-		   qp_data[p_idx].Dir,
-		   qp_data[p_idx].MaxMsgSize,
-		   qp_data[p_idx].Port,
-		   qp_data[p_idx].QUEUING_PORT_NAME);
+	  printDebug(2,"%s PortId %02d; ChannelIdx %04d; Dir %d; MaxMsgSize %04d; addr 0x%08x; name %s\n",
+		     __func__,
+		     qp_data[p_idx].PortId,
+		     qp_data[p_idx].ChannelIdx,
+		     qp_data[p_idx].Dir,
+		     qp_data[p_idx].MaxMsgSize,
+		     qp_data[p_idx].Port,
+		     qp_data[p_idx].QUEUING_PORT_NAME);
 	}
       }
       c_idx++;
@@ -391,7 +338,7 @@ void SEND_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
       *RETURN_CODE = INVALID_CONFIG;
     } else {
 				
-      if( 0 == putForceFifo (qp_data[p_idx].Port,
+      if( 0 == putFifo (qp_data[p_idx].Port,
 			MESSAGE_ADDR, /* src  */
 			LENGTH)){
 	*RETURN_CODE = NO_ERROR;

@@ -217,7 +217,7 @@ void a653_i_update_partitions(void){
       }
     } else {
       if (l_p_info.time_slice == 0){
-	//	sem_post(&(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].sem_lock));
+	sem_post(&(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].sem_lock));
       }
     }
   } /* for all cores */

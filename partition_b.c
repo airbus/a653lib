@@ -146,7 +146,6 @@ void APeriodicProcess(void){
 int main (int argc, char *argv[]){
 
   RETURN_CODE_TYPE               return_code;
-  PARTITION_STATUS_TYPE          Init_Status;
   RETURN_CODE_TYPE               Init_Process_ret;
   PROCESS_ID_TYPE                Init_process_ID;
   PROCESS_ATTRIBUTE_TYPE         process_data;
@@ -223,10 +222,9 @@ int main (int argc, char *argv[]){
   //InitSamplingPorts();
 
    //Initialization of the processes
-   GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process B                    ");
-   process_data.PERIOD = 1000000000LL; /* nsec -> 1sec */
+   process_data.PERIOD = 100000000LL; /* nsec -> 0,1sec */
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess; //Entrypoint to periodic process
@@ -237,11 +235,9 @@ int main (int argc, char *argv[]){
    //Starting processes
    START(Init_process_ID, &Init_Process_ret);
      
-   //Initialization of the processes
-   GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process C                    ");
-   process_data.PERIOD = 2000000000LL; /* nsec -> 2sec */
+   process_data.PERIOD = 200000000LL; /* nsec -> 0,2sec */
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
    process_data.ENTRY_POINT = &PeriodicProcess_2; //Entrypoint to periodic process
@@ -252,8 +248,6 @@ int main (int argc, char *argv[]){
    //Starting processes
    START(Init_process_ID, &Init_Process_ret);
    
-   //Initialization of the processes
-   GET_PARTITION_STATUS( &Init_Status, &Init_Process_ret );
    memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
    sprintf((char*)(&process_data.NAME), "Process D                    ");
    process_data.PERIOD = -1LL;
