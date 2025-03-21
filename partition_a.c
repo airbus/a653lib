@@ -84,7 +84,7 @@ void PeriodicProcess(void){
 			 0, //timeout
 			 &return_code);
     
-    printDebug(2,"%06d Prcs A send %s \n",index++,data_sp_tx);
+    printDebug(3,"%06d Prcs A send %s \n",index++,data_sp_tx);
 
     READ_SAMPLING_MESSAGE(sp_id_rx,
     			  data_sp_rx,
@@ -109,7 +109,7 @@ void PeriodicProcess(void){
     }
 
     GET_TIME (&system_time, &return_code);
-    printDebug(2,"Prcs A: GET_TIME >%lld<\n",system_time);
+    printDebug(3,"Prcs A: GET_TIME >%lld<\n",system_time);
     
     PERIODIC_WAIT(&return_code);
   }
