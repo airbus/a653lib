@@ -41,9 +41,9 @@ void beforeMain (void) __attribute__ ((constructor));
 
 void beforeMain (void)
 {
-  int idx;
+  int idx = 0;;
   
-  setDebug(5);
+  setDebug(2);
   
   printDebug(1,"a653 partition init (%d)\n",getpid());
   a653_init_partition();

@@ -65,7 +65,7 @@ void GET_TIME (SYSTEM_TIME_TYPE * SYSTEM_TIME,
   
   if (0 == clock_gettime(CLOCK_REALTIME, &tp)){
    /* printDebug(5,"GET_TIME >%d:%d< \n",tp.tv_sec,tp.tv_nsec); */
-    *SYSTEM_TIME = tp.tv_sec * 1000000000 + tp.tv_nsec;
+    *SYSTEM_TIME = (SYSTEM_TIME_TYPE)tp.tv_sec * (SYSTEM_TIME_TYPE)1000000000 + (SYSTEM_TIME_TYPE)tp.tv_nsec;
     *RETURN_CODE = NO_ERROR;
   } else {
     *SYSTEM_TIME = 0;
