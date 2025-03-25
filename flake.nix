@@ -5,7 +5,7 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system:
+    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux"] (system:
       let
         # import the nixpkgs, passing the current system as arg
         pkgs = import nixpkgs {
@@ -33,7 +33,7 @@
           # cross compile for a pre-defined target platform
           a653lib-aarch64 = pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic.callPackage pkgs/a653lib.nix { };
 
-          # cross compile for a custom defined target platform
+         # cross compile for a custom defined target platform
           a653lib-armv7a =
             let
               # import nixpkgs, defining a crossSystem via llvm target triple
@@ -43,6 +43,17 @@
               };
             in
             pkgsCross.callPackage pkgs/a653lib.nix { };
+
+          # cross compile for a custom defined target platform
+          a653lib-powerpc64 =
+            let
+              # import nixpkgs, defining a crossSystem via llvm target triple
+              pkgsCross = import nixpkgs {
+                inherit system;
+                crossSystem.config = "powerpc64-unknown-linux-gnuabielfv2";
+              };
+            in
+            pkgsCross.pkgsStatic.callPackage pkgs/a653lib.nix { };
         };
       }
     );
