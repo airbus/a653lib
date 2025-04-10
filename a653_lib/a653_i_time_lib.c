@@ -34,13 +34,6 @@
 
 #include "a653_i_time_lib.h"
 
-
-
-void initTime(void){
-  // printDebug("sizeof(int64_t) = %ld\n",sizeof(int64_t));
-  //printDebug("sizeof(struct timespec) = %ld\n",sizeof(struct timespec));
-}
-
 struct timespec getTime (void){
   struct timespec curTime;
 

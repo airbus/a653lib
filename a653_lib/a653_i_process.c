@@ -117,8 +117,9 @@ int a653_prcs_init(void){
 
 int  a653_sync_prcs(void){
   int idx   = 0;
+#ifdef TRACE
   int ltIdx = 0;
-
+#endif
   pthread_t pt_self = pthread_self();
 
   for (idx = 0; idx < number_of_processes; idx++) {
@@ -147,7 +148,9 @@ int  a653_sync_prcs(void){
 void a653_act_prcs(void){
  
   int idx   = 0;
+#ifdef TRACE
   int ltIdx = 0;
+#endif
   int64_t diff;
   struct timespec t1 = getTime();
   
