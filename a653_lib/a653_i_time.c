@@ -44,6 +44,16 @@
 #include "a653Error.h"
 #include "a653Process.h"
 
+SYSTEM_TIME_TYPE bootTime;
+
+void initTime(void){
+  struct timespec tp;
+  
+  if (clock_gettime(CLOCK_REALTIME, &tp) == 0){
+      bootTime = (SYSTEM_TIME_TYPE)tp.tv_sec * (SYSTEM_TIME_TYPE)1000000000 + (SYSTEM_TIME_TYPE)tp.tv_nsec;
+  }
+}
+
 
 void TIMED_WAIT (SYSTEM_TIME_TYPE DELAY_TIME, /* */
                  RETURN_CODE_TYPE * RETURN_CODE){
@@ -65,7 +75,7 @@ void GET_TIME (SYSTEM_TIME_TYPE * SYSTEM_TIME,
   
   if (0 == clock_gettime(CLOCK_REALTIME, &tp)){
    /* printDebug(5,"GET_TIME >%d:%d< \n",tp.tv_sec,tp.tv_nsec); */
-    *SYSTEM_TIME = (SYSTEM_TIME_TYPE)tp.tv_sec * (SYSTEM_TIME_TYPE)1000000000 + (SYSTEM_TIME_TYPE)tp.tv_nsec;
+    *SYSTEM_TIME = (SYSTEM_TIME_TYPE)tp.tv_sec * (SYSTEM_TIME_TYPE)1000000000 + (SYSTEM_TIME_TYPE)tp.tv_nsec - bootTime;
     *RETURN_CODE = NO_ERROR;
   } else {
     *SYSTEM_TIME = 0;

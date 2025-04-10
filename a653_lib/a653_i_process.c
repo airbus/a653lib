@@ -60,7 +60,7 @@
 
 //extern entry_point_t model_main;
 
-#define PRCS_START_ID 1000
+#define PRCS_START_ID 1
 
 typedef struct {
   //  PROCESS_ATTRIBUTE_TYPE attr;
@@ -81,7 +81,7 @@ extern a653_shm_info_t *shm_ptr;
 extern int own_partition_idx;
 
 int number_of_processes = 0;
-int prcs_id_next = 0;
+int prcs_id_next = PRCS_START_ID;
 
 static prcs_info_t *prcs_info; 
 static int *prcsHash;
@@ -102,7 +102,7 @@ int a653_prcs_init(void){
   int ret_val = 0;
 
   prcs_info = (prcs_info_t *) malloc(sizeof(prcs_info_t) * MAX_PRCS);
-  prcsHash = (int *) malloc(sizeof(int) * MAX_PRCS);
+  prcsHash = (int *) malloc(sizeof(int) *(PRCS_START_ID + MAX_PRCS));
   
   if ((prcs_info != NULL) &&
       (prcsHash != NULL)){
@@ -157,7 +157,7 @@ void a653_act_prcs(void){
       
       diff = my_time_diff(&prcs_info[idx].nextActivation,&t1);
     
-      if (diff < 1000) {
+      if (diff < 1000000) {
 	prcs_info[idx].nextActivation = getTime();
 	my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
 	//	printDebug(1,"%s unlock prcs %d\n",__func__,idx);

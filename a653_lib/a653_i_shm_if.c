@@ -136,6 +136,8 @@ int a653_shm_init(void){
 	ret_val = 1;
       }
     }
+  } else {
+    exit(1);
   }
   return(ret_val);
 }

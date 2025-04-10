@@ -26,6 +26,7 @@ extern a653_shm_info_t *shm_ptr;
 
 a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; 
 a653_channel_config_t channel_config[] = A653_CH_CONFIG_DEF;
+a653_partition_config_t partition_config[] = A653_PART_CONFIG_DEF;
 
 void dump_trace(void){
   int tIdx = 0;
@@ -35,7 +36,7 @@ void dump_trace(void){
 
   if (fd != ( FILE *)-1){
     
-    fprintf(fd,"sec.usec:pid:tid:code\n");
+    fprintf(fd,"sec.usec;pid;tid;code\n");
   
     for(tIdx = 0; tIdx < MAX_TRACE_ENTRIES; tIdx++){
       fprintf(fd,"%lu.%09lu;%d;%d;%d\n",

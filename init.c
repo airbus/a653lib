@@ -52,6 +52,8 @@ void beforeMain (void)
 
   printDebug(1,"a653 partition wait (%d)\n",getpid());
   
+  initTime();
+  
   while (shm_ptr->partition_info[own_partition_idx].init == 2){
     if((idx++ % 0x100000) == 0){
       printDebug(1,"a653 partition wait (%d)\n",getpid());

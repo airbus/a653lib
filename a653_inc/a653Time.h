@@ -15,6 +15,8 @@
 
 /* function declarations */
 
+extern void initTime(void);
+
 extern void TIMED_WAIT (SYSTEM_TIME_TYPE DELAY_TIME, /* 64bit - 1 nanosecond LSB */
 			RETURN_CODE_TYPE * RETURN_CODE);
 
