@@ -139,7 +139,7 @@ void a653_i_init_sync(void) {
     } /* for */
    
     initTime();
-    usleep(500000);
+    usleep(50000);
 
     for (idx = 0;idx < global_config.partition_number; idx++){
 /* #ifndef S_DEBUG    */
@@ -153,7 +153,7 @@ void a653_i_init_sync(void) {
       usleep(50);
     }
 
-    usleep(5000000);
+    usleep(500000);
     
   }
 }

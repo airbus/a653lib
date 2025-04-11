@@ -28,11 +28,12 @@ a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF;
 a653_channel_config_t channel_config[] = A653_CH_CONFIG_DEF;
 a653_partition_config_t partition_config[] = A653_PART_CONFIG_DEF;
 
+#ifdef S_TRACE
 void dump_trace(void){
   int tIdx = 0;
   FILE *fd;
 
-  fd=fopen("/tmp/trace.txt","wb");
+  fd=fopen("/tmp/trace.csv","wb");
 
   if (fd != ( FILE *)-1){
     
@@ -50,6 +51,7 @@ void dump_trace(void){
     fclose(fd);
   }
 }
+#endif
 
 void sig_handler(int sig){
   int idx;
@@ -63,7 +65,9 @@ void sig_handler(int sig){
   case SIGQUIT:
   case SIGKILL:
     fprintf(stderr,"scheduler was stopped\n");
+#ifdef S_TRACE
     dump_trace();
+#endif
     for (idx = 0;idx < global_config.partition_number; idx++){
       sprintf(buf,"pkill %s",global_config.partition[idx].name_str);
       system(buf);

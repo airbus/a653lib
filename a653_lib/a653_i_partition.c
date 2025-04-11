@@ -56,6 +56,7 @@ extern a653_channel_config_t channel_config[];
 PARTITION_STATUS_TYPE pertition_status = {0,0,1,0,IDLE,NORMAL_START,1};
 
 int own_partition_idx;
+int64_t time_slice;
 a653_partition_config_t own_partition_config;
 
 /* do not call main schaduler !!!!!! */
@@ -68,7 +69,8 @@ int a653_init_partition(void){
 
   a653_shm_init();
 
- 
+  time_slice = global_config.time_slice_size;
+  
   while(found ==0){
     for (idx = 0;idx < global_config.partition_number; idx++){
       if (shm_ptr->partition_info[idx].pid == ownPid){

@@ -27,8 +27,6 @@
  * @details    
  */
 
-#define DEBUG
-
 
 /* includes */
 #include <stdio.h>
@@ -38,11 +36,6 @@
 #include <time.h>
 #include <pthread.h>
 #include <semaphore.h>
-
-#ifdef DEBUG
-#include <sys/time.h>
-//--------------------
-#endif
 
 #define A653_QUEUING_INTERN
 
@@ -79,6 +72,7 @@ typedef struct {
 
 extern a653_shm_info_t *shm_ptr;
 extern int own_partition_idx;
+extern int64_t time_slice;
 
 int number_of_processes = 0;
 int prcs_id_next = PRCS_START_ID;
@@ -117,7 +111,7 @@ int a653_prcs_init(void){
 
 int  a653_sync_prcs(void){
   int idx   = 0;
-#ifdef TRACE
+#ifdef S_TRACE
   int ltIdx = 0;
 #endif
   pthread_t pt_self = pthread_self();
@@ -126,7 +120,7 @@ int  a653_sync_prcs(void){
     
     if (prcs_info[idx].t_ctx == pt_self){
       //     printDebug(1,"%s lock prcs %d\n",__func__,idx);
-#ifdef TRACE
+#ifdef S_TRACE
       if (shm_ptr->trace_info.tIdx < MAX_TRACE_ENTRIES - 1){
 	ltIdx = shm_ptr->trace_info.tIdx++;
       } else {
@@ -148,7 +142,7 @@ int  a653_sync_prcs(void){
 void a653_act_prcs(void){
  
   int idx   = 0;
-#ifdef TRACE
+#ifdef S_TRACE
   int ltIdx = 0;
 #endif
   int64_t diff;
@@ -160,11 +154,11 @@ void a653_act_prcs(void){
       
       diff = my_time_diff(&prcs_info[idx].nextActivation,&t1);
     
-      if (diff < 1000000) {
+      if (diff < time_slice) {
 	prcs_info[idx].nextActivation = getTime();
 	my_time_next(&prcs_info[idx].nextActivation,prcs_info[idx].timerPeriod);
 	//	printDebug(1,"%s unlock prcs %d\n",__func__,idx);
-#ifdef TRACE
+#ifdef S_TRACE
 	if (shm_ptr->trace_info.tIdx < MAX_TRACE_ENTRIES - 1){
 	  ltIdx = shm_ptr->trace_info.tIdx++;
 	} else {
