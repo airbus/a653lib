@@ -41,7 +41,7 @@ void beforeMain (void) __attribute__ ((constructor));
 
 void beforeMain (void)
 {
-  int idx = 0;;
+  int idx = 0;
   
   setDebug(3);
   
