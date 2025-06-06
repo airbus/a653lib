@@ -55,21 +55,6 @@
 
 #define PRCS_START_ID 1
 
-typedef struct {
-  //  PROCESS_ATTRIBUTE_TYPE attr;
-  
-  pthread_mutex_t        t_lock;
-  pthread_t              t_ctx;
-  pthread_attr_t         t_attr;
-  int64_t                timerPeriod;
-  struct timespec        nextActivation;
-  unsigned int           priority;
-  unsigned int           cycle_cnt;
-  unsigned short         id;
-  char                   name[35];
-  func_ptr               prcs_main_func;
-} prcs_info_t;
-
 extern a653_shm_info_t *shm_ptr;
 extern int own_partition_idx;
 extern int64_t time_slice;
