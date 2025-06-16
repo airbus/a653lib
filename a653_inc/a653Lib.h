@@ -30,17 +30,6 @@
 #ifndef __A653_LIB_H
 #define __A653_LIB_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-//--------------------
-#include <errno.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <signal.h>
-
-#include <sys/shm.h>
-
 /* a653 includes */
 #include <a653Type.h>
   //#include <a653Blackboard.h>
