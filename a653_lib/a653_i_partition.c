@@ -59,7 +59,7 @@ int own_partition_idx;
 int64_t time_slice;
 a653_partition_config_t own_partition_config;
 
-/* do not call main schaduler !!!!!! */
+/* do not call main scheduler !!!!!! */
 int a653_init_partition(void){
   
   int ret_val = 0;
