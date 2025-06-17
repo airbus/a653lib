@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <signal.h>
 //--------------------
@@ -92,8 +93,8 @@ int main (int argc, char *argv[]){
   
   setDebug(3);
 
-  time ( &rawtime );
-  timeinfo = localtime ( &rawtime );
+  time ( (time_t*)&rawtime );
+  timeinfo = localtime ( (const time_t*)&rawtime );
   printDebug(0,"Current local time and date: %s", asctime (timeinfo) );
 
   a653_i_init_sync();

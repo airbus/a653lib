@@ -30,6 +30,10 @@
 #ifndef __A653_I_PARTITION_H__
 #define __A653_I_PARTITION_H__
 
+#include <pthread.h>
+#include <stdint.h>
+#include <time.h>
+
 #include "a653Type.h"
 #include "a653Error.h"
 #include "a653Process.h"

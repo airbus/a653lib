@@ -27,10 +27,10 @@
  * @details 
  */
 
-#include <sys/types.h>
-
 #ifndef __A653INIT_H__
 #define __A653INIT_H__
+
+#include "a653Type.h"
 
 //#define S_TRACE 1
 //#define S_DEBUG 1
@@ -70,7 +70,7 @@ typedef struct {
   int core_number;
   int partition_number;
   int time_slice_number;
-  int64_t time_slice_size; /* value in nsec */
+  A653_LONG_INTEGER time_slice_size; /* value in nsec */
   a653_partition_entry_t partition[MAX_PARTITION];
   a653_time_slice_config_t time_slice[MAX_TIME_SLICE_NUM][MAX_CORE_NUM];
   int magic;
