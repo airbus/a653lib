@@ -31,7 +31,16 @@
 #ifndef __A653_TYPES_H
 #define __A653_TYPES_H
 
+#include <stdint.h>
+
 /* defines */
+
+/* clang attribute for the WebAssembly target */
+#ifdef __wasm__
+#define WASM_IMPORT_MODULE(name) __attribute__((import_module(name)))
+#else
+#define WASM_IMPORT_MODULE(name)
+#endif
 
 /* PORT queuing definition */
 
@@ -40,11 +49,11 @@
 
 /* Global type definitions */
 
-typedef unsigned char       A653_BYTE;              /*  8 bits unsigned   */
-typedef unsigned short int  A653_WORD;              /* 16 bits unsigned   */
-typedef long int            A653_INTEGER;           /* 32 bits            */
-typedef unsigned long       A653_UNSIGNED;          /* 32 bits unsigned   */
-typedef long long           A653_LONG_INTEGER;      /* 64 bits            */
+typedef uint8_t             A653_BYTE;              /*  8 bits unsigned   */
+typedef uint16_t            A653_WORD;              /* 16 bits unsigned   */
+typedef int32_t             A653_INTEGER;           /* 32 bits            */
+typedef uint32_t            A653_UNSIGNED;          /* 32 bits unsigned   */
+typedef int64_t             A653_LONG_INTEGER;      /* 64 bits            */
 
 typedef A653_INTEGER        PROCESS_ID_TYPE;        /* object ident type  */
 typedef A653_INTEGER     PROCESSOR_CORE_ID_TYPE;

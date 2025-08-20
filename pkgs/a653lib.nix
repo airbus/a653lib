@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchFromGitHub, bintools }:
+{ lib, stdenv, fetchFromGitHub, bintools, wasmtime }:
 
 stdenv.mkDerivation {
   pname = "a653lib";
@@ -12,7 +12,7 @@ stdenv.mkDerivation {
     export HOME="$PWD/home"
   '';
 
-  buildInputs = [ bintools ];
+  buildInputs = [ bintools wasmtime ];
 
   makeFlags = [
     "CC=${stdenv.cc.targetPrefix}gcc"

@@ -14,8 +14,10 @@
 
 #define D_TIME_SLICE 1000000ll  /* 1000000ns = 1ms */
 
-#define PART_NAME_A "partition_a"
+//#define PART_NAME_A "partition_a"
+#define PART_NAME_A "wasm32_rt partition_a.wasm"
 #define PART_NAME_B "partition_b"
+//#define PART_NAME_B "wasm32_rt partition_b.wasm"
 
 
 #define A653_PARTITION_CONFIG_DEF { \

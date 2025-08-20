@@ -44,7 +44,9 @@
 #include <a653Semaphore.h>
 #include <a653Time.h>
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
 #include <a653Init.h>
+#endif /* #ifndef __wasm__ */
 
 /* defines */
 
@@ -52,8 +54,10 @@
 
 /* function declarations */
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
 extern int a653LibInit ();
 extern int a653MinimalLibInit ();
+#endif /* #ifndef __wasm__ */
 
 
 #endif /* __A653_LIB_H */
