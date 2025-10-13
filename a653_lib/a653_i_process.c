@@ -78,7 +78,7 @@ int a653_prcs_init(void){
 
   int ret_val = 0;
 
-  prcs_info = (prcs_info_t *) malloc(sizeof(prcs_info_t) * MAX_PRCS);
+  prcs_info = (prcs_info_t *) calloc(MAX_PRCS, sizeof(prcs_info_t));
   prcsHash = (int *) malloc(sizeof(int) *(PRCS_START_ID + MAX_PRCS));
   
   if ((prcs_info != NULL) &&
@@ -240,7 +240,7 @@ void CREATE_PROCESS (PROCESS_ATTRIBUTE_TYPE *ATTRIBUTES,
 
   *RETURN_CODE = INVALID_CONFIG;
 
-  while ((number_of_processes < MAX_PRCS)) {
+  while ((number_of_processes < MAX_PRCS && idx < MAX_PRCS)) {
     if (prcs_info[idx].id == 0) {
       number_of_processes++;
       prcs_info[idx].id = prcs_id_next++;
