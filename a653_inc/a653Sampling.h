@@ -54,27 +54,26 @@ typedef
       VALIDITY_TYPE            LAST_MSG_VALIDITY; /* message validity */
    } SAMPLING_PORT_STATUS_TYPE;
 
-typedef enum {
-  EMPTY_PORT,
-  CONSUMED_MESSAGE,
-  NEW_MESSAGE
-} UPDATED_TYPE;
 
+typedef  
+   enum { 
+      EMPTY_PORT       = 0, 
+      CONSUMED_MESSAGE = 1, 
+      NEW_MESSAGE      = 2 
+   } UPDATED_TYPE;
 
-typedef enum {
-  STALE,
-  FRESH
-} AGE_TYPE;
+typedef enum { STALE = 0, FRESH = 1 } AGE_TYPE; 
 
-/* sampling port status type */ 
-typedef struct {
-  SYSTEM_TIME_TYPE        REFRESH_PERIOD;     /* refresh period */
-  SYSTEM_TIME_TYPE        TIME_STAMP;         /* when message was written */
-  MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port max byte size */
-  PORT_DIRECTION_TYPE     PORT_DIRECTION;     /* port direction */
-  AGE_TYPE                MESSAGE_AGE;        /* message age - is msg is older than ports refresh period */
-  UPDATED_TYPE            UPDATED;            /* empty, consumed, or new message */
-} SAMPLING_PORT_CURRENT_STATUS_TYPE;
+/* sampling port status type */
+typedef
+   struct { 
+      SYSTEM_TIME_TYPE 		REFRESH_PERIOD;   /* refresh period */
+      SYSTEM_TIME_TYPE 		TIME_STAMP;       /* when message was written */
+      MESSAGE_SIZE_TYPE 	MAX_MESSAGE_SIZE; /* port max byte size */
+      PORT_DIRECTION_TYPE 	PORT_DIRECTION;   /* port direction */
+      AGE_TYPE 			MESSAGE_AGE;      /* message age - is msg is older than ports refresh period */
+	UPDATED_TYPE		UPDATED;          /* empty, consumed, or new message */
+   } SAMPLING_PORT_CURRENT_STATUS_TYPE;
 
 /*-----------------------------------------------*/
 /*  sampling port access function pointer types  */
