@@ -19,41 +19,16 @@
  */
 
 /**
- * @file      a653Lib.h
+ * @file      a653_i_error.h
  * @copyright Airbus Defence and Space
- * @author    Nicolaus Baer
- * @date      Wed Apr  1 17:08:32 2023
- * @brief     do a653 interface initialization
- * @details 
+ * @author    patrick.siegl@airbus.com
+ * @date      Sun Oct 12 22:33:28 CEST 2025
+ * @brief     a653 error handling
+ * @details
  */
 
-#ifndef __A653_LIB_H
-#define __A653_LIB_H
-
-/* a653 includes */
-#include <a653Type.h>
-  //#include <a653Blackboard.h>
-  //#include <a653MemoryBlock.h>
-  //#include <a653Buffer.h>
-#include <a653Error.h>
-  //#include <a653Event.h>
-#include <a653Partition.h>
-#include <a653Process.h>
-#include <a653Queuing.h>
-#include <a653Sampling.h>
-#include <a653Semaphore.h>
-#include <a653Time.h>
-
-#include <a653Init.h>
-
-/* defines */
-
-/* externs */
-
-/* function declarations */
-
-extern int a653LibInit ();
-extern int a653MinimalLibInit ();
+#ifndef __A653_I_ERROR_H__
+#define __A653_I_ERROR_H__
 
 
-#endif /* __A653_LIB_H */
+#endif /* __A653_I_ERROR_H__ */

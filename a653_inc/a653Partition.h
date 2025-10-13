@@ -38,11 +38,11 @@ typedef struct {
 } PARTITION_STATUS_TYPE;
 
 extern void GET_PARTITION_STATUS (
- PARTITION_STATUS_TYPE *PARTITION_STATUS, /* out */
- RETURN_CODE_TYPE *RETURN_CODE );         /* out */
+       /*out*/ PARTITION_STATUS_TYPE      *PARTITION_STATUS,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
 extern void SET_PARTITION_MODE (
- OPERATING_MODE_TYPE OPERATING_MODE, /*in */
- RETURN_CODE_TYPE *RETURN_CODE ); /*out*/
+       /*in */ OPERATING_MODE_TYPE        OPERATING_MODE,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
 #endif

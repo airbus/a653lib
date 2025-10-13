@@ -8,20 +8,9 @@
 
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-//--------------------
-#include <errno.h>
-#include <time.h>
-#include <pthread.h>
 #include <unistd.h>
-#include <signal.h>
-
-
-
-
 #include "a653Lib.h"
-#include "a653Init.h"
 /* #include "a653_config.h" */
 
 /* a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; */
@@ -215,15 +204,15 @@ int main (int argc, char *argv[]){
 	     semaphore_status.CURRENT_VALUE,
 	     semaphore_status.MAXIMUM_VALUE); 
 
-  usleep(50000);	 
+  usleep(50000);
 
   
   //Start initialization
   //InitSamplingPorts();
 
    //Initialization of the processes
-   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
-   sprintf((char*)(&process_data.NAME), "Process B                    ");
+   memset((char*)(process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(process_data.NAME), "Process B                    ");
    process_data.PERIOD = 100000000LL; /* nsec -> 0,1sec */
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
@@ -235,8 +224,8 @@ int main (int argc, char *argv[]){
    //Starting processes
    START(Init_process_ID, &Init_Process_ret);
      
-   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
-   sprintf((char*)(&process_data.NAME), "Process C                    ");
+   memset((char*)(process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(process_data.NAME), "Process C                    ");
    process_data.PERIOD = 200000000LL; /* nsec -> 0,2sec */
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;
@@ -248,8 +237,8 @@ int main (int argc, char *argv[]){
    //Starting processes
    START(Init_process_ID, &Init_Process_ret);
    
-   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
-   sprintf((char*)(&process_data.NAME), "Process D                    ");
+   memset((char*)(process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(process_data.NAME), "Process D                    ");
    process_data.PERIOD = -1LL;
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x500000;

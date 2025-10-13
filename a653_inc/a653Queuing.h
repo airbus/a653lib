@@ -56,38 +56,44 @@ typedef struct q_port_funcs_t {
 
 /* function declarations */
 
-void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
-			  MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE, 
-			  MESSAGE_RANGE_TYPE      MAX_NB_MESSAGE,
-			  PORT_DIRECTION_TYPE     PORT_DIRECTION,
-			  QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE,
-			  QUEUING_PORT_ID_TYPE  * QUEUING_PORT_ID,
-			  RETURN_CODE_TYPE      * RETURN_CODE);
+extern void CREATE_QUEUING_PORT (
+        /*in */ QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
+        /*in */ MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE,
+        /*in */ MESSAGE_RANGE_TYPE       MAX_NB_MESSAGE,
+        /*in */ PORT_DIRECTION_TYPE      PORT_DIRECTION,
+        /*in */ QUEUING_DISCIPLINE_TYPE  QUEUING_DISCIPLINE,
+        /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
+        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
-void SEND_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
-			   MESSAGE_ADDR_TYPE      MESSAGE_ADDR,
-			   MESSAGE_SIZE_TYPE      LENGTH,
-			   SYSTEM_TIME_TYPE       TIME_OUT,
-			   RETURN_CODE_TYPE     * RETURN_CODE);
+extern void SEND_QUEUING_MESSAGE (
+        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+        /*in */ MESSAGE_ADDR_TYPE        MESSAGE_ADDR,       /* by reference */
+        /*in */ MESSAGE_SIZE_TYPE        LENGTH,
+        /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
+        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
 
-void RECEIVE_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
-			      SYSTEM_TIME_TYPE     TIME_OUT,
-			      MESSAGE_ADDR_TYPE    MESSAGE_ADDR,
-			      MESSAGE_SIZE_TYPE  * LENGTH,
-			      RETURN_CODE_TYPE   * RETURN_CODE);
+extern void RECEIVE_QUEUING_MESSAGE (
+        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+        /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
+        /*in */ MESSAGE_ADDR_TYPE        MESSAGE_ADDR,
+                /* The message address is passed IN, although */
+                /* the respective message is passed OUT       */
+        /*out*/ MESSAGE_SIZE_TYPE        *LENGTH,
+        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
-void GET_QUEUING_PORT_ID (QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
-			  QUEUING_PORT_ID_TYPE   * QUEUING_PORT_ID,
-			  RETURN_CODE_TYPE       * RETURN_CODE);
+extern void GET_QUEUING_PORT_ID (
+        /*in */ QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
+        /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
+        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
-void GET_QUEUING_PORT_STATUS (QUEUING_PORT_ID_TYPE       QUEUING_PORT_ID,
-			      QUEUING_PORT_STATUS_TYPE * QUEUING_PORT_STATUS,
-			      RETURN_CODE_TYPE         * RETURN_CODE);
+extern void GET_QUEUING_PORT_STATUS (
+        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+        /*out*/ QUEUING_PORT_STATUS_TYPE *QUEUING_PORT_STATUS,
+        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
-
-void CLEAR_QUEUING_PORT (
-			 QUEUING_PORT_ID_TYPE QUEUING_PORT_ID, /* in */
-			 RETURN_CODE_TYPE *RETURN_CODE ); /* out */
+extern void CLEAR_QUEUING_PORT (
+        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
 
 void create_queuing_port_pp (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,

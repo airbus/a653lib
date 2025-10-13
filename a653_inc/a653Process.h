@@ -9,16 +9,16 @@
 #define __A653_PROCESS_H
 
 #include "a653Type.h"
-#include "a653Init.h"
 
 /* defines */
 
 
 typedef NAME_TYPE        PROCESS_NAME_TYPE;  /* process name type  */
 typedef A653_INTEGER     PRIORITY_TYPE;      /* priority type      */
+typedef A653_INTEGER     PROCESS_INDEX_TYPE;
 
 /* process state type */
-typedef enum PROCESS_STATE_VALUE_TYPE {
+typedef enum {
   DORMANT = 0,
   READY   = 1,
   RUNNING = 2,
@@ -26,7 +26,7 @@ typedef enum PROCESS_STATE_VALUE_TYPE {
 } PROCESS_STATE_TYPE;
 
 /* deadline response type   */
-typedef enum DEADLINE_VALUE_TYPE {
+typedef enum {
   SOFT   = 0,
   HARD   = 1 
 } DEADLINE_TYPE;
@@ -58,38 +58,79 @@ int a653_prcs_init(void);
 int a653_sync_prcs(void);
 
 
-extern void GET_PROCESS_ID (PROCESS_NAME_TYPE PROCESS_NAME,
-                            PROCESS_ID_TYPE * PROCESS_ID,
-                            RETURN_CODE_TYPE * RETURN_CODE);
-extern void GET_MY_ID (PROCESS_ID_TYPE * PROCESS_ID,
-		       RETURN_CODE_TYPE * RETURN_CODE);
-extern void GET_PROCESS_STATUS (PROCESS_ID_TYPE PROCESS_ID,
-				PROCESS_STATUS_TYPE * PROCESS_STATUS,
-				RETURN_CODE_TYPE * RETURN_CODE);
-extern void CREATE_PROCESS (PROCESS_ATTRIBUTE_TYPE * ATTRIBUTES,
-			    PROCESS_ID_TYPE * PROCESS_ID,
-			    RETURN_CODE_TYPE * RETURN_CODE);
-extern void SET_PRIORITY (PROCESS_ID_TYPE PROCESS_ID,
-			  PRIORITY_TYPE PRIORITY,
-			  RETURN_CODE_TYPE * RETURN_CODE);
-extern void SUSPEND_SELF (SYSTEM_TIME_TYPE TIME_OUT,
-                          RETURN_CODE_TYPE * RETURN_CODE);
-extern void SUSPEND (PROCESS_ID_TYPE PROCESS_ID,
-		     RETURN_CODE_TYPE * RETURN_CODE);
-extern void RESUME (PROCESS_ID_TYPE PROCESS_ID,
-		    RETURN_CODE_TYPE * RETURN_CODE);
-extern void STOP_SELF  (void);
-extern void STOP (PROCESS_ID_TYPE PROCESS_ID,
-		  RETURN_CODE_TYPE * RETURN_CODE);
-extern void START (PROCESS_ID_TYPE PROCESS_ID,
-		   RETURN_CODE_TYPE * RETURN_CODE);
-extern void DELAYED_START (PROCESS_ID_TYPE PROCESS_ID,
-		           SYSTEM_TIME_TYPE  DELAY_TIME,
-		           RETURN_CODE_TYPE * RETURN_CODE);
-extern void LOCK_PREEMPTION (LOCK_LEVEL_TYPE * LOCK_LEVEL,
-			     RETURN_CODE_TYPE * RETURN_CODE);
-extern void UNLOCK_PREEMPTION (LOCK_LEVEL_TYPE * LOCK_LEVEL,
-			       RETURN_CODE_TYPE * RETURN_CODE);
+extern void GET_PROCESS_ID (
+       /*in */ PROCESS_NAME_TYPE        PROCESS_NAME,
+       /*out*/ PROCESS_ID_TYPE          *PROCESS_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void GET_PROCESS_STATUS (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*out*/ PROCESS_STATUS_TYPE      *PROCESS_STATUS,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void CREATE_PROCESS (
+       /*in */ PROCESS_ATTRIBUTE_TYPE   *ATTRIBUTES,
+       /*out*/ PROCESS_ID_TYPE          *PROCESS_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void SET_PRIORITY (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*in */ PRIORITY_TYPE            PRIORITY,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void SUSPEND_SELF (
+       /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void SUSPEND (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void RESUME (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void STOP_SELF (void);
+
+extern void STOP (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void START (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void DELAYED_START (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*in */ SYSTEM_TIME_TYPE         DELAY_TIME,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void LOCK_PREEMPTION (
+       /*out*/ LOCK_LEVEL_TYPE          *LOCK_LEVEL,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void UNLOCK_PREEMPTION (
+       /*out*/ LOCK_LEVEL_TYPE          *LOCK_LEVEL,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void GET_MY_ID (
+       /* out */ PROCESS_ID_TYPE * PROCESS_ID,
+       /* out */ RETURN_CODE_TYPE * RETURN_CODE);
+
+extern void INITIALIZE_PROCESS_CORE_AFFINITY (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*in */ PROCESSOR_CORE_ID_TYPE   PROCESSOR_CORE_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void GET_MY_PROCESSOR_CORE_ID (
+       /*out*/ PROCESSOR_CORE_ID_TYPE   *PROCESSOR_CORE_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+extern void GET_MY_INDEX (
+       /*out*/ PROCESS_INDEX_TYPE       *PROCESS_INDEX,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+
+
 extern void a653TimeMonitorProcGet (PROCESS_ID_TYPE PROCESS_ID,
                                     SYSTEM_TIME_TYPE * procTime,
                                     SYSTEM_TIME_TYPE *  refTime,

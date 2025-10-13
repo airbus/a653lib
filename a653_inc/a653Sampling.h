@@ -28,26 +28,26 @@ typedef enum VALIDITY_VALUE_TYPE {
 } VALIDITY_TYPE;
 
 /* sampling port status type */ 
-typedef struct SAMPLING_PORT_STATUS {
+typedef struct {
   MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port size */
   PORT_DIRECTION_TYPE     PORT_DIRECTION;     /* port direction */
   SYSTEM_TIME_TYPE        REFRESH_PERIOD;     /* refresh period */
   VALIDITY_TYPE           LAST_MSG_VALIDITY;  /* message validity */
 } SAMPLING_PORT_STATUS_TYPE;
 
-typedef enum UPDATED_VALUE_TYPE {    
+typedef enum {
   EMPTY_PORT,
   CONSUMED_MESSAGE,
   NEW_MESSAGE
 } UPDATED_TYPE;
 
-typedef enum AGE_VALUE_TYPE {
+typedef enum {
   STALE,
   FRESH
 } AGE_TYPE;
 
 /* sampling port status type */ 
-typedef struct SAMPLING_PORT_CURRENT_STATUS { 
+typedef struct {
   SYSTEM_TIME_TYPE        REFRESH_PERIOD;     /* refresh period */
   SYSTEM_TIME_TYPE        TIME_STAMP;         /* when message was written */
   MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port max byte size */
@@ -86,55 +86,71 @@ typedef struct sample_port_funcs_s {
 } SAMPLING_PORT_FUNCS_TYPE;
 
 
-
 /* function declarations */
 
 
 
 void INIT_SAMPLING_PORT (RETURN_CODE_TYPE        *RETURN_CODE);
 
-void CREATE_SAMPLING_PORT (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME, 
-			   MESSAGE_SIZE_TYPE         MAX_MESSAGE_SIZE, 
-			   PORT_DIRECTION_TYPE       PORT_DIRECTION, 
-			   SYSTEM_TIME_TYPE          REFRESH_PERIOD, 
-			   SAMPLING_PORT_ID_TYPE   * SAMPLING_PORT_ID, 
-			   RETURN_CODE_TYPE        * RETURN_CODE);
+extern void CREATE_SAMPLING_PORT (
+       /*in */ SAMPLING_PORT_NAME_TYPE    SAMPLING_PORT_NAME,
+       /*in */ MESSAGE_SIZE_TYPE          MAX_MESSAGE_SIZE,
+       /*in */ PORT_DIRECTION_TYPE        PORT_DIRECTION,
+       /*in */ SYSTEM_TIME_TYPE           REFRESH_PERIOD,
+       /*out*/ SAMPLING_PORT_ID_TYPE      *SAMPLING_PORT_ID,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void WRITE_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE   SAMPLING_PORT_ID, 
-			     MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
-			     MESSAGE_SIZE_TYPE       LENGTH, 
-			     RETURN_CODE_TYPE      * RETURN_CODE);
+extern void WRITE_SAMPLING_MESSAGE (
+       /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+       /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,     /* by reference */
+       /*in */ MESSAGE_SIZE_TYPE          LENGTH,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void READ_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE    SAMPLING_PORT_ID, 
-			    MESSAGE_ADDR_TYPE        MESSAGE_ADDR, 
-			    MESSAGE_SIZE_TYPE      * LENGTH, 
-			    VALIDITY_TYPE          * VALIDITY, 
-			    RETURN_CODE_TYPE       * RETURN_CODE);
+extern void READ_SAMPLING_MESSAGE (
+       /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+       /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
+               /* The message address is passed IN, although */
+               /* the respective message is passed OUT       */
+       /*out*/ MESSAGE_SIZE_TYPE          *LENGTH,
+       /*out*/ VALIDITY_TYPE              *VALIDITY,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void READ_UPDATED_SAMPLING_MESSAGE (SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID,
-				    MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
-				    MESSAGE_SIZE_TYPE *     LENGTH,
-				    UPDATED_TYPE *          UPDATED,
-				    RETURN_CODE_TYPE *      RETURN_CODE);
+extern void GET_SAMPLING_PORT_ID (
+       /*in */ SAMPLING_PORT_NAME_TYPE    SAMPLING_PORT_NAME,
+       /*out*/ SAMPLING_PORT_ID_TYPE      *SAMPLING_PORT_ID,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void READ_SAMPLING_MESSAGE_CONDITIONAL (SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID,
-					SYSTEM_TIME_TYPE        REF_TIME_STAMP,
-					MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
-					MESSAGE_SIZE_TYPE *     LENGTH,
-					SYSTEM_TIME_TYPE *      TIME_STAMP,
-					RETURN_CODE_TYPE *      RETURN_CODE);
+extern void GET_SAMPLING_PORT_STATUS (
+       /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+       /*out*/ SAMPLING_PORT_STATUS_TYPE  *SAMPLING_PORT_STATUS,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void GET_SAMPLING_PORT_ID (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME,
-			   SAMPLING_PORT_ID_TYPE   * SAMPLING_PORT_ID, 
-			   RETURN_CODE_TYPE        * RETURN_CODE);
+extern void READ_UPDATED_SAMPLING_MESSAGE (
+       /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+       /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
+               /* the message address is passed IN, */
+               /* although the respective message   */
+               /* is passed OUT                     */
+       /*out*/ MESSAGE_SIZE_TYPE          *LENGTH,
+       /*out*/ UPDATED_TYPE               *UPDATED,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void GET_SAMPLING_PORT_STATUS (SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID, 
-			       SAMPLING_PORT_STATUS_TYPE * SAMPLING_PORT_STATUS, 
-			       RETURN_CODE_TYPE    * RETURN_CODE);
+extern void GET_SAMPLING_PORT_CURRENT_STATUS (
+       /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+       /*out*/ SAMPLING_PORT_CURRENT_STATUS_TYPE
+                                          *SAMPLING_PORT_CURRENT_STATUS,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
-void GET_SAMPLING_PORT_CURRENT_STATUS (SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID,
-				       SAMPLING_PORT_CURRENT_STATUS_TYPE * SAMPLING_PORT_CURRENT_STATUS,
-				       RETURN_CODE_TYPE *      RETURN_CODE);
+extern void READ_SAMPLING_MESSAGE_CONDITIONAL (
+       /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+       /*in */ SYSTEM_TIME_TYPE           REF_TIME_STAMP,
+       /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
+               /* the message address is passed IN, */
+               /* although the respective message   */
+               /* is passed OUT                     */
+       /*out*/ MESSAGE_SIZE_TYPE          *LENGTH,
+       /*out*/ SYSTEM_TIME_TYPE           *TIME_STAMP,
+       /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
 
 void create_sampling_port_pp (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME, 

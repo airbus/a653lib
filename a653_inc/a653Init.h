@@ -39,7 +39,7 @@
 
 #define MAX_PRCS_ID 0xff
 
-#define MAX_PARTITION 10           /* maxilmal number of partitions */
+#define MAX_PARTITION 10           /* maximal number of partitions */
 #define MAX_PRCS 12                /* maximal number of processes per partition */
 			         
 #define MAX_CHANNEL     60         /* Number of maximal posible channels */

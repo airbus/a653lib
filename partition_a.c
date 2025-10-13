@@ -8,19 +8,8 @@
 
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-//--------------------
-#include <errno.h>
-#include <time.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <signal.h>
-
-
-
 #include "a653Lib.h"
-/* #include "a653Init.h" */
 /* #include "a653_config.h" */
 
 /* a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; */
@@ -173,8 +162,8 @@ int main (int argc, char *argv[]){
   // InitSamplingPorts();
 
    //Initialization of the processes
-   memset((char*)(&process_data.NAME), 0, sizeof(process_data.NAME));
-   sprintf((char*)(&process_data.NAME), "Process A                    ");
+   memset((char*)(process_data.NAME), 0, sizeof(process_data.NAME));
+   sprintf((char*)(process_data.NAME), "Process A                    ");
    process_data.PERIOD = 100000000LL; /* nsec 0,1 sec*/
    process_data.TIME_CAPACITY = 0;
    process_data.STACK_SIZE = 0x5000000;
