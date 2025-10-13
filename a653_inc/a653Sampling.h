@@ -1,19 +1,40 @@
-/**
- * @file      a653Sampling.h
- * @date      Wed Apr  1 17:08:32 2023
- * @brief     a653 sampling port
- * @details    
+/*
+ * Copyright (c) 2022-2023 Airbus Defence and Space
+ *
+ * This file is part of liba653.
+ *
+ * liba653 is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * liba653 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with liba653; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+/**
+ * @file      a653Sampling.h
+ * @copyright Airbus Defence and Space
+ * @author    nicolaus.baer@airbus.com
+ * @date      Wed Apr  1 17:08:32 2023
+ * @brief     a653 sampling port
+ * @details
+ */
 
-#ifndef __A653_SAMPLING_H
-#define __A653_SAMPLING_H
+#ifndef A653_SAMPLING_H
+#define A653_SAMPLING_H
 
 #include "a653Type.h"
 #include "a653Error.h"
 
 /* constant definitions */ 
-  
+
 #define SAMPLING_PORT_ID_MAX 5000
 
 /* type definitions */ 
@@ -22,24 +43,23 @@ typedef NAME_TYPE SAMPLING_PORT_NAME_TYPE; /* port name type */
 
 typedef A653_INTEGER SAMPLING_PORT_ID_TYPE; /* sampling port ident type */ 
 
-typedef enum VALIDITY_VALUE_TYPE {
-  INVALID = 0,
-  VALID   = 1
-} VALIDITY_TYPE;
+typedef  enum { INVALID = 0, VALID = 1 } VALIDITY_TYPE;
 
-/* sampling port status type */ 
-typedef struct {
-  MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port size */
-  PORT_DIRECTION_TYPE     PORT_DIRECTION;     /* port direction */
-  SYSTEM_TIME_TYPE        REFRESH_PERIOD;     /* refresh period */
-  VALIDITY_TYPE           LAST_MSG_VALIDITY;  /* message validity */
-} SAMPLING_PORT_STATUS_TYPE;
+/* sampling port status type */
+typedef
+   struct {
+      SYSTEM_TIME_TYPE         REFRESH_PERIOD;    /* port size */
+      MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE;  /* refresh period */
+      PORT_DIRECTION_TYPE      PORT_DIRECTION;    /* port direction */
+      VALIDITY_TYPE            LAST_MSG_VALIDITY; /* message validity */
+   } SAMPLING_PORT_STATUS_TYPE;
 
 typedef enum {
   EMPTY_PORT,
   CONSUMED_MESSAGE,
   NEW_MESSAGE
 } UPDATED_TYPE;
+
 
 typedef enum {
   STALE,
@@ -87,8 +107,6 @@ typedef struct sample_port_funcs_s {
 
 
 /* function declarations */
-
-
 
 void INIT_SAMPLING_PORT (RETURN_CODE_TYPE        *RETURN_CODE);
 
@@ -171,6 +189,4 @@ void read_sampling_message_pp(SAMPLING_PORT_ID_TYPE       SAMPLING_PORT_ID,
 			      VALIDITY_TYPE          * VALIDITY, 
 			      RETURN_CODE_TYPE       * RETURN_CODE);
 
-
-#endif /* __A653_SAMPLING_H */
-
+#endif /* A653_SAMPLING_H */

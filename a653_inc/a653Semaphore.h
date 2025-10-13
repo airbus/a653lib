@@ -24,7 +24,7 @@
  * @author    nicolaus.baer@airbus.com
  * @date      Wed 11 Dec 2024 08:03:18 AM EST
  * @brief     SEMAPHORE constant and type definitions and management services
- * @details 
+ * @details
  */
 
 #ifndef A653_SEMAPHORE
@@ -42,11 +42,12 @@ typedef A653_INTEGER SEMAPHORE_ID_TYPE;
 
 typedef A653_INTEGER SEMAPHORE_VALUE_TYPE;
 
-typedef struct {
-  SEMAPHORE_VALUE_TYPE CURRENT_VALUE;
-  SEMAPHORE_VALUE_TYPE MAXIMUM_VALUE;
-  WAITING_RANGE_TYPE WAITING_PROCESSES;
-} SEMAPHORE_STATUS_TYPE;
+typedef
+   struct {
+      SEMAPHORE_VALUE_TYPE  CURRENT_VALUE;
+      SEMAPHORE_VALUE_TYPE  MAXIMUM_VALUE;
+      WAITING_RANGE_TYPE    WAITING_PROCESSES;
+   } SEMAPHORE_STATUS_TYPE;
 
 extern void CREATE_SEMAPHORE (
        /*in */ SEMAPHORE_NAME_TYPE      SEMAPHORE_NAME,
@@ -75,5 +76,4 @@ extern void GET_SEMAPHORE_STATUS (
        /*out*/ SEMAPHORE_STATUS_TYPE    *SEMAPHORE_STATUS,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
-#endif
-
+#endif /* A653_SEMAPHORE */

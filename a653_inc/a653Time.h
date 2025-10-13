@@ -27,9 +27,8 @@
  * @details
  */
 
-#ifndef __A653_TIME_H
-#define __A653_TIME_H
-
+#ifndef A653_TIME_H
+#define A653_TIME_H
 
 #include "a653Type.h"
 
@@ -48,10 +47,10 @@ extern void PERIODIC_WAIT (
 
 extern void GET_TIME (
        /*out*/ SYSTEM_TIME_TYPE         *SYSTEM_TIME, /* 64bit - 1 nanosecond LSB */
-       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
 extern void REPLENISH (
        /*in */ SYSTEM_TIME_TYPE         BUDGET_TIME,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
 
-#endif	/* __A653_TIME_H  */
+#endif /* A653_TIME_H  */
