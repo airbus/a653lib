@@ -78,7 +78,8 @@ int a653_prcs_init(void){
 
   int ret_val = 0;
 
-  prcs_info = (prcs_info_t *) calloc(MAX_PRCS, sizeof(prcs_info_t));
+  prcs_info = (prcs_info_t *) malloc (MAX_PRCS * sizeof(prcs_info_t));
+  memset(prcs_info, 0, MAX_PRCS * sizeof(prcs_info_t));
   prcsHash = (int *) malloc(sizeof(int) *(PRCS_START_ID + MAX_PRCS));
   
   if ((prcs_info != NULL) &&
