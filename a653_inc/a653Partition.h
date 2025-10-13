@@ -8,6 +8,8 @@
 #ifndef A653_PARTITION
 #define A653_PARTITION
 
+#include "a653Type.h"
+
 typedef enum {
   IDLE = 0,
   COLD_START = 1,

@@ -31,6 +31,8 @@
 #ifndef A653_SEMAPHORE
 #define A653_SEMAPHORE
 
+#include "a653Type.h"
+
 #define MAX_NUMBER_OF_SEMAPHORES MAX_SEM_NUM
 
 #define MAX_SEMAPHORE_VALUE 32767

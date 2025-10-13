@@ -30,6 +30,10 @@
 #ifndef __A653_I_PARTITION_H__
 #define __A653_I_PARTITION_H__
 
+#include <pthread.h>
+#include <stdint.h>
+#include <time.h>
+
 #include "a653Type.h"
 #include "a653Error.h"
 #include "a653Process.h"
@@ -39,6 +43,21 @@
 
 typedef void *(*__start_routine) (void *);
 typedef void (*func_ptr)(void);
+
+typedef struct {
+  //  PROCESS_ATTRIBUTE_TYPE attr;
+ 
+  pthread_mutex_t        t_lock;
+  pthread_t              t_ctx;
+  pthread_attr_t         t_attr;
+  int64_t                timerPeriod;
+  struct timespec        nextActivation;
+  unsigned int           priority;
+  unsigned int           cycle_cnt;
+  unsigned short         id;
+  char                   name[35];
+  func_ptr               prcs_main_func;
+} prcs_info_t;
 
 
 void a653_act_prcs(void);
