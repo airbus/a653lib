@@ -60,7 +60,7 @@ extern int64_t time_slice;
 int number_of_processes = 0;
 int prcs_id_next = PRCS_START_ID;
 
-static prcs_info_t *prcs_info; 
+static prcs_info_t *prcs_info;
 static int *prcsHash;
 
 static void prcs_main(void);
@@ -78,7 +78,8 @@ int a653_prcs_init(void){
 
   int ret_val = 0;
 
-  prcs_info = (prcs_info_t *) calloc(MAX_PRCS, sizeof(prcs_info_t));
+  prcs_info = (prcs_info_t *) malloc (MAX_PRCS * sizeof(prcs_info_t));
+  memset(prcs_info, 0, MAX_PRCS * sizeof(prcs_info_t));
   prcsHash = (int *) malloc(sizeof(int) *(PRCS_START_ID + MAX_PRCS));
   
   if ((prcs_info != NULL) &&
@@ -380,6 +381,25 @@ int taskIdFromProcIdGet (PROCESS_ID_TYPE procId){
   int ret_val = 0;
 
   return(ret_val);
+}
+
+void INITIALIZE_PROCESS_CORE_AFFINITY (
+       /*in */ PROCESS_ID_TYPE          PROCESS_ID,
+       /*in */ PROCESSOR_CORE_ID_TYPE   PROCESSOR_CORE_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE ) {
+  *RETURN_CODE = NO_ACTION;
+}
+
+void GET_MY_PROCESSOR_CORE_ID (
+       /*out*/ PROCESSOR_CORE_ID_TYPE   *PROCESSOR_CORE_ID,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE ) {
+  *RETURN_CODE = NO_ACTION;
+}
+
+void GET_MY_INDEX (
+       /*out*/ PROCESS_INDEX_TYPE       *PROCESS_INDEX,
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE ) {
+  *RETURN_CODE = NO_ACTION;
 }
 
 

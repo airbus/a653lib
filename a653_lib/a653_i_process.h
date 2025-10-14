@@ -46,7 +46,6 @@ typedef void (*func_ptr)(void);
 
 typedef struct {
   //  PROCESS_ATTRIBUTE_TYPE attr;
- 
   pthread_mutex_t        t_lock;
   pthread_t              t_ctx;
   pthread_attr_t         t_attr;
