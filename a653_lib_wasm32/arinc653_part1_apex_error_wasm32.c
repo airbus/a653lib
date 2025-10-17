@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part1_apex_error_wasm32.h"
-#include "wasm32_struct_getset.h" /* auto-generated header */
+#include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Error.h"
 
 
@@ -157,11 +157,6 @@ wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
     (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]
   );
 
-  void *dl_struct_getset = env;
-
-  // FIXME: pointer is 32bit, but could be 64bit ..
-  ERROR_STATUS_TYPE* ERROR_STATUS__guest = (ERROR_STATUS_TYPE*)&wasm_baseaddr[args[0].of.i32];
-
 #if 0
 /* error status type */
 typedef struct             {
@@ -173,48 +168,15 @@ typedef struct             {
 } ERROR_STATUS_TYPE;
 #endif
 
-  SET__ERROR_STATUS_TYPE__ERROR_CODE__FNC_PTR_DCL(SET__ERROR_STATUS_TYPE__ERROR_CODE)
-    = (SET__ERROR_STATUS_TYPE__ERROR_CODE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__ERROR_STATUS_TYPE__ERROR_CODE");
-  if (! SET__ERROR_STATUS_TYPE__ERROR_CODE) {
-    fprintf(stderr, "ERR: SET__ERROR_STATUS_TYPE__ERROR_CODE not present!\n");
-    exit(-1);
-  }
-
-  SET__ERROR_STATUS_TYPE__MESSAGE__FNC_PTR_DCL(SET__ERROR_STATUS_TYPE__MESSAGE)
-    = (SET__ERROR_STATUS_TYPE__MESSAGE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__ERROR_STATUS_TYPE__MESSAGE");
-  if (! SET__ERROR_STATUS_TYPE__MESSAGE) {
-    fprintf(stderr, "ERR: SET__ERROR_STATUS_TYPE__MESSAGE not present!\n");
-    exit(-1);
-  }
-
-  SET__ERROR_STATUS_TYPE__LENGTH__FNC_PTR_DCL(SET__ERROR_STATUS_TYPE__LENGTH)
-    = (SET__ERROR_STATUS_TYPE__LENGTH__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__ERROR_STATUS_TYPE__LENGTH");
-  if (! SET__ERROR_STATUS_TYPE__LENGTH) {
-    fprintf(stderr, "ERR: SET__ERROR_STATUS_TYPE__LENGTH not present!\n");
-    exit(-1);
-  }
-
-  SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID__FNC_PTR_DCL(SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID)
-    = (SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID");
-  if (! SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID) {
-    fprintf(stderr, "ERR: SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID not present!\n");
-    exit(-1);
-  }
-
-  SET__ERROR_STATUS_TYPE__FAILED_ADDRESS__FNC_PTR_DCL(SET__ERROR_STATUS_TYPE__FAILED_ADDRESS)
-  = (SET__ERROR_STATUS_TYPE__FAILED_ADDRESS__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__ERROR_STATUS_TYPE__FAILED_ADDRESS");
-  if (! SET__ERROR_STATUS_TYPE__FAILED_ADDRESS) {
-    fprintf(stderr, "ERR: SET__ERROR_STATUS_TYPE__FAILED_ADDRESS not present!\n");
-    exit(-1);
-  }
-
-  SET__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.ERROR_CODE);
-  SET__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, (const char*)ERROR_STATUS__host_64bit.MESSAGE);
-  SET__ERROR_STATUS_TYPE__LENGTH(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.LENGTH);
-  SET__ERROR_STATUS_TYPE__FAILED_PROCESS_ID(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.FAILED_PROCESS_ID);
+  // FIXME: pointer is 32bit, but could be 64bit ..
+  uint8_t* ERROR_STATUS__guest = (uint8_t*)&wasm_baseaddr[args[0].of.i32];
+  camw32_set__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.ERROR_CODE);
+  camw32_write__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.MESSAGE);
+  camw32_set__ERROR_STATUS_TYPE__LENGTH(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.LENGTH);
+  camw32_set__ERROR_STATUS_TYPE__FAILED_PROCESS_ID(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.FAILED_PROCESS_ID);
 
   uint32_t FAILED_ADDRESS_idx = wasm_processes.ENTRY_POINT[ERROR_STATUS__host_64bit.FAILED_PROCESS_ID];
-  SET__ERROR_STATUS_TYPE__FAILED_ADDRESS(ERROR_STATUS__guest, FAILED_ADDRESS_idx);
+  camw32_set__ERROR_STATUS_TYPE__FAILED_ADDRESS(ERROR_STATUS__guest, FAILED_ADDRESS_idx);
 
   return NULL;
 }

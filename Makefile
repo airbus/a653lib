@@ -54,7 +54,7 @@ TARGET_WASM_BOOTSTRAP   = $(BIN_DIR)/wasm32_rt
 
 
 
-all: clean mk_build_dir alib amain part_a part_b part_bootstrap_wasm part_wasms
+all: clean mk_build_dir alib amain part_a part_b $(MY_BUILD_DIR)/camw32_getset.h   part_bootstrap_wasm part_wasms
 	@echo done!
 
 
@@ -78,17 +78,17 @@ part_bootstrap_wasm: $(OBJS_WASM_BOOTSTRAP) alib_wasm32
 # for host:
 # $ yay -S libwasmtime # wit-bindgen wasm-tools wabt
 
-part_wasms: $(TARGET_A_WASM) $(basename $(TARGET_A_WASM)).wasm32_struct_getset.so $(TARGET_B_WASM) $(basename $(TARGET_B_WASM)).wasm32_struct_getset.so
+part_wasms: $(TARGET_A_WASM) $(TARGET_B_WASM)
 
 # for guest:
 # $ yay -S clang lld wasi-libc wasi-compiler-rt
-%.wasm %.wasm32_struct_layout.txt &: alib wasm32_struct_getset.h
+%.wasm: alib
 	@echo build dir $(MY_BUILD_DIR)
 	# 1. we use the wasm32-wasi to include the stdlib (thus having __start() and main() support).
 	# however, long term for avionics it would make sense to drop and go to wasm32-unknown
 	# 2. --allow-undefined is required for symbols (such as WIT functions) that are not yet defined.
 	#cd $(MY_BUILD_DIR); wasm-as ../../wasm_func_tbl.wat -o wasm_func_tbl.o --enable-reference-types --relocatable
-	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc -Xclang -fdump-record-layouts --target=wasm32-wasi -Wl,-export=_start -Wl,--allow-undefined --sysroot=/usr/share/wasi-sysroot -o $@ ../../$(basename $(notdir $@)).c ../../wasm_guest_trampoline.c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt
+	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc --target=wasm32-wasi -Wl,-export=_start -Wl,--allow-undefined --sysroot=/usr/share/wasi-sysroot -o $@ ../../$(basename $(notdir $@)).c ../../wasm_guest_trampoline.c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt
 
 
 # clang a653_inc/a653Lib.h -Xclang -ast-dump -fsyntax-only -o - --target=wasm32 -Ia653_inc
@@ -98,29 +98,20 @@ $(VENV_DIR)/bin/activate:
 	test -d $(VENV_DIR) || $(PYTHON) -m venv $(VENV_DIR)
 	. $(VENV_DIR)/bin/activate; pip install c-api-extract
 
-wasm32_types.json: $(VENV_DIR)/bin/activate
-	. $(VENV_DIR)/bin/activate; c_api_extract $(SRC_DIR)/a653_inc/a653Lib.h -i "a653\s*" -- --target=wasm32 -I$(SRC_DIR)/a653_inc > $(MY_BUILD_DIR)/$(notdir $@)
-
-wasm64_types.json: $(VENV_DIR)/bin/activate
-	. $(VENV_DIR)/bin/activate; c_api_extract $(SRC_DIR)/a653_inc/a653Lib.h -i "a653\s*" -- --target=wasm64 -I$(SRC_DIR)/a653_inc > $(MY_BUILD_DIR)/$(notdir $@)
-
-wasm%_struct_getset.h: wasm%_types.json
-	cd $(MY_BUILD_DIR); $(PYTHON) $(SRC_DIR)/wasm_gen_struct_getset_header.py --types $< > $@
-
-# the resulting headers should be exactly the same
-%.wasm32_struct_getset.c: %.wasm32_struct_layout.txt wasm32_types.json
-	cd $(MY_BUILD_DIR); $(PYTHON) $(SRC_DIR)/wasm_gen_struct_getset_code.py --log $(notdir $<) --types $(notdir $(word 2, $^)) > $(basename $(notdir $@)).c
-
-%.wasm32_struct_getset.so: %.wasm32_struct_getset.c
-	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) -I$(MY_BUILD_DIR)/a653_inc -shared -fPIC -o $@ $(notdir $<)
-
-alib_wasm32: wasm32_struct_getset.h alib
+alib_wasm32: alib
 	make -e -C $(SRC_DIR)/a653_lib_wasm32 a653_lib_wasm32
 
 alib:
 	make -e -C $(SRC_DIR)/a653_lib
 	cp -r $(SRC_DIR)/a653_inc $(MY_BUILD_DIR)
 #	cp -r $(SRC_DIR)/a653_ada $(MY_BUILD_DIR)
+
+$(MY_BUILD_DIR)/camw32_getset.h: mk_build_dir
+	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens || { cd $(MY_BUILD_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-next; }
+	cd $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens; rustup default stable && cargo build
+	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
+	$(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(SRC_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
+	sed -i 's|camw|camw32|g' $@
 
 
 

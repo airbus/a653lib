@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part1_apex_process_wasm32.h"
-#include "wasm32_struct_getset.h" /* auto-generated header */
+#include "camw32_getset.h" /* auto-generated header */
 #include "../a653_lib/a653_i_process.h"
 #include "../a653_inc/a653Process.h"
 
@@ -168,41 +168,10 @@ wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
     (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
   );
 
-  void *dl_struct_getset = env;
-
   // FIXME: pointer is 32bit, but could be 64bit ..
-  PROCESS_STATUS_TYPE* STATUS_guest = (PROCESS_STATUS_TYPE*)&wasm_baseaddr[args[1].of.i32];
+  uint8_t* STATUS_guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
 
-#if 0
-/* process status type      */
-typedef struct {
-  SYSTEM_TIME_TYPE       DEADLINE_TIME;       /* time to next deadline    */
-  PRIORITY_TYPE          CURRENT_PRIORITY;    /* process current priority */
-  PROCESS_STATE_TYPE     PROCESS_STATE;       /* process state            */
-  PROCESS_ATTRIBUTE_TYPE ATTRIBUTES;          /* process attributes       */
-} PROCESS_STATUS_TYPE;
-#endif
 
-  SET__PROCESS_STATUS_TYPE__DEADLINE_TIME__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__DEADLINE_TIME)
-    = (SET__PROCESS_STATUS_TYPE__DEADLINE_TIME__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__DEADLINE_TIME");
-  if (! SET__PROCESS_STATUS_TYPE__DEADLINE_TIME) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__DEADLINE_TIME not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY)
-  = (SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY");
-  if (! SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__PROCESS_STATE__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__PROCESS_STATE)
-  = (SET__PROCESS_STATUS_TYPE__PROCESS_STATE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__PROCESS_STATE");
-  if (! SET__PROCESS_STATUS_TYPE__PROCESS_STATE) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__PROCESS_STATE not present!\n");
-    exit(-1);
-  }
 
 #if 0
 /* process attribute type    */
@@ -225,66 +194,20 @@ typedef struct {
 } PROCESS_STATUS_TYPE;
 #endif
 
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD not present!\n");
-    exit(-1);
-  }
 
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY not present!\n");
-    exit(-1);
-  }
+  camw32_set__PROCESS_STATUS_TYPE__DEADLINE_TIME(STATUS_guest, STATUS__host_64bit.DEADLINE_TIME);
+  camw32_set__PROCESS_STATUS_TYPE__CURRENT_PRIORITY(STATUS_guest, STATUS__host_64bit.CURRENT_PRIORITY);
+  camw32_set__PROCESS_STATUS_TYPE__PROCESS_STATE(STATUS_guest, STATUS__host_64bit.PROCESS_STATE);
 
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME__FNC_PTR_DCL(SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME)
-  = (SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME");
-  if (! SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME) {
-    fprintf(stderr, "ERR: SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME not present!\n");
-    exit(-1);
-  }
-
-  SET__PROCESS_STATUS_TYPE__DEADLINE_TIME(STATUS_guest, STATUS__host_64bit.DEADLINE_TIME);
-  SET__PROCESS_STATUS_TYPE__CURRENT_PRIORITY(STATUS_guest, STATUS__host_64bit.CURRENT_PRIORITY);
-  SET__PROCESS_STATUS_TYPE__PROCESS_STATE(STATUS_guest, STATUS__host_64bit.PROCESS_STATE);
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__PERIOD(STATUS_guest, STATUS__host_64bit.ATTRIBUTES.PERIOD);
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__TIME_CAPACITY(STATUS_guest, STATUS__host_64bit.ATTRIBUTES.TIME_CAPACITY);
+  uint8_t* ATTRIBUTES_guest = camw32_get_struct_base_addr__PROCESS_STATUS_TYPE__ATTRIBUTES(STATUS_guest);
+  camw32_set__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES_guest, STATUS__host_64bit.ATTRIBUTES.PERIOD);
+  camw32_set__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY(ATTRIBUTES_guest, STATUS__host_64bit.ATTRIBUTES.TIME_CAPACITY);
   uint32_t ENTRY_POINT_idx = wasm_processes.ENTRY_POINT[pid];
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__ENTRY_POINT(STATUS_guest, ENTRY_POINT_idx);
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__STACK_SIZE(STATUS_guest, STATUS__host_64bit.ATTRIBUTES.STACK_SIZE);
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__BASE_PRIORITY(STATUS_guest, STATUS__host_64bit.ATTRIBUTES.BASE_PRIORITY);
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__DEADLINE(STATUS_guest, STATUS__host_64bit.ATTRIBUTES.DEADLINE);
-  SET__PROCESS_STATUS_TYPE__ATTRIBUTES__NAME(STATUS_guest, STATUS__host_64bit.ATTRIBUTES.NAME);
+  camw32_set__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT(ATTRIBUTES_guest, ENTRY_POINT_idx);
+  camw32_set__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE(ATTRIBUTES_guest, STATUS__host_64bit.ATTRIBUTES.STACK_SIZE);
+  camw32_set__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY(ATTRIBUTES_guest, STATUS__host_64bit.ATTRIBUTES.BASE_PRIORITY);
+  camw32_set__PROCESS_ATTRIBUTE_TYPE__DEADLINE(ATTRIBUTES_guest, STATUS__host_64bit.ATTRIBUTES.DEADLINE);
+  camw32_write__PROCESS_ATTRIBUTE_TYPE__NAME(ATTRIBUTES_guest, STATUS__host_64bit.ATTRIBUTES.NAME);
 
   return NULL;
 }
@@ -318,87 +241,19 @@ wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
-  void *dl_struct_getset = env;
-
-
-  GET__PROCESS_ATTRIBUTE_TYPE__PERIOD__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__PERIOD)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__PERIOD__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__PERIOD");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__PERIOD) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__PERIOD not present!\n");
-    exit(-1);
-  }
-
-  GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY not present!\n");
-    exit(-1);
-  }
-
-  GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT not present!\n");
-    exit(-1);
-  }
-
-  GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE not present!\n");
-    exit(-1);
-  }
-
-  GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY not present!\n");
-    exit(-1);
-  }
-
-  GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE not present!\n");
-    exit(-1);
-  }
-
-  GET__PROCESS_ATTRIBUTE_TYPE__NAME__FNC_PTR_DCL(GET__PROCESS_ATTRIBUTE_TYPE__NAME)
-    = (GET__PROCESS_ATTRIBUTE_TYPE__NAME__FNC_PTR_DCL()) dlsym (dl_struct_getset, "GET__PROCESS_ATTRIBUTE_TYPE__NAME");
-  if (! GET__PROCESS_ATTRIBUTE_TYPE__NAME) {
-    fprintf(stderr, "ERR: GET__PROCESS_ATTRIBUTE_TYPE__NAME not present!\n");
-    exit(-1);
-  }
+  // FIXME: pointer is 32bit, but could be 64bit ..
+  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[args[0].of.i32];
 
   PROCESS_ATTRIBUTE_TYPE ATTRIBUTES__host_64bit;
-
-  // FIXME: pointer is 32bit, but could be 64bit ..
-  PROCESS_ATTRIBUTE_TYPE* ATTRIBUTES__guest = (PROCESS_ATTRIBUTE_TYPE*)&wasm_baseaddr[args[0].of.i32];
-
-  ATTRIBUTES__host_64bit.PERIOD = GET__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES__guest);
-  ATTRIBUTES__host_64bit.TIME_CAPACITY = GET__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY(ATTRIBUTES__guest);
+  ATTRIBUTES__host_64bit.PERIOD = camw32_get__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES__guest);
+  ATTRIBUTES__host_64bit.TIME_CAPACITY = camw32_get__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY(ATTRIBUTES__guest);
   ATTRIBUTES__host_64bit.ENTRY_POINT = (typeof(ATTRIBUTES__host_64bit.ENTRY_POINT))&wasm_trampoline;
-  uint32_t ENTRY_POINT_idx = (uint32_t)GET__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT(ATTRIBUTES__guest);
+  uint32_t ENTRY_POINT_idx = (uint32_t)camw32_get__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT(ATTRIBUTES__guest);
 
-  ATTRIBUTES__host_64bit.STACK_SIZE = GET__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE(ATTRIBUTES__guest);
-  ATTRIBUTES__host_64bit.BASE_PRIORITY = GET__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY(ATTRIBUTES__guest);
-  ATTRIBUTES__host_64bit.DEADLINE = GET__PROCESS_ATTRIBUTE_TYPE__DEADLINE(ATTRIBUTES__guest);
-  GET__PROCESS_ATTRIBUTE_TYPE__NAME(ATTRIBUTES__host_64bit.NAME, ATTRIBUTES__guest);
-
-#if 0
-  PROCESS_ATTRIBUTE_TYPE* pa_guest_32bit = ATTRIBUTES__guest;
-  printf("---------- PA_base %p\n", pa_guest_32bit);
-
-  printf("!!!!!!!!!!!!! %p\n", dl_struct_getset);
-  printf("!!!! %ld vs %ld (%p)\n", ATTRIBUTES__host_64bit.PERIOD, pa_guest_32bit->PERIOD, (void*)&pa_guest_32bit->PERIOD);
-  printf("!!!! %ld vs %ld (%p)\n", ATTRIBUTES__host_64bit.TIME_CAPACITY, pa_guest_32bit->TIME_CAPACITY, (void*)&pa_guest_32bit->TIME_CAPACITY);
-  printf("!!!! %d vs %d (%p)\n", ENTRY_POINT_idx, *(uint32_t*)&pa_guest_32bit->ENTRY_POINT, (void*)&pa_guest_32bit->ENTRY_POINT );
-  pa_guest_32bit = (PROCESS_ATTRIBUTE_TYPE*)(&wasm_baseaddr[args[0].of.i32] - (sizeof(uintptr_t)-sizeof(uint32_t)));
-  printf("!!!! %d vs %d (%p)\n", ATTRIBUTES__host_64bit.STACK_SIZE, pa_guest_32bit->STACK_SIZE, (void*)&pa_guest_32bit->STACK_SIZE);
-  printf("!!!! %d vs %d (%p)\n", ATTRIBUTES__host_64bit.BASE_PRIORITY, pa_guest_32bit->BASE_PRIORITY, (void*)&pa_guest_32bit->BASE_PRIORITY);
-  printf("!!!! %d vs %d (%p)\n", ATTRIBUTES__host_64bit.DEADLINE, pa_guest_32bit->DEADLINE, (void*)&pa_guest_32bit->DEADLINE);
-  printf("!!!! '%s' vs '%s' (%p)\n", ATTRIBUTES__host_64bit.NAME, pa_guest_32bit->NAME, (void*)&pa_guest_32bit->NAME);
-#endif
+  ATTRIBUTES__host_64bit.STACK_SIZE = camw32_get__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE(ATTRIBUTES__guest);
+  ATTRIBUTES__host_64bit.BASE_PRIORITY = camw32_get__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY(ATTRIBUTES__guest);
+  ATTRIBUTES__host_64bit.DEADLINE = camw32_get__PROCESS_ATTRIBUTE_TYPE__DEADLINE(ATTRIBUTES__guest);
+  camw32_read__PROCESS_ATTRIBUTE_TYPE__NAME(ATTRIBUTES__guest, ATTRIBUTES__host_64bit.NAME);
 
   PROCESS_ID_TYPE* pid = (PROCESS_ID_TYPE*)&wasm_baseaddr[args[1].of.i32];
   CREATE_PROCESS(
@@ -406,6 +261,8 @@ wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
     pid,
     (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
   );
+
+  printf("WASM32_CREATE_PROCESS(..., %d, %d)\n", *pid, wasm_baseaddr[args[2].of.i32]);
 
   // we get the pid late, and the real start of the thread will be in CREATE_PROCESS
   wasm_processes.ENTRY_POINT[*pid] = ENTRY_POINT_idx;
@@ -566,6 +423,7 @@ wasm_trap_t* WASM32_START(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+  printf("WASM32_START(%d, ...)\n", args[0].of.i32);
   START(
     (PROCESS_ID_TYPE)args[0].of.i32,
     (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]

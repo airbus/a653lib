@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part1_apex_sampling_port_wasm32.h"
-#include "wasm32_struct_getset.h" /* auto-generated header */
+#include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Sampling.h"
 
 
@@ -110,11 +110,14 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_ID(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+  printf("called GET_SAMPLING_PORT_ID!\n");
   GET_SAMPLING_PORT_ID(
     (char*)&wasm_baseaddr[args[0].of.i32],
     (SAMPLING_PORT_ID_TYPE*)&wasm_baseaddr[args[1].of.i32],
     (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
   );
+  printf(" ---> %d, %d\n", *(SAMPLING_PORT_ID_TYPE*)&wasm_baseaddr[args[1].of.i32], *(RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]);
+
   return NULL;
 }
 
@@ -142,11 +145,6 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_STATUS(void* env,
     (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
   );
 
-  void *dl_struct_getset = env;
-
-  // FIXME: pointer is 32bit, but could be 64bit ..
-  SAMPLING_PORT_STATUS_TYPE* SAMPLING_PORT_STATUS__guest = (SAMPLING_PORT_STATUS_TYPE*)&wasm_baseaddr[args[1].of.i32];
-
 #if 0
 typedef struct {
   MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port size */
@@ -156,38 +154,12 @@ typedef struct {
 } SAMPLING_PORT_STATUS_TYPE;
 #endif
 
-  SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE__FNC_PTR_DCL(SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE)
-    = (SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE");
-  if (! SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE) {
-    fprintf(stderr, "ERR: SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE not present!\n");
-    exit(-1);
-  }
-
-  SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION__FNC_PTR_DCL(SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION)
-    = (SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION");
-  if (! SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION) {
-    fprintf(stderr, "ERR: SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION not present!\n");
-    exit(-1);
-  }
-
-  SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD__FNC_PTR_DCL(SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD)
-    = (SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD");
-  if (! SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD) {
-    fprintf(stderr, "ERR: SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD not present!\n");
-    exit(-1);
-  }
-
-  SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY__FNC_PTR_DCL(SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY)
-    = (SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY__FNC_PTR_DCL()) dlsym (dl_struct_getset, "SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY");
-  if (! SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY) {
-    fprintf(stderr, "ERR: SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY not present!\n");
-    exit(-1);
-  }
-
-  SET__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.MAX_MESSAGE_SIZE);
-  SET__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.PORT_DIRECTION);
-  SET__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.REFRESH_PERIOD);
-  SET__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.LAST_MSG_VALIDITY);
+  // FIXME: pointer is 32bit, but could be 64bit ..
+  uint8_t* SAMPLING_PORT_STATUS__guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
+  camw32_set__SAMPLING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.MAX_MESSAGE_SIZE);
+  camw32_set__SAMPLING_PORT_STATUS_TYPE__PORT_DIRECTION(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.PORT_DIRECTION);
+  camw32_set__SAMPLING_PORT_STATUS_TYPE__REFRESH_PERIOD(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.REFRESH_PERIOD);
+  camw32_set__SAMPLING_PORT_STATUS_TYPE__LAST_MSG_VALIDITY(SAMPLING_PORT_STATUS__guest, SAMPLING_PORT_STATUS__host_64bit.LAST_MSG_VALIDITY);
 
   return NULL;
 }
