@@ -4,13 +4,16 @@
 // ARINC 653 Part 1: APEX Interface: TIME
 
 #include "arinc653_part1_apex_time_wasm32.h"
+#include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Time.h"
+#include <stdint.h>
 
 
-/*
-  SYSTEM_TIME_TYPE DELAY_TIME,
-  RETURN_CODE_TYPE * RETURN_CODE
- */
+#if 0
+extern void TIMED_WAIT (
+  /*in */ SYSTEM_TIME_TYPE         DELAY_TIME,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+#endif
 const char* WASM32_SIGNATURE__TIMED_WAIT = "(Ii)";
 wasm_trap_t* WASM32_TIMED_WAIT(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -21,17 +24,27 @@ wasm_trap_t* WASM32_TIMED_WAIT(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  SYSTEM_TIME_TYPE DELAY_TIME;
+  DELAY_TIME = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[0].of.i64);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   TIMED_WAIT(
-    (SYSTEM_TIME_TYPE)args[0].of.i64,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]
+    DELAY_TIME,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
-/*
- * extern void PERIODIC_WAIT (RETURN_CODE_TYPE * RETURN_CODE);
- */
+#if 0
+extern void PERIODIC_WAIT (
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+#endif
 const char* WASM32_SIGNATURE__PERIODIC_WAIT = "(i)";
 wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -42,17 +55,25 @@ wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  RETURN_CODE_TYPE RETURN_CODE;
+
   PERIODIC_WAIT(
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[0].of.i32]
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
-/*
- extern void GET_TIME (SYSTEM_TIME_TYPE * SYSTEM_TIME,
- RETURN_CODE_TYPE * RETURN_CODE);
- */
+#if 0
+extern void GET_TIME (
+  /*out*/ SYSTEM_TIME_TYPE         *SYSTEM_TIME, /* 64bit - 1 nanosecond LSB */
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+#endif
 const char* WASM32_SIGNATURE__GET_TIME = "(ii)";
 wasm_trap_t* WASM32_GET_TIME(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -63,17 +84,27 @@ wasm_trap_t* WASM32_GET_TIME(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  SYSTEM_TIME_TYPE SYSTEM_TIME;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   GET_TIME(
-    (SYSTEM_TIME_TYPE*)&wasm_baseaddr[args[0].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]
+    &SYSTEM_TIME,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)SYSTEM_TIME);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
 #if 0
-void REPLENISH (SYSTEM_TIME_TYPE   BUDGET_TIME,
-                RETURN_CODE_TYPE * RETURN_CODE)
+extern void REPLENISH (
+  /*in */ SYSTEM_TIME_TYPE         BUDGET_TIME,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
 #endif
 const char* WASM32_SIGNATURE__REPLENISH = "(Ii)";
 wasm_trap_t* WASM32_REPLENISH(void* env,
@@ -85,9 +116,18 @@ wasm_trap_t* WASM32_REPLENISH(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  SYSTEM_TIME_TYPE BUDGET_TIME;
+  BUDGET_TIME = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[0].of.i64);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   REPLENISH(
-    (SYSTEM_TIME_TYPE)args[0].of.i64,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]
+    BUDGET_TIME,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }

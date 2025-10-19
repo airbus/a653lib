@@ -19,7 +19,6 @@ typedef struct {
   wasmtime_sharedmemory_t* shm_memory;
   wasmtime_module_t* module;
 
-  void *dl_struct_getset;
   //  wasmtime_table_t shared_table; // used for the function indexes (due to pthread_create())
   uint32_t ENTRY_POINT[MAX_PRCS];
   uint32_t ENTRY_POINT_ERROR_HANDLER;

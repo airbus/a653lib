@@ -31,8 +31,6 @@
 #ifndef __A653_TYPES_H
 #define __A653_TYPES_H
 
-#include <stdint.h>
-
 /* defines */
 
 /* clang attribute for the WebAssembly target */
@@ -49,11 +47,11 @@
 
 /* Global type definitions */
 
-typedef uint8_t             A653_BYTE;              /*  8 bits unsigned   */
-typedef uint16_t            A653_WORD;              /* 16 bits unsigned   */
-typedef int32_t             A653_INTEGER;           /* 32 bits            */
-typedef uint32_t            A653_UNSIGNED;          /* 32 bits unsigned   */
-typedef int64_t             A653_LONG_INTEGER;      /* 64 bits            */
+typedef unsigned char       A653_BYTE;              /*  8 bits unsigned   */
+typedef unsigned short      A653_WORD;              /* 16 bits unsigned   */
+typedef int                 A653_INTEGER;           /* 32 bits            */
+typedef unsigned int        A653_UNSIGNED;          /* 32 bits unsigned   */
+typedef long long           A653_LONG_INTEGER;      /* 64 bits            */
 
 typedef A653_INTEGER        PROCESS_ID_TYPE;        /* object ident type  */
 typedef A653_INTEGER     PROCESSOR_CORE_ID_TYPE;

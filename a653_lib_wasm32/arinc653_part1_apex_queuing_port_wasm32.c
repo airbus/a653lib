@@ -4,17 +4,20 @@
 // ARINC 653 Part 1: APEX Interface: QUEUING PORT
 
 #include "arinc653_part1_apex_queuing_port_wasm32.h"
+#include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Queuing.h"
 
-/*
- *  QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
- *  MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE,
- *  MESSAGE_RANGE_TYPE      MAX_NB_MESSAGE,
- *  PORT_DIRECTION_TYPE     PORT_DIRECTION,
- *  QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE,
- *  QUEUING_PORT_ID_TYPE  * QUEUING_PORT_ID,
- *  RETURN_CODE_TYPE      * RETURN_CODE
- */
+
+#if 0
+extern void CREATE_QUEUING_PORT (
+  /*in */ QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
+  /*in */ MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE,
+  /*in */ MESSAGE_RANGE_TYPE       MAX_NB_MESSAGE,
+  /*in */ PORT_DIRECTION_TYPE      PORT_DIRECTION,
+  /*in */ QUEUING_DISCIPLINE_TYPE  QUEUING_DISCIPLINE,
+  /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+#endif
 const char* WASM32_SIGNATURE__CREATE_QUEUING_PORT = "(iiiiiii)";
 wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -25,26 +28,44 @@ wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  MESSAGE_SIZE_TYPE MAX_MESSAGE_SIZE;
+  MAX_MESSAGE_SIZE = (MESSAGE_SIZE_TYPE)camw32_get__MESSAGE_SIZE_TYPE((uint8_t*)&args[1].of.i32);
+  MESSAGE_RANGE_TYPE MAX_NB_MESSAGE;
+  MAX_NB_MESSAGE = (MESSAGE_RANGE_TYPE)camw32_get__MESSAGE_RANGE_TYPE((uint8_t*)&args[2].of.i32);
+  PORT_DIRECTION_TYPE PORT_DIRECTION;
+  PORT_DIRECTION = (PORT_DIRECTION_TYPE)camw32_get__PORT_DIRECTION_TYPE((uint8_t*)&args[3].of.i32);
+  QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE;
+  QUEUING_DISCIPLINE = (QUEUING_DISCIPLINE_TYPE)camw32_get__QUEUING_DISCIPLINE_TYPE((uint8_t*)&args[4].of.i32);
+  QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   CREATE_QUEUING_PORT(
-    (char*)&wasm_baseaddr[args[0].of.i32],
-    args[1].of.i32,
-    args[2].of.i32,
-    args[3].of.i32,
-    args[4].of.i32,
-    (QUEUING_PORT_ID_TYPE*)&wasm_baseaddr[args[5].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[6].of.i32]
+    (char*)&wasm_baseaddr[args[0].of.i32], // FIXME: address args[].of.i32 could be LE/BE swapped
+    MAX_MESSAGE_SIZE,
+    MAX_NB_MESSAGE,
+    PORT_DIRECTION,
+    QUEUING_DISCIPLINE,
+    &QUEUING_PORT_ID,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__QUEUING_PORT_ID_TYPE(&wasm_baseaddr[args[5].of.i32], (int32_t)QUEUING_PORT_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[6].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
-/*
- *  QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
- *  MESSAGE_ADDR_TYPE      MESSAGE_ADDR,
- *  MESSAGE_SIZE_TYPE      LENGTH,
- *  SYSTEM_TIME_TYPE       TIME_OUT,
- *  RETURN_CODE_TYPE     * RETURN_CODE
- */
+#if 0
+extern void SEND_QUEUING_MESSAGE (
+  /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+  /*in */ MESSAGE_ADDR_TYPE        MESSAGE_ADDR,       /* by reference */
+  /*in */ MESSAGE_SIZE_TYPE        LENGTH,
+  /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
+#endif
 const char* WASM32_SIGNATURE__SEND_QUEUING_MESSAGE = "(iiiIi)";
 wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -55,24 +76,42 @@ wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)camw32_get__QUEUING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
+  MESSAGE_ADDR = camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[1].of.i32);
+  MESSAGE_SIZE_TYPE LENGTH;
+  LENGTH = (MESSAGE_SIZE_TYPE)camw32_get__MESSAGE_SIZE_TYPE((uint8_t*)&args[2].of.i32);
+  SYSTEM_TIME_TYPE TIME_OUT;
+  TIME_OUT = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[3].of.i64);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   SEND_QUEUING_MESSAGE(
-    (QUEUING_PORT_ID_TYPE)args[0].of.i32,
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[args[1].of.i32],
-    (MESSAGE_SIZE_TYPE)args[2].of.i32,
-    (SYSTEM_TIME_TYPE)args[3].of.i64,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[4].of.i32]
+    QUEUING_PORT_ID,
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    LENGTH,
+    TIME_OUT,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
-/*
- * void RECEIVE_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
- *			      SYSTEM_TIME_TYPE     TIME_OUT,
- *			      MESSAGE_ADDR_TYPE    MESSAGE_ADDR,
- *			      MESSAGE_SIZE_TYPE  * LENGTH,
- *			      RETURN_CODE_TYPE   * RETURN_CODE);
- */
+#if 0
+extern void RECEIVE_QUEUING_MESSAGE (
+  /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+  /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
+  /*in */ MESSAGE_ADDR_TYPE        MESSAGE_ADDR,
+    /* The message address is passed IN, although */
+    /* the respective message is passed OUT       */
+  /*out*/ MESSAGE_SIZE_TYPE        *LENGTH,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+#endif
 const char* WASM32_SIGNATURE__RECEIVE_QUEUING_MESSAGE = "(iIiii)";
 wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -83,22 +122,38 @@ wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)camw32_get__QUEUING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SYSTEM_TIME_TYPE TIME_OUT;
+  TIME_OUT = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[1].of.i32);
+  int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
+  MESSAGE_ADDR = camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[2].of.i32);
+  MESSAGE_SIZE_TYPE LENGTH;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   RECEIVE_QUEUING_MESSAGE(
-    (QUEUING_PORT_ID_TYPE)args[0].of.i32,
-    (SYSTEM_TIME_TYPE)args[1].of.i64,
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[args[2].of.i32],
-    (MESSAGE_SIZE_TYPE*)&wasm_baseaddr[args[3].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[4].of.i32]
+    QUEUING_PORT_ID,
+    TIME_OUT,
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    &LENGTH,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)LENGTH);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
-/*
- *  QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
- *  QUEUING_PORT_ID_TYPE   * QUEUING_PORT_ID,
- *  RETURN_CODE_TYPE       * RETURN_CODE
- */
+#if 0
+extern void GET_QUEUING_PORT_ID (
+  /*in */ QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
+  /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+#endif
 const char* WASM32_SIGNATURE__GET_QUEUING_PORT_ID = "(iii)";
 wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
@@ -109,27 +164,29 @@ wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   GET_QUEUING_PORT_ID(
-    (char*)&wasm_baseaddr[args[0].of.i32],
-    (QUEUING_PORT_ID_TYPE*)&wasm_baseaddr[args[1].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
+    (char*)&wasm_baseaddr[args[0].of.i32], // FIXME: address args[].of.i32 could be LE/BE swapped
+    &QUEUING_PORT_ID,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__QUEUING_PORT_ID_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)QUEUING_PORT_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
 
 #if 0
-extern void GET_QUEUING_PORT_STATUS (QUEUING_PORT_ID_TYPE       QUEUING_PORT_ID,
-                                     QUEUING_PORT_STATUS_TYPE * QUEUING_PORT_STATUS,
-                                     RETURN_CODE_TYPE         * RETURN_CODE);
-
-typedef struct {
-  MESSAGE_RANGE_TYPE     NB_MESSAGE;        /* number of messages */			A653_INTEGER
-  MESSAGE_RANGE_TYPE     MAX_NB_MESSAGE;    /* maximum number of messages */ 	A653_INTEGER
-  MESSAGE_SIZE_TYPE      MAX_MESSAGE_SIZE;  /* max message size */ 				A653_INTEGER
-  PORT_DIRECTION_TYPE    PORT_DIRECTION;    /* port direction */				ENUM
-  WAITING_RANGE_TYPE     WAITING_PROCESSES; /* max number of processes */		A653_INTEGER
-} QUEUING_PORT_STATUS_TYPE;
+extern void GET_QUEUING_PORT_STATUS (
+  /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+  /*out*/ QUEUING_PORT_STATUS_TYPE *QUEUING_PORT_STATUS,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__GET_QUEUING_PORT_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
@@ -141,18 +198,46 @@ wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)camw32_get__QUEUING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  QUEUING_PORT_STATUS_TYPE QUEUING_PORT_STATUS;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   GET_QUEUING_PORT_STATUS(
-    (QUEUING_PORT_ID_TYPE)args[0].of.i32,
-    (QUEUING_PORT_STATUS_TYPE*)&wasm_baseaddr[args[1].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
+    QUEUING_PORT_ID,
+    &QUEUING_PORT_STATUS,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  uint8_t* QUEUING_PORT_STATUS_guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+
+#if 0
+typedef struct {
+  MESSAGE_RANGE_TYPE     NB_MESSAGE;        /* number of messages */			A653_INTEGER
+  MESSAGE_RANGE_TYPE     MAX_NB_MESSAGE;    /* maximum number of messages */ 	A653_INTEGER
+  MESSAGE_SIZE_TYPE      MAX_MESSAGE_SIZE;  /* max message size */ 				A653_INTEGER
+  PORT_DIRECTION_TYPE    PORT_DIRECTION;    /* port direction */				ENUM
+  WAITING_RANGE_TYPE     WAITING_PROCESSES; /* max number of processes */		A653_INTEGER
+} QUEUING_PORT_STATUS_TYPE;
+#endif
+
+  camw32_set__QUEUING_PORT_STATUS_TYPE__NB_MESSAGE(QUEUING_PORT_STATUS_guest, QUEUING_PORT_STATUS.NB_MESSAGE);
+  camw32_set__QUEUING_PORT_STATUS_TYPE__MAX_NB_MESSAGE(QUEUING_PORT_STATUS_guest, QUEUING_PORT_STATUS.MAX_NB_MESSAGE);
+  camw32_set__QUEUING_PORT_STATUS_TYPE__MAX_MESSAGE_SIZE(QUEUING_PORT_STATUS_guest, QUEUING_PORT_STATUS.MAX_MESSAGE_SIZE);
+  camw32_set__QUEUING_PORT_STATUS_TYPE__PORT_DIRECTION(QUEUING_PORT_STATUS_guest, QUEUING_PORT_STATUS.PORT_DIRECTION);
+  camw32_set__QUEUING_PORT_STATUS_TYPE__WAITING_PROCESSES(QUEUING_PORT_STATUS_guest, QUEUING_PORT_STATUS.WAITING_PROCESSES);
+
   return NULL;
 }
 
 
 #if 0
-extern void CLEAR_QUEUING_PORT (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID, /* in */
-                                RETURN_CODE_TYPE *RETURN_CODE ); /* out */
+extern void CLEAR_QUEUING_PORT (
+  /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
+  /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__CLEAR_QUEUING_PORT = "(ii)";
 wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
@@ -164,9 +249,18 @@ wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)camw32_get__QUEUING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   CLEAR_QUEUING_PORT(
-    (QUEUING_PORT_ID_TYPE)args[0].of.i32,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]
+    QUEUING_PORT_ID,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }

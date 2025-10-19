@@ -3,7 +3,6 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 1: APEX Interface: ERROR
 
-#include <dlfcn.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,9 +13,9 @@
 
 #if 0
 extern void REPORT_APPLICATION_MESSAGE (
-/*in */   MESSAGE_ADDR_TYPE        MESSAGE_ADDR,
-/*in */   MESSAGE_SIZE_TYPE        LENGTH,
-/*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
+  /*in */   MESSAGE_ADDR_TYPE        MESSAGE_ADDR,
+  /*in */   MESSAGE_SIZE_TYPE        LENGTH,
+  /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__REPORT_APPLICATION_MESSAGE = "(iii)";
 wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
@@ -28,11 +27,22 @@ wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
+  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[0].of.i32);
+  MESSAGE_SIZE_TYPE LENGTH;
+  LENGTH = (MESSAGE_SIZE_TYPE)camw32_get__MESSAGE_SIZE_TYPE((uint8_t*)&args[1].of.i32);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   REPORT_APPLICATION_MESSAGE(
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[args[0].of.i32],
-    (MESSAGE_SIZE_TYPE)args[1].of.i32,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    LENGTH,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }
 
@@ -41,7 +51,6 @@ extern void initialize_wasm_instance(
   wasm_engine_t* engine,
   wasmtime_sharedmemory_t* shm_memory,
   wasmtime_module_t* module,
-  void* dl_struct_getset,
 
   wasmtime_linker_t** _linker,
   wasmtime_store_t** _store,
@@ -64,7 +73,7 @@ void *error_handler_trampoline(void) {
   wasmtime_context_t* context;
   wasmtime_instance_t instance;
   initialize_wasm_instance(wasm_processes.engine, wasm_processes.shm_memory,
-                            wasm_processes.module, wasm_processes.dl_struct_getset, &linker, &store, &context, &instance, false);
+                            wasm_processes.module, &linker, &store, &context, &instance, false);
 
   wasmtime_extern_t export;
   bool ok = wasmtime_instance_export_get(
@@ -107,11 +116,12 @@ void *error_handler_trampoline(void) {
   return NULL;
 }
 
+
 #if 0
 extern void CREATE_ERROR_HANDLER (
-/*in */   SYSTEM_ADDRESS_TYPE      ENTRY_POINT,
-/*in */   STACK_SIZE_TYPE          STACK_SIZE,
-/*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
+  /*in */   SYSTEM_ADDRESS_TYPE      ENTRY_POINT,
+  /*in */   STACK_SIZE_TYPE          STACK_SIZE,
+  /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__CREATE_ERROR_HANDLER = "(iii)";
 wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
@@ -123,14 +133,24 @@ wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
   // FIXME: in case there are more then 1 error handlers supported
   //        and hoping, that the pid is not saved prcs_info.
   wasm_processes.ENTRY_POINT_ERROR_HANDLER = args[0].of.i32;
+
+
+  STACK_SIZE_TYPE STACK_SIZE;
+  STACK_SIZE = (STACK_SIZE_TYPE)camw32_get__STACK_SIZE_TYPE((uint8_t*)&args[1].of.i32);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   CREATE_ERROR_HANDLER(
     error_handler_trampoline,
-    (STACK_SIZE_TYPE)args[1].of.i32,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
+    STACK_SIZE,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -151,10 +171,12 @@ wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
-  ERROR_STATUS_TYPE ERROR_STATUS__host_64bit;
+
+  ERROR_STATUS_TYPE ERROR_STATUS;
+  RETURN_CODE_TYPE RETURN_CODE;
   GET_ERROR_STATUS(
-    &ERROR_STATUS__host_64bit,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[1].of.i32]
+    &ERROR_STATUS,
+    &RETURN_CODE
   );
 
 #if 0
@@ -168,14 +190,16 @@ typedef struct             {
 } ERROR_STATUS_TYPE;
 #endif
 
-  // FIXME: pointer is 32bit, but could be 64bit ..
-  uint8_t* ERROR_STATUS__guest = (uint8_t*)&wasm_baseaddr[args[0].of.i32];
-  camw32_set__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.ERROR_CODE);
-  camw32_write__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.MESSAGE);
-  camw32_set__ERROR_STATUS_TYPE__LENGTH(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.LENGTH);
-  camw32_set__ERROR_STATUS_TYPE__FAILED_PROCESS_ID(ERROR_STATUS__guest, ERROR_STATUS__host_64bit.FAILED_PROCESS_ID);
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[args[0].of.i32];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
 
-  uint32_t FAILED_ADDRESS_idx = wasm_processes.ENTRY_POINT[ERROR_STATUS__host_64bit.FAILED_PROCESS_ID];
+  camw32_set__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, (ERROR_MESSAGE_SIZE_TYPE)ERROR_STATUS.ERROR_CODE);
+  camw32_write__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, ERROR_STATUS.MESSAGE);
+  camw32_set__ERROR_STATUS_TYPE__LENGTH(ERROR_STATUS__guest, ERROR_STATUS.LENGTH);
+  camw32_set__ERROR_STATUS_TYPE__FAILED_PROCESS_ID(ERROR_STATUS__guest, ERROR_STATUS.FAILED_PROCESS_ID);
+
+  uint32_t FAILED_ADDRESS_idx = wasm_processes.ENTRY_POINT[ERROR_STATUS.FAILED_PROCESS_ID];
   camw32_set__ERROR_STATUS_TYPE__FAILED_ADDRESS(ERROR_STATUS__guest, FAILED_ADDRESS_idx);
 
   return NULL;
@@ -184,10 +208,10 @@ typedef struct             {
 
 #if 0
 extern void RAISE_APPLICATION_ERROR (
-/*in */   ERROR_CODE_TYPE          ERROR_CODE,
-/*in */   MESSAGE_ADDR_TYPE        MESSAGE_ADDR,
-/*in */   ERROR_MESSAGE_SIZE_TYPE  LENGTH,
-/*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
+  /*in */   ERROR_CODE_TYPE          ERROR_CODE,
+  /*in */   MESSAGE_ADDR_TYPE        MESSAGE_ADDR,
+  /*in */   ERROR_MESSAGE_SIZE_TYPE  LENGTH,
+  /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__RAISE_APPLICATION_ERROR = "(iiii)";
 wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
@@ -199,12 +223,24 @@ wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  ERROR_CODE_TYPE ERROR_CODE;
+  ERROR_CODE = (ERROR_CODE_TYPE)camw32_get__ERROR_CODE_TYPE((uint8_t*)&args[0].of.i32);
+  int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
+  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[1].of.i32);
+  ERROR_MESSAGE_SIZE_TYPE LENGTH;
+  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)camw32_get__ERROR_MESSAGE_SIZE_TYPE((uint8_t*)&args[2].of.i32);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   RAISE_APPLICATION_ERROR(
-    (ERROR_CODE_TYPE)args[0].of.i32,
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[args[1].of.i32],
-    (ERROR_MESSAGE_SIZE_TYPE)args[2].of.i32,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[3].of.i32]
+    ERROR_CODE,
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    LENGTH,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -212,9 +248,9 @@ wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
 
 #if 0
 extern void CONFIGURE_ERROR_HANDLER (
-/*in */   ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE  CONCURRENCY_CONTROL,
-/*in */   PROCESSOR_CORE_ID_TYPE                  PROCESSOR_CORE_ID,
-/*out*/   RETURN_CODE_TYPE                        *RETURN_CODE );
+  /*in */   ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE  CONCURRENCY_CONTROL,
+  /*in */   PROCESSOR_CORE_ID_TYPE                  PROCESSOR_CORE_ID,
+  /*out*/   RETURN_CODE_TYPE                        *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER = "(iii)";
 wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
@@ -226,11 +262,21 @@ wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE CONCURRENCY_CONTROL;
+  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)camw32_get__ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)camw32_get__PROCESSOR_CORE_ID_TYPE((uint8_t*)&args[1].of.i32);
+  RETURN_CODE_TYPE RETURN_CODE;
+
   CONFIGURE_ERROR_HANDLER(
-    (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)args[0].of.i32,
-    (PROCESSOR_CORE_ID_TYPE)args[1].of.i32,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
+    CONCURRENCY_CONTROL,
+    PROCESSOR_CORE_ID,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
 
   return NULL;
 }

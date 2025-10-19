@@ -3,7 +3,6 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 2: APEX Interface: SAMPLING PORT EXTENSION
 
-#include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part2_apex_sampling_port_extension_wasm32.h"
@@ -13,11 +12,11 @@
 
 #if 0
 extern void READ_UPDATED_SAMPLING_MESSAGE (
-/*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
-/*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
-/*out*/ MESSAGE_SIZE_TYPE          *LENGTH,
-/*out*/ UPDATED_TYPE               *UPDATED,
-/*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
+  /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+  /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
+  /*out*/ MESSAGE_SIZE_TYPE          *LENGTH,
+  /*out*/ UPDATED_TYPE               *UPDATED,
+  /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
 const char* WASM32_SIGNATURE__READ_UPDATED_SAMPLING_MESSAGE = "(iiiii)";
 wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
@@ -29,13 +28,27 @@ wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
+  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)camw32_get__SAMPLING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
+  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[1].of.i32);
+  MESSAGE_SIZE_TYPE LENGTH;
+  UPDATED_TYPE UPDATED;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   READ_UPDATED_SAMPLING_MESSAGE(
-    (SAMPLING_PORT_ID_TYPE)args[0].of.i32,
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[args[1].of.i32],
-    (MESSAGE_SIZE_TYPE*)&wasm_baseaddr[args[2].of.i32],
-    (UPDATED_TYPE*)&wasm_baseaddr[args[3].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[4].of.i32]
+    SAMPLING_PORT_ID,
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    &LENGTH,
+    &UPDATED,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)LENGTH);
+  camw32_set__UPDATED_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)UPDATED);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -43,9 +56,10 @@ wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
 
 #if 0
 extern void GET_SAMPLING_PORT_CURRENT_STATUS (
-/*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
-/*out*/ SAMPLING_PORT_CURRENT_STATUS_TYPE *SAMPLING_PORT_CURRENT_STATUS,
-/*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
+  /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
+  /*out*/ SAMPLING_PORT_CURRENT_STATUS_TYPE
+  *SAMPLING_PORT_CURRENT_STATUS,
+  / *out*/ RETURN_CODE_TYPE           *RETURN_CODE );*
 #endif
 const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_CURRENT_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_SAMPLING_PORT_CURRENT_STATUS(void* env,
@@ -57,12 +71,21 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_CURRENT_STATUS(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
-  SAMPLING_PORT_CURRENT_STATUS_TYPE SAMPLING_PORT_CURRENT_STATUS__host_64bit;
+
+  SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
+  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)camw32_get__SAMPLING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SAMPLING_PORT_CURRENT_STATUS_TYPE SAMPLING_PORT_CURRENT_STATUS;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   GET_SAMPLING_PORT_CURRENT_STATUS(
-    (SAMPLING_PORT_ID_TYPE)args[0].of.i32,
-    &SAMPLING_PORT_CURRENT_STATUS__host_64bit,
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[2].of.i32]
+    SAMPLING_PORT_ID,
+    &SAMPLING_PORT_CURRENT_STATUS,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  uint8_t* SAMPLING_PORT_CURRENT_STATUS__guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
 
 #if 0
 /* sampling port status type */
@@ -76,14 +99,12 @@ typedef struct {
 } SAMPLING_PORT_CURRENT_STATUS_TYPE;
 #endif
 
-  // FIXME: pointer is 32bit, but could be 64bit ..
-  uint8_t* SAMPLING_PORT_CURRENT_STATUS__guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
-  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__REFRESH_PERIOD(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS__host_64bit.REFRESH_PERIOD);
-  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__TIME_STAMP(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS__host_64bit.TIME_STAMP);
-  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__MAX_MESSAGE_SIZE(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS__host_64bit.MAX_MESSAGE_SIZE);
-  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__PORT_DIRECTION(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS__host_64bit.PORT_DIRECTION);
-  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__MESSAGE_AGE(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS__host_64bit.MESSAGE_AGE);
-  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__UPDATED(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS__host_64bit.UPDATED);
+  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__REFRESH_PERIOD(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS.REFRESH_PERIOD);
+  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__TIME_STAMP(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS.TIME_STAMP);
+  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__MAX_MESSAGE_SIZE(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS.MAX_MESSAGE_SIZE);
+  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__PORT_DIRECTION(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS.PORT_DIRECTION);
+  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__MESSAGE_AGE(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS.MESSAGE_AGE);
+  camw32_set__SAMPLING_PORT_CURRENT_STATUS_TYPE__UPDATED(SAMPLING_PORT_CURRENT_STATUS__guest, SAMPLING_PORT_CURRENT_STATUS.UPDATED);
 
   return NULL;
 }
@@ -91,12 +112,12 @@ typedef struct {
 
 #if 0
 extern void READ_SAMPLING_MESSAGE_CONDITIONAL (
-/* in  */ SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID,
-/* in  */ SYSTEM_TIME_TYPE        REF_TIME_STAMP,
-/* in  */ MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
-/* out */ MESSAGE_SIZE_TYPE *     LENGTH,
-/* out */ SYSTEM_TIME_TYPE *      TIME_STAMP,
-/* out */ RETURN_CODE_TYPE *      RETURN_CODE);
+  /* in  */ SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID,
+  /* in  */ SYSTEM_TIME_TYPE        REF_TIME_STAMP,
+  /* in  */ MESSAGE_ADDR_TYPE       MESSAGE_ADDR,
+  /* out */ MESSAGE_SIZE_TYPE *     LENGTH,
+  /* out */ SYSTEM_TIME_TYPE *      TIME_STAMP,
+  /* out */ RETURN_CODE_TYPE *      RETURN_CODE);
 #endif
 const char* WASM32_SIGNATURE__READ_SAMPLING_MESSAGE_CONDITIONAL = "(iIiiii)";
 wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE_CONDITIONAL(void* env,
@@ -108,13 +129,30 @@ wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE_CONDITIONAL(void* env,
   get_exported_memory(caller, &memory);
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
+
+  SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
+  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)camw32_get__SAMPLING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SYSTEM_TIME_TYPE REF_TIME_STAMP;
+  REF_TIME_STAMP = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[1].of.i32);
+  int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
+  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[2].of.i32);
+  MESSAGE_SIZE_TYPE LENGTH;
+  SYSTEM_TIME_TYPE TIME_STAMP;
+  RETURN_CODE_TYPE RETURN_CODE;
+
   READ_SAMPLING_MESSAGE_CONDITIONAL(
-    (SAMPLING_PORT_ID_TYPE)args[0].of.i32,
-    (SYSTEM_TIME_TYPE)args[1].of.i32,
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[args[2].of.i32],
-    (MESSAGE_SIZE_TYPE*)&wasm_baseaddr[args[3].of.i32],
-    (SYSTEM_TIME_TYPE*)&wasm_baseaddr[args[4].of.i32],
-    (RETURN_CODE_TYPE*)&wasm_baseaddr[args[5].of.i32]
+    SAMPLING_PORT_ID,
+    REF_TIME_STAMP,
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    &LENGTH,
+    &TIME_STAMP,
+    &RETURN_CODE
   );
+
+  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
+  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)LENGTH);
+  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)TIME_STAMP);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[5].of.i32], (int32_t)RETURN_CODE);
+
   return NULL;
 }

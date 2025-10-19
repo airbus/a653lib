@@ -3,7 +3,6 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 
 #include <assert.h>
-#include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 //#include <wasm.h>
@@ -189,7 +188,6 @@ void initialize_wasm_instance(
   wasm_engine_t* engine, 
   wasmtime_sharedmemory_t* shm_memory,
   wasmtime_module_t* module,
-  void *dl_struct_getset,
 
   wasmtime_linker_t** _linker,
   wasmtime_store_t** _store,
@@ -340,7 +338,7 @@ printf("!!!!!!!!!! works here!\n");
       context,
       func_type,
       wasm_hostfunc->func_ptr,
-      /*env*/ dl_struct_getset, NULL,
+      /*env*/ NULL, NULL,
       &item.of.func
     );
 
@@ -375,27 +373,6 @@ printf("!!!!!!!!!! works here!\n");
   }
 }
 
-void *dl_struct_getset_open(const char *wasm_file, bool has_64bitaddr) {
-  // we assume that the <file>.wasm has at the same location the
-  // <file>.wasm32_struct_getset.so, which contain the get/set for the structs in wasm
-
-  char *p = strrchr(wasm_file, '.');
-  if (! p) {
-    fprintf(stderr, "ERR: The supplied wasm seems broken! %s\n", wasm_file);
-    return NULL;
-  }
-
-  const char *so_getset_ext = has_64bitaddr ? "wasm64_struct_getset.so" : "wasm32_struct_getset.so";
-  char *so_getset_file = (char*) malloc (strlen(wasm_file) + strlen(so_getset_ext) + 2);
-  sprintf(so_getset_file, "./%.*s%s", (int)((p - wasm_file) + 1), wasm_file, so_getset_ext);
-
-  void* so_handle = dlopen(so_getset_file, RTLD_LAZY);
-  if (! so_handle)
-    fprintf(stderr, "ERR: Couldn't open Wasm struct get/set file: %s (%s)\n", so_getset_file, dlerror());
-
-  free(so_getset_file);
-  return so_handle;
-}
 
 
 int main(int argc, char* argv[])
@@ -413,11 +390,6 @@ int main(int argc, char* argv[])
   // there are more occurances, don't just enable!
   // currently only 32bit supported!
   bool has_64bit_memory = false;
-
-  // Load .wasm32/64_struct_getset.so
-  wasm_processes.dl_struct_getset = dl_struct_getset_open(wasm_file, has_64bit_memory);
-  if (! wasm_processes.dl_struct_getset)
-    return -1;
 
   // Configure WASI
   wasm_config_t *wasm_config = wasm_config_new();
@@ -447,7 +419,7 @@ int main(int argc, char* argv[])
   wasmtime_context_t* context;
   wasmtime_instance_t instance;
   initialize_wasm_instance(wasm_processes.engine, wasm_processes.shm_memory, wasm_processes.module,
-                           wasm_processes.dl_struct_getset, &linker, &store, &context, &instance, true);
+                           &linker, &store, &context, &instance, true);
 
   // Get the default (start) function
   wasmtime_func_t start_func;
@@ -467,8 +439,6 @@ int main(int argc, char* argv[])
   wasmtime_module_delete(wasm_processes.module);
   wasmtime_store_delete(store);
   wasm_engine_delete(wasm_processes.engine);
-
-  dlclose(wasm_processes.dl_struct_getset);
 
   return 0;
 }
