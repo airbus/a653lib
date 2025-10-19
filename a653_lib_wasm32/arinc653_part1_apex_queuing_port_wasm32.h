@@ -8,6 +8,14 @@
 
 #include "a653_i_common_wasm32.h"
 
+/* APEX (ARINC 653 Part 1): QUEUING PORT */
+extern const char* WASM32_SIGNATURE__CREATE_QUEUING_PORT;
+extern const char* WASM32_SIGNATURE__SEND_QUEUING_MESSAGE;
+extern const char* WASM32_SIGNATURE__RECEIVE_QUEUING_MESSAGE;
+extern const char* WASM32_SIGNATURE__GET_QUEUING_PORT_ID;
+extern const char* WASM32_SIGNATURE__GET_QUEUING_PORT_STATUS;
+extern const char* WASM32_SIGNATURE__CLEAR_QUEUING_PORT;
+
 wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults);

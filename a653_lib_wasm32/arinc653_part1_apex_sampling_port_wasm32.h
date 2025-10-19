@@ -8,6 +8,13 @@
 
 #include "a653_i_common_wasm32.h"
 
+/* APEX (ARINC 653 Part 1): SAMPLING PORT */
+extern const char* WASM32_SIGNATURE__CREATE_SAMPLING_PORT;
+extern const char* WASM32_SIGNATURE__WRITE_SAMPLING_MESSAGE;
+extern const char* WASM32_SIGNATURE__READ_SAMPLING_MESSAGE;
+extern const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_ID;
+extern const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_STATUS;
+
 wasm_trap_t* WASM32_CREATE_SAMPLING_PORT(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults);

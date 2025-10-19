@@ -8,6 +8,25 @@
 
 #include "a653_i_common_wasm32.h"
 
+/* APEX (ARINC 653 Part 1): PROCESS */
+extern const char* WASM32_SIGNATURE__CREATE_PROCESS;
+extern const char* WASM32_SIGNATURE__SET_PRIORITY;
+extern const char* WASM32_SIGNATURE__SUSPEND_SELF;
+extern const char* WASM32_SIGNATURE__SUSPEND;
+extern const char* WASM32_SIGNATURE__RESUME;
+extern const char* WASM32_SIGNATURE__STOP_SELF;
+extern const char* WASM32_SIGNATURE__STOP;
+extern const char* WASM32_SIGNATURE__START;
+extern const char* WASM32_SIGNATURE__DELAYED_START;
+extern const char* WASM32_SIGNATURE__LOCK_PREEMPTION;
+extern const char* WASM32_SIGNATURE__UNLOCK_PREEMPTION;
+extern const char* WASM32_SIGNATURE__GET_MY_ID;
+extern const char* WASM32_SIGNATURE__GET_PROCESS_ID;
+extern const char* WASM32_SIGNATURE__GET_PROCESS_STATUS;
+extern const char* WASM32_SIGNATURE__INITIALIZE_PROCESS_CORE_AFFINITY;
+extern const char* WASM32_SIGNATURE__GET_MY_PROCESSOR_CORE_ID;
+extern const char* WASM32_SIGNATURE__GET_MY_INDEX;
+
 wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults);
