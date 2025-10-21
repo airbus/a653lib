@@ -29,9 +29,9 @@ wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
 
 
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[0].of.i32);
+  MESSAGE_ADDR = (int32_t)le32toh(args[0].of.i32);
   MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (MESSAGE_SIZE_TYPE)camw32_get__MESSAGE_SIZE_TYPE((uint8_t*)&args[1].of.i32);
+  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(args[1].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   REPORT_APPLICATION_MESSAGE(
@@ -40,8 +40,7 @@ wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -140,7 +139,7 @@ wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
 
 
   STACK_SIZE_TYPE STACK_SIZE;
-  STACK_SIZE = (STACK_SIZE_TYPE)camw32_get__STACK_SIZE_TYPE((uint8_t*)&args[1].of.i32);
+  STACK_SIZE = (STACK_SIZE_TYPE)le32toh(args[1].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   CREATE_ERROR_HANDLER(
@@ -149,8 +148,7 @@ wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -190,9 +188,8 @@ typedef struct             {
 } ERROR_STATUS_TYPE;
 #endif
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[args[0].of.i32];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[le32toh(args[0].of.i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   camw32_set__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, (ERROR_MESSAGE_SIZE_TYPE)ERROR_STATUS.ERROR_CODE);
   camw32_write__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, ERROR_STATUS.MESSAGE);
@@ -225,22 +222,21 @@ wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
 
 
   ERROR_CODE_TYPE ERROR_CODE;
-  ERROR_CODE = (ERROR_CODE_TYPE)camw32_get__ERROR_CODE_TYPE((uint8_t*)&args[0].of.i32);
+  ERROR_CODE = (ERROR_CODE_TYPE)le32toh(args[0].of.i32);
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[1].of.i32);
+  MESSAGE_ADDR = (int32_t)le32toh(args[1].of.i32);
   ERROR_MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)camw32_get__ERROR_MESSAGE_SIZE_TYPE((uint8_t*)&args[2].of.i32);
+  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)le32toh(args[2].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   RAISE_APPLICATION_ERROR(
     ERROR_CODE,
-    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR],
+    (MESSAGE_ADDR_TYPE)&wasm_baseaddr[MESSAGE_ADDR], // FIXME: only safe as long as char[]
     LENGTH,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[3].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -264,9 +260,9 @@ wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
 
 
   ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE CONCURRENCY_CONTROL;
-  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)camw32_get__ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE((uint8_t*)&args[0].of.i32);
+  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)le32toh(args[0].of.i32);
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
-  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)camw32_get__PROCESSOR_CORE_ID_TYPE((uint8_t*)&args[1].of.i32);
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args[1].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   CONFIGURE_ERROR_HANDLER(
@@ -275,8 +271,7 @@ wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

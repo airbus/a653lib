@@ -3,10 +3,11 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 1: APEX Interface: TIME
 
+#include <endian.h>
+#include <stdint.h>
 #include "arinc653_part1_apex_time_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Time.h"
-#include <stdint.h>
 
 
 #if 0
@@ -26,7 +27,7 @@ wasm_trap_t* WASM32_TIMED_WAIT(void* env,
 
 
   SYSTEM_TIME_TYPE DELAY_TIME;
-  DELAY_TIME = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[0].of.i64);
+  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args[0].of.i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   TIMED_WAIT(
@@ -34,8 +35,7 @@ wasm_trap_t* WASM32_TIMED_WAIT(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -62,8 +62,7 @@ wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -93,9 +92,8 @@ wasm_trap_t* WASM32_GET_TIME(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)SYSTEM_TIME);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int64_t)SYSTEM_TIME);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -118,7 +116,7 @@ wasm_trap_t* WASM32_REPLENISH(void* env,
 
 
   SYSTEM_TIME_TYPE BUDGET_TIME;
-  BUDGET_TIME = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[0].of.i64);
+  BUDGET_TIME = (SYSTEM_TIME_TYPE)le64toh(args[0].of.i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   REPLENISH(
@@ -126,8 +124,7 @@ wasm_trap_t* WASM32_REPLENISH(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

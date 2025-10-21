@@ -4,7 +4,7 @@
 // ARINC 653 Part 1: APEX Interface: PARTITION
 
 
-#include <dlfcn.h>
+#include <endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part1_apex_partition_wasm32.h"
@@ -48,8 +48,9 @@ typedef struct {
 } PARTITION_STATUS_TYPE;
 #endif
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  uint8_t* STATUS_guest = &wasm_baseaddr[args[0].of.i32];
+  uint8_t* STATUS_guest = &wasm_baseaddr[le32toh(args[0].of.i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+
   camw32_set__PARTITION_STATUS_TYPE__PERIOD(STATUS_guest, STATUS.PERIOD);
   camw32_set__PARTITION_STATUS_TYPE__DURATION(STATUS_guest, STATUS.DURATION);
   camw32_set__PARTITION_STATUS_TYPE__IDENTIFIER(STATUS_guest, STATUS.IDENTIFIER);
@@ -57,9 +58,6 @@ typedef struct {
   camw32_set__PARTITION_STATUS_TYPE__OPERATING_MODE(STATUS_guest, STATUS.OPERATING_MODE);
   camw32_set__PARTITION_STATUS_TYPE__START_CONDITION(STATUS_guest, STATUS.START_CONDITION);
   camw32_set__PARTITION_STATUS_TYPE__NUM_ASSIGNED_CORES(STATUS_guest, STATUS.NUM_ASSIGNED_CORES);
-
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -82,7 +80,7 @@ wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
 
 
   OPERATING_MODE_TYPE OPERATING_MODE;
-  OPERATING_MODE = camw32_get__OPERATING_MODE_TYPE((uint8_t*)&args[0].of.i32);
+  OPERATING_MODE = (OPERATING_MODE_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SET_PARTITION_MODE(
@@ -90,8 +88,7 @@ wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

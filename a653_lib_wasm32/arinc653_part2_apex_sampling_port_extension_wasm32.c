@@ -3,6 +3,7 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 2: APEX Interface: SAMPLING PORT EXTENSION
 
+#include <endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part2_apex_sampling_port_extension_wasm32.h"
@@ -30,9 +31,9 @@ wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
-  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)camw32_get__SAMPLING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)le32toh(args[0].of.i32);
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[1].of.i32);
+  MESSAGE_ADDR = (int32_t)le32toh(args[1].of.i32);
   MESSAGE_SIZE_TYPE LENGTH;
   UPDATED_TYPE UPDATED;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -45,10 +46,9 @@ wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)LENGTH);
-  camw32_set__UPDATED_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)UPDATED);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)LENGTH);
+  camw32_set__UPDATED_TYPE(&wasm_baseaddr[le32toh(args[3].of.i32)], (int32_t)UPDATED);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[4].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -73,7 +73,7 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_CURRENT_STATUS(void* env,
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
-  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)camw32_get__SAMPLING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)le32toh(args[0].of.i32);
   SAMPLING_PORT_CURRENT_STATUS_TYPE SAMPLING_PORT_CURRENT_STATUS;
   RETURN_CODE_TYPE RETURN_CODE;
 
@@ -84,8 +84,8 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_CURRENT_STATUS(void* env,
   );
 
   // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  uint8_t* SAMPLING_PORT_CURRENT_STATUS__guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  uint8_t* SAMPLING_PORT_CURRENT_STATUS__guest = (uint8_t*)&wasm_baseaddr[le32toh(args[1].of.i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
 #if 0
 /* sampling port status type */
@@ -131,11 +131,11 @@ wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE_CONDITIONAL(void* env,
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
-  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)camw32_get__SAMPLING_PORT_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SAMPLING_PORT_ID = (SAMPLING_PORT_ID_TYPE)le32toh(args[0].of.i32);
   SYSTEM_TIME_TYPE REF_TIME_STAMP;
-  REF_TIME_STAMP = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[1].of.i32);
+  REF_TIME_STAMP = (SYSTEM_TIME_TYPE)le64toh(args[1].of.i64);
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)camw32_get__MESSAGE_ADDR_TYPE((uint8_t*)&args[2].of.i32);
+  MESSAGE_ADDR = (int32_t)le32toh(args[2].of.i32);
   MESSAGE_SIZE_TYPE LENGTH;
   SYSTEM_TIME_TYPE TIME_STAMP;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -149,10 +149,9 @@ wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE_CONDITIONAL(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[args[3].of.i32], (int32_t)LENGTH);
-  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)TIME_STAMP);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[5].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[le32toh(args[3].of.i32)], (int32_t)LENGTH);
+  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[le32toh(args[4].of.i32)], (int64_t)TIME_STAMP);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[5].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

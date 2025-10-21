@@ -3,7 +3,7 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 1: APEX Interface: SEMAPHORE
 
-#include <dlfcn.h>
+#include <endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part1_apex_semaphore_wasm32.h"
@@ -32,16 +32,16 @@ wasm_trap_t* WASM32_CREATE_SEMAPHORE(void* env,
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
   SEMAPHORE_VALUE_TYPE CURRENT_VALUE;
-  CURRENT_VALUE = (SEMAPHORE_VALUE_TYPE)camw32_get__SEMAPHORE_VALUE_TYPE((uint8_t*)&args[1].of.i32);
+  CURRENT_VALUE = (SEMAPHORE_VALUE_TYPE)le32toh(args[1].of.i32);
   SEMAPHORE_VALUE_TYPE MAXIMUM_VALUE;
-  MAXIMUM_VALUE = (SEMAPHORE_VALUE_TYPE)camw32_get__SEMAPHORE_VALUE_TYPE((uint8_t*)&args[2].of.i32);
+  MAXIMUM_VALUE = (SEMAPHORE_VALUE_TYPE)le32toh(args[2].of.i32);
   QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE;
-  QUEUING_DISCIPLINE = (QUEUING_DISCIPLINE_TYPE)camw32_get__QUEUING_DISCIPLINE_TYPE((uint8_t*)&args[3].of.i32);
+  QUEUING_DISCIPLINE = (QUEUING_DISCIPLINE_TYPE)le32toh(args[3].of.i32);
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
   RETURN_CODE_TYPE RETURN_CODE;
 
   CREATE_SEMAPHORE(
-    (char*)&wasm_baseaddr[args[0].of.i32], // FIXME: address args[].of.i32 could be LE/BE swapped
+    (char*)&wasm_baseaddr[le32toh(args[0].of.i32)], // FIXME: only safe as long as char[]
     CURRENT_VALUE,
     MAXIMUM_VALUE,
     QUEUING_DISCIPLINE,
@@ -49,9 +49,8 @@ wasm_trap_t* WASM32_CREATE_SEMAPHORE(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__SEMAPHORE_ID_TYPE(&wasm_baseaddr[args[4].of.i32], (int32_t)SEMAPHORE_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[5].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__SEMAPHORE_ID_TYPE(&wasm_baseaddr[le32toh(args[4].of.i32)], (int32_t)SEMAPHORE_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[5].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -74,9 +73,9 @@ wasm_trap_t* WASM32_WAIT_SEMAPHORE(void* env,
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
-  SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)camw32_get__SEMAPHORE_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)le32toh(args[0].of.i32);
   SYSTEM_TIME_TYPE TIME_OUT;
-  TIME_OUT = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[1].of.i64);
+  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args[1].of.i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   WAIT_SEMAPHORE(
@@ -85,8 +84,7 @@ wasm_trap_t* WASM32_WAIT_SEMAPHORE(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -109,7 +107,7 @@ wasm_trap_t* WASM32_SIGNAL_SEMAPHORE(void* env,
 
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
-  SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)camw32_get__SEMAPHORE_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SIGNAL_SEMAPHORE(
@@ -117,8 +115,7 @@ wasm_trap_t* WASM32_SIGNAL_SEMAPHORE(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -145,14 +142,13 @@ wasm_trap_t* WASM32_GET_SEMAPHORE_ID(void* env,
   RETURN_CODE_TYPE RETURN_CODE;
 
   GET_SEMAPHORE_ID(
-    (char*)&wasm_baseaddr[args[0].of.i32], // FIXME: address args[].of.i32 could be LE/BE swapped
+    (char*)&wasm_baseaddr[le32toh(args[0].of.i32)], // FIXME: only safe as long as char[]
     &SEMAPHORE_ID,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__SEMAPHORE_ID_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)SEMAPHORE_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__SEMAPHORE_ID_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)SEMAPHORE_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -182,7 +178,7 @@ wasm_trap_t* WASM32_GET_SEMAPHORE_STATUS(void* env,
 
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
-  SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)camw32_get__SEMAPHORE_ID_TYPE((uint8_t*)&args[0].of.i32);
+  SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)le32toh(args[0].of.i32);
   SEMAPHORE_STATUS_TYPE SEMAPHORE_STATUS;
   RETURN_CODE_TYPE RETURN_CODE;
 
@@ -192,9 +188,8 @@ wasm_trap_t* WASM32_GET_SEMAPHORE_STATUS(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  uint8_t* SEMAPHORE_STATUS_guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  uint8_t* SEMAPHORE_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args[1].of.i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   camw32_set__SEMAPHORE_STATUS_TYPE__CURRENT_VALUE(SEMAPHORE_STATUS_guest, SEMAPHORE_STATUS.CURRENT_VALUE);
   camw32_set__SEMAPHORE_STATUS_TYPE__MAXIMUM_VALUE(SEMAPHORE_STATUS_guest, SEMAPHORE_STATUS.MAXIMUM_VALUE);

@@ -3,6 +3,7 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 1: APEX Interface: PROCESS
 
+#include <endian.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -34,14 +35,13 @@ wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
   RETURN_CODE_TYPE RETURN_CODE;
 
   GET_PROCESS_ID(
-    (char*)&wasm_baseaddr[args[0].of.i32],  // FIXME: address args[].of.i32 could be LE/BE swapped
+    (char*)&wasm_baseaddr[le32toh(args[0].of.i32)],  // FIXME: only safe as long as char[]
     &PROCESS_ID,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -168,7 +168,7 @@ wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
   PROCESS_ID_TYPE pid;
-  pid = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  pid = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   PROCESS_STATUS_TYPE PROCESS_STATUS;
@@ -178,9 +178,8 @@ wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  uint8_t* PROCESS_STATUS_guest = (uint8_t*)&wasm_baseaddr[args[1].of.i32];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  uint8_t* PROCESS_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args[1].of.i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
 
 #if 0
@@ -252,8 +251,7 @@ wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
   uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
 
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[args[0].of.i32];
+  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[le32toh(args[0].of.i32)];
 
   PROCESS_ATTRIBUTE_TYPE ATTRIBUTES;
   ATTRIBUTES.PERIOD = camw32_get__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES__guest);
@@ -275,9 +273,8 @@ wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
 
   // we get the pid late, and the real start of the thread will be in CREATE_PROCESS
@@ -305,9 +302,9 @@ wasm_trap_t* WASM32_SET_PRIORITY(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   PRIORITY_TYPE PRIORITY;
-  PRIORITY = (PRIORITY_TYPE)camw32_get__PRIORITY_TYPE((uint8_t*)&args[1].of.i32);
+  PRIORITY = (PRIORITY_TYPE)le32toh(args[1].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SET_PRIORITY(
@@ -316,8 +313,7 @@ wasm_trap_t* WASM32_SET_PRIORITY(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -340,7 +336,7 @@ wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
 
 
   SYSTEM_TIME_TYPE TIME_OUT;
-  TIME_OUT = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[0].of.i64);
+  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args[0].of.i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SUSPEND_SELF(
@@ -348,8 +344,7 @@ wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -372,7 +367,7 @@ wasm_trap_t* WASM32_SUSPEND(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SUSPEND(
@@ -380,8 +375,7 @@ wasm_trap_t* WASM32_SUSPEND(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -404,7 +398,7 @@ wasm_trap_t* WASM32_RESUME(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   RESUME(
@@ -412,8 +406,7 @@ wasm_trap_t* WASM32_RESUME(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -451,7 +444,7 @@ wasm_trap_t* WASM32_STOP(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   STOP(
@@ -459,8 +452,7 @@ wasm_trap_t* WASM32_STOP(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -483,7 +475,7 @@ wasm_trap_t* WASM32_START(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   START(
@@ -491,8 +483,7 @@ wasm_trap_t* WASM32_START(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -516,9 +507,9 @@ wasm_trap_t* WASM32_DELAYED_START(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   SYSTEM_TIME_TYPE DELAY_TIME;
-  DELAY_TIME = (SYSTEM_TIME_TYPE)camw32_get__SYSTEM_TIME_TYPE((uint8_t*)&args[1].of.i64);
+  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args[1].of.i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   DELAYED_START(
@@ -527,8 +518,7 @@ wasm_trap_t* WASM32_DELAYED_START(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -558,9 +548,8 @@ wasm_trap_t* WASM32_LOCK_PREEMPTION(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)LOCK_LEVEL);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)LOCK_LEVEL);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -590,9 +579,8 @@ wasm_trap_t* WASM32_UNLOCK_PREEMPTION(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)LOCK_LEVEL);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)LOCK_LEVEL);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -623,9 +611,8 @@ wasm_trap_t* WASM32_GET_MY_ID(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -649,9 +636,9 @@ wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)camw32_get__PROCESS_ID_TYPE((uint8_t*)&args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
-  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)camw32_get__PROCESSOR_CORE_ID_TYPE((uint8_t*)&args[1].of.i32);
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args[1].of.i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   INITIALIZE_PROCESS_CORE_AFFINITY(
@@ -660,8 +647,7 @@ wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[2].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -691,9 +677,8 @@ wasm_trap_t* WASM32_GET_MY_PROCESSOR_CORE_ID(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__PROCESSOR_CORE_ID_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)PROCESSOR_CORE_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__PROCESSOR_CORE_ID_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)PROCESSOR_CORE_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -723,9 +708,8 @@ wasm_trap_t* WASM32_GET_MY_INDEX(void* env,
     &RETURN_CODE
   );
 
-  // TODO: could still be an issue, with using the args[].of.i32 directly due to LE/BE
-  camw32_set__PROCESS_INDEX_TYPE(&wasm_baseaddr[args[0].of.i32], (int32_t)PROCESS_INDEX);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[args[1].of.i32], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_INDEX_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)PROCESS_INDEX);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
