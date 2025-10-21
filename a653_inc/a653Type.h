@@ -48,9 +48,9 @@
 /* Global type definitions */
 
 typedef unsigned char       A653_BYTE;              /*  8 bits unsigned   */
-typedef unsigned short      A653_WORD;              /* 16 bits unsigned   */
-typedef int                 A653_INTEGER;           /* 32 bits            */
-typedef unsigned int        A653_UNSIGNED;          /* 32 bits unsigned   */
+typedef unsigned short int  A653_WORD;              /* 16 bits unsigned   */
+typedef long int            A653_INTEGER;           /* 32 bits            */
+typedef unsigned long       A653_UNSIGNED;          /* 32 bits unsigned   */
 typedef long long           A653_LONG_INTEGER;      /* 64 bits            */
 
 typedef A653_INTEGER        PROCESS_ID_TYPE;        /* object ident type  */
