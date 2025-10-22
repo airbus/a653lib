@@ -107,7 +107,7 @@ alib:
 #	cp -r $(SRC_DIR)/a653_ada $(MY_BUILD_DIR)
 
 $(MY_BUILD_DIR)/camw32_getset.h: mk_build_dir
-	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens || { cd $(MY_BUILD_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-next; }
+	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens || { cd $(MY_BUILD_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-old; }
 	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens || { cd $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens && rustup default stable && cargo build; }
 	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
 	$(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(SRC_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
