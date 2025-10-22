@@ -93,7 +93,7 @@ extern void SEND_QUEUING_MESSAGE (
        /*in */ MESSAGE_ADDR_TYPE        MESSAGE_ADDR,       /* by reference */
        /*in */ MESSAGE_SIZE_TYPE        LENGTH,
        /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
-       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
+       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
 extern void RECEIVE_QUEUING_MESSAGE (
        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
