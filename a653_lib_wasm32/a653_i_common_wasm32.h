@@ -8,12 +8,6 @@
 #include <wasmtime.h>
 #include "../a653_inc/a653Lib.h"
 
-#define MAX_FUNC_ARGS 10
-typedef struct {
-  unsigned count;
-  wasm_valkind_t kind[MAX_FUNC_ARGS];
-} wasm_parms_t;
-
 typedef struct {
   wasm_engine_t* engine;
   wasmtime_sharedmemory_t* shm_memory;
@@ -24,6 +18,6 @@ typedef struct {
   uint32_t ENTRY_POINT_ERROR_HANDLER;
 } wasm_processes_t;
 
-int get_exported_memory(wasmtime_caller_t* caller, wasmtime_memory_t* out_mem);
+uint8_t* get_linear_memory(wasmtime_caller_t* caller);
 
 #endif

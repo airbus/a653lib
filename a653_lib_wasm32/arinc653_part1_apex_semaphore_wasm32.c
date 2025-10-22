@@ -4,12 +4,9 @@
 // ARINC 653 Part 1: APEX Interface: SEMAPHORE
 
 #include <endian.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "arinc653_part1_apex_semaphore_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Semaphore.h"
-#include "a653_i_common_wasm32.h"
 
 
 #if 0
@@ -26,10 +23,8 @@ wasm_trap_t* WASM32_CREATE_SEMAPHORE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
+
 
   SEMAPHORE_VALUE_TYPE CURRENT_VALUE;
   CURRENT_VALUE = (SEMAPHORE_VALUE_TYPE)le32toh(args[1].of.i32);
@@ -67,10 +62,8 @@ wasm_trap_t* WASM32_WAIT_SEMAPHORE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
+
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
   SEMAPHORE_ID = (SEMAPHORE_ID_TYPE)le32toh(args[0].of.i32);
@@ -100,10 +93,7 @@ wasm_trap_t* WASM32_SIGNAL_SEMAPHORE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
@@ -132,10 +122,7 @@ wasm_trap_t* WASM32_GET_SEMAPHORE_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;
@@ -171,10 +158,7 @@ wasm_trap_t* WASM32_GET_SEMAPHORE_STATUS(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SEMAPHORE_ID_TYPE SEMAPHORE_ID;

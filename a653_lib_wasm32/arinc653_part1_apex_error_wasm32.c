@@ -22,10 +22,7 @@ wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
@@ -127,10 +124,7 @@ wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   // FIXME: in case there are more then 1 error handlers supported
@@ -164,10 +158,7 @@ wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   ERROR_STATUS_TYPE ERROR_STATUS;
@@ -215,10 +206,7 @@ wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   ERROR_CODE_TYPE ERROR_CODE;
@@ -253,10 +241,7 @@ wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE CONCURRENCY_CONTROL;

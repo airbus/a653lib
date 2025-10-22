@@ -23,11 +23,7 @@ wasm_trap_t* WASM32_CREATE_SAMPLING_PORT(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
-
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
   MESSAGE_SIZE_TYPE MAX_MESSAGE_SIZE;
   MAX_MESSAGE_SIZE = (MESSAGE_SIZE_TYPE)le32toh(args[1].of.i32);
@@ -66,10 +62,7 @@ wasm_trap_t* WASM32_WRITE_SAMPLING_MESSAGE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
@@ -108,10 +101,7 @@ wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
@@ -149,10 +139,7 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;
@@ -182,10 +169,7 @@ wasm_trap_t* WASM32_GET_SAMPLING_PORT_STATUS(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SAMPLING_PORT_ID_TYPE SAMPLING_PORT_ID;

@@ -5,8 +5,6 @@
 
 
 #include <endian.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "arinc653_part1_apex_partition_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Partition.h"
@@ -22,10 +20,7 @@ wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PARTITION_STATUS_TYPE STATUS;
@@ -73,10 +68,7 @@ wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   OPERATING_MODE_TYPE OPERATING_MODE;

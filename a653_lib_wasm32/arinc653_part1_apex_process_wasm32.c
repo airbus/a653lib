@@ -5,7 +5,6 @@
 
 #include <endian.h>
 #include <pthread.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_part1_apex_process_wasm32.h"
@@ -25,10 +24,7 @@ wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -162,10 +158,8 @@ wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
+
 
   PROCESS_ID_TYPE pid;
   pid = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
@@ -245,10 +239,7 @@ wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[le32toh(args[0].of.i32)];
@@ -295,10 +286,7 @@ wasm_trap_t* WASM32_SET_PRIORITY(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -329,10 +317,7 @@ wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SYSTEM_TIME_TYPE TIME_OUT;
@@ -360,10 +345,7 @@ wasm_trap_t* WASM32_SUSPEND(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -391,10 +373,7 @@ wasm_trap_t* WASM32_RESUME(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -437,10 +416,7 @@ wasm_trap_t* WASM32_STOP(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -468,10 +444,7 @@ wasm_trap_t* WASM32_START(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -500,10 +473,7 @@ wasm_trap_t* WASM32_DELAYED_START(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -534,10 +504,7 @@ wasm_trap_t* WASM32_LOCK_PREEMPTION(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   LOCK_LEVEL_TYPE LOCK_LEVEL;
@@ -565,10 +532,7 @@ wasm_trap_t* WASM32_UNLOCK_PREEMPTION(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   LOCK_LEVEL_TYPE LOCK_LEVEL;
@@ -597,10 +561,7 @@ wasm_trap_t* WASM32_GET_MY_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -629,10 +590,7 @@ wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
@@ -663,10 +621,7 @@ wasm_trap_t* WASM32_GET_MY_PROCESSOR_CORE_ID(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
@@ -694,10 +649,7 @@ wasm_trap_t* WASM32_GET_MY_INDEX(void* env,
   wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
   wasmtime_val_t* results, size_t nresults)
 {
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  wasmtime_memory_t memory;
-  get_exported_memory(caller, &memory);
-  uint8_t* wasm_baseaddr = wasmtime_memory_data(context, &memory);
+  uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_INDEX_TYPE PROCESS_INDEX;

@@ -8,19 +8,19 @@
 
 wasm_processes_t wasm_processes;
 
-int get_exported_memory(wasmtime_caller_t* caller, wasmtime_memory_t* out_mem) {
+uint8_t* get_linear_memory(wasmtime_caller_t* caller) {
     wasmtime_extern_t ext;
     const char *m = "memory";
     if (!wasmtime_caller_export_get(caller, m, strlen(m), &ext)) {
         fprintf(stderr, "Error: memory export not found!\n");
-        return -1;
+        return NULL;
     }
 
     if (ext.kind != WASM_EXTERN_MEMORY) {
         fprintf(stderr, "Error: export 'memory' is not a memory!\n");
-        return -1;
+        return NULL;
     }
 
-    *out_mem = ext.of.memory;
-    return 0;
+    wasmtime_context_t *context = wasmtime_caller_context(caller);
+    return wasmtime_memory_data(context, &ext.of.memory);
 }

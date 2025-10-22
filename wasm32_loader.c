@@ -69,11 +69,12 @@
 
 extern wasm_processes_t wasm_processes;
 
-#define WASM_HOSTFUNC_SIGNATURE( FNC ) { #FNC, WASM32_##FNC, &WASM32_SIGNATURE__##FNC }
+#define WASM_HOSTFUNC_SIGNATURE( FNC ) { #FNC, WASM32_##FNC, &WASM32_SIGNATURE__##FNC, NULL }
 struct {
   const char* symbol;
   wasmtime_func_callback_t func_ptr;
   const char** signature;
+  void *attachment;
 } wasm_hostfuncs[] = {
 /* APEX (ARINC 653 Part 1): BUFFER */
   /* missing */
@@ -85,7 +86,6 @@ struct {
   WASM_HOSTFUNC_SIGNATURE( GET_ERROR_STATUS ),
   WASM_HOSTFUNC_SIGNATURE( RAISE_APPLICATION_ERROR ),
   WASM_HOSTFUNC_SIGNATURE( CONFIGURE_ERROR_HANDLER ),
-  /* missing */
 /* APEX (ARINC 653 Part 1): EVENT */
   /* missing */
 /* APEX (ARINC 653 Part 1): MUTEX */
@@ -141,9 +141,41 @@ struct {
   WASM_HOSTFUNC_SIGNATURE( REPLENISH )
 };
 
+// Helper to load a binary file (e.g., guest.wasm)
+int load_wasm_file(wasm_byte_vec_t* wasm, const char* filename)
+{
+  FILE* file = fopen(filename, "rb");
+  if (!file) {
+    fprintf(stderr, "❌ Failed to open wasm file");
+    return -1;
+  }
 
-wasm_byte_vec_t load_wasm_file(const char* filename);
-void exit_with_error(const char* message, wasmtime_error_t* error, wasm_trap_t* trap);
+  fseek(file, 0, SEEK_END);
+  long file_size = ftell(file);
+  rewind(file);
+
+  wasm_byte_vec_new_uninitialized(wasm, file_size);
+  if (fread(wasm->data, file_size, 1, file) != 1) {
+    fprintf(stderr, "❌ Failed to read wasm file");
+    return -1;
+  }
+
+  fclose(file);
+  return 0;
+}
+
+void print_wasmtime_error(wasmtime_error_t* error)
+{
+  if (error) {
+    wasm_byte_vec_t msg;
+    wasmtime_error_message(error, &msg);
+    wasmtime_error_delete(error);
+    fprintf(stderr, "❌ ERR: %.*s\n", (int)msg.size, msg.data);
+    wasm_byte_vec_delete(&msg);
+  } else {
+    fprintf(stderr, "❌ ERR: Unknown\n");
+  }
+}
 
 int signature_parameter_count(const char *signature) {
   int parmc = 0;
@@ -195,9 +227,6 @@ void initialize_wasm_instance(
   wasmtime_instance_t* instance,
   bool create_func_table)
 {
-  wasmtime_store_t* store = *_store = wasmtime_store_new(engine, NULL, NULL);
-  wasmtime_context_t* context = *_context = wasmtime_store_context(store);
-
   // Configure WASI context (currently given for debugging... not for true avionics)
   wasi_config_t* wasi_config = wasi_config_new();
   wasi_config_inherit_argv(wasi_config);
@@ -205,20 +234,31 @@ void initialize_wasm_instance(
   wasi_config_inherit_stdout(wasi_config);
   wasi_config_inherit_stderr(wasi_config);
 
-  wasmtime_error_t* error = wasmtime_context_set_wasi(context, wasi_config);
-  if (error != NULL)
-    exit_with_error("❌ Failed to set WASI config", error, NULL);
+  wasmtime_store_t* store = *_store = wasmtime_store_new(engine, NULL, NULL);
+  wasmtime_context_t* context = *_context = wasmtime_store_context(store);
+
+  wasmtime_error_t* error;
+  if ((error = wasmtime_context_set_wasi(context, wasi_config)) != NULL) {
+    print_wasmtime_error(error);
+    return;
+  }
 
   // Create linker and define WASI
   wasmtime_linker_t* linker = *_linker = wasmtime_linker_new(engine);
-  error = wasmtime_linker_define_wasi(linker);
-  if (error != NULL)
-    exit_with_error("❌ Failed to define WASI in linker", error, NULL);
-
+  if ((error = wasmtime_linker_define_wasi(linker)) != NULL) {
+    print_wasmtime_error(error);
+    return;
+  }
 
   wasmtime_extern_t import;
   import.kind = WASMTIME_EXTERN_SHAREDMEMORY;
   import.of.sharedmemory = shm_memory;
+
+  // Link shared memory to "wasi" module (or your module namespace)
+  if ((error = wasmtime_linker_define(linker, context, "wasi", 4, "memory", 6, &import)) != NULL) {
+    print_wasmtime_error(error);
+    return;
+  }
 
 
 #if 0
@@ -265,29 +305,27 @@ printf("!!!!!!!!!! works here!\n");
 ////////////////////////
   }
 #endif
-  // Link shared memory to "wasi" module (or your module namespace)
-  error = wasmtime_linker_define(linker, context, "wasi", 4, "memory", 6, &import);
-  if (error != NULL) {
-    exit_with_error("❌ Failed to define shared memory in linker", error, NULL);
-  }
 
 //---------------------------------------------------
+
+  wasm_valtype_vec_t results;
+  wasm_valtype_vec_new_empty(&results);
+
+  bool has_64bit_memory = false; // FIXME
+
+  // Create the host function
+  wasmtime_extern_t item;
+  item.kind = WASMTIME_EXTERN_FUNC;
 
   for(unsigned i = 0; i < sizeof(wasm_hostfuncs)/sizeof(wasm_hostfuncs[0]); ++i) {
     typeof(wasm_hostfuncs[0])* wasm_hostfunc = &wasm_hostfuncs[i];
 
-    int parms_c = -1;
-    const char *signature = NULL;
-    if (wasm_hostfunc->signature) {
-      signature = *wasm_hostfunc->signature;
-      parms_c = signature_parameter_count(signature);
-    }
+    const char *signature = *wasm_hostfunc->signature;
+    int parms_c = signature_parameter_count(signature);
 
     wasm_valtype_vec_t params;
     wasm_valtype_vec_new_uninitialized(&params, parms_c);
 
-    printf("Host function registering: %s (", wasm_hostfunc->symbol);
-    bool has_64bit_memory = false; // FIXME
     // https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/core/iwasm/common/wasm_runtime_common.c
     unsigned j = 0;
     for (char *s = (char*)signature; *s != '\0' && j < parms_c; ++s) {
@@ -297,19 +335,15 @@ printf("!!!!!!!!!! works here!\n");
           break;
         case 'i': // 32-bit integer (i32)
         case '~': // Byte length of the preceding buffer pointer (*), must follow *
-          printf(j ? " I32" : "I32");
           params.data[j++] = wasm_valtype_new(WASM_I32);
           break;
         case 'I': // 64-bit integer (i64)
-          printf(j ? " I64" : "I64");
           params.data[j++] = wasm_valtype_new(WASM_I64);
           break;
         case 'f': // 32-bit float (f32)
-          printf(j ? " F32" : "F32");
           params.data[j++] = wasm_valtype_new(WASM_F32);
           break;
         case 'F': // 64-bit float (f64)
-          printf(j ? " F64" : "F64");
           params.data[j++] = wasm_valtype_new(WASM_F64);
           break;
         case 'r': // externref type (usually a uintptr_t), or GC references
@@ -324,21 +358,14 @@ printf("!!!!!!!!!! works here!\n");
           break;
       }
     }
-    printf(")\n");
 
-    wasm_valtype_vec_t results;
-    wasm_valtype_vec_new_empty(&results);
     wasm_functype_t* func_type = wasm_functype_new(&params, &results);
-
-    // Create the host function
-    wasmtime_extern_t item;
-    item.kind = WASMTIME_EXTERN_FUNC;
 
     wasmtime_func_new(
       context,
       func_type,
       wasm_hostfunc->func_ptr,
-      /*env*/ NULL, NULL,
+      wasm_hostfunc->attachment, NULL,
       &item.of.func
     );
 
@@ -350,26 +377,25 @@ printf("!!!!!!!!!! works here!\n");
       wasm_hostfunc->symbol, strlen(wasm_hostfunc->symbol),
       &item
     );
-    if (error) {
-      wasm_name_t message;
-      wasmtime_error_message(error, &message);
-      fprintf(stderr, "❌ Failed to define host function: %.*s\n", (int)message.size, message.data);
-      wasm_name_delete(&message);
-      exit(1);
+    if (error != NULL) {
+      print_wasmtime_error(error);
+      return;
     }
   }
 //---------------------------------------------------
 
   // Add the compiled module to the linker
   error = wasmtime_linker_module(linker, context, NULL, 0, module);
-  if (error != NULL)
-    exit_with_error("❌ Failed to add module to linker", error, NULL);
+  if (error != NULL) {
+    print_wasmtime_error(error);
+    return;
+  }
 
-  // Instantiate the module
-  wasm_trap_t* trap = NULL;
-  error = wasmtime_linker_instantiate(linker, context, module, instance, &trap);
-  if (error != NULL || trap != NULL) {
-    exit_with_error("❌ Failed to instantiate module", error, trap);
+  // Instantiate the module; all host functions created don't provide a trap
+  error = wasmtime_linker_instantiate(linker, context, module, instance, NULL);
+  if (error != NULL) {
+    print_wasmtime_error(error);
+    return;
   }
 }
 
@@ -383,9 +409,6 @@ int main(int argc, char* argv[])
     return -1;
   }
   const char *wasm_file = argv[1];
-
-  // Load .wasm binary supplied
-  wasm_byte_vec_t wasm = load_wasm_file(wasm_file);
 
   // there are more occurances, don't just enable!
   // currently only 32bit supported!
@@ -407,12 +430,19 @@ int main(int argc, char* argv[])
   wasm_processes.shm_memory = NULL;
   wasmtime_sharedmemory_new(wasm_processes.engine, mem_type, &wasm_processes.shm_memory);
 
+  // Load .wasm binary supplied
+  wasm_byte_vec_t wasm;
+  load_wasm_file(&wasm, wasm_file);
+
   // Compile the module
   wasm_processes.module = NULL;
   wasmtime_error_t* error = wasmtime_module_new(wasm_processes.engine, (uint8_t*)wasm.data, wasm.size, &wasm_processes.module);
   wasm_byte_vec_delete(&wasm);
-  if (error != NULL)
-    exit_with_error("❌ Failed to compile module", error, NULL);
+  if (error != NULL) {
+    print_wasmtime_error(error);
+    return -1;
+  }
+
 
   wasmtime_linker_t* linker;
   wasmtime_store_t* store;
@@ -424,14 +454,18 @@ int main(int argc, char* argv[])
   // Get the default (start) function
   wasmtime_func_t start_func;
   if (wasmtime_linker_get_default(linker, context, NULL, 0, &start_func) != NULL) {
-    fprintf(stderr, "❌ No `_start` function found in module\n");
+    print_wasmtime_error(error);
     return -1;
   }
 
+
   // Call the start function
   error = wasmtime_func_call(context, &start_func, NULL, 0, NULL, 0, NULL);
-  if (error != NULL)
-    exit_with_error("❌ Failed to run `_start`", error, NULL);
+  if (error != NULL) {
+    print_wasmtime_error(error);
+    return -1;
+  }
+
 
   printf("✅ Module executed successfully via _start\n");
 
@@ -442,49 +476,3 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-
-// Helper to load a binary file (e.g., guest.wasm)
-wasm_byte_vec_t load_wasm_file(const char* filename)
-{
-  FILE* file = fopen(filename, "rb");
-  if (!file) {
-    perror("❌ Failed to open wasm file");
-    exit(1);
-  }
-
-  fseek(file, 0, SEEK_END);
-  long file_size = ftell(file);
-  rewind(file);
-
-  wasm_byte_vec_t wasm;
-  wasm_byte_vec_new_uninitialized(&wasm, file_size);
-  if (fread(wasm.data, file_size, 1, file) != 1) {
-    perror("❌ Failed to read wasm file");
-    exit(1);
-  }
-
-  fclose(file);
-  return wasm;
-}
-
-void exit_with_error(const char* message, wasmtime_error_t* error, wasm_trap_t* trap)
-{
-  fprintf(stderr, "%s\n", message);
-  wasm_byte_vec_t msg;
-
-  if (error) {
-    wasmtime_error_message(error, &msg);
-    wasmtime_error_delete(error);
-  } else if (trap) {
-    wasm_trap_message(trap, &msg);
-    wasm_trap_delete(trap);
-  } else {
-    fprintf(stderr, "❌ Unknown error\n");
-    exit(1);
-  }
-
-  fprintf(stderr, "❌ ERR: %.*s\n", (int)msg.size, msg.data);
-  wasm_byte_vec_delete(&msg);
-  exit(1);
-}
-
