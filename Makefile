@@ -114,8 +114,10 @@ $(MY_BUILD_DIR)/camw32_getset.h: mk_build_dir
 	sed -i 's|camw|camw32|g' $@
 
 
+# for testing purpose
 wamr:
 	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR)
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR)
 
 
 gcc_version: 

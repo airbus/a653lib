@@ -9,18 +9,31 @@
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Partition.h"
 
+#ifdef __WAMR__
+#define GET_ARG_i32( X ) arg##X
+#define GET_ARG_i64( X ) arg##X
+#else // WASMTIME
+#include "a653_i_common_wasm32.h"
 
-#if 0
-extern void GET_PARTITION_STATUS (
-  /* out */ PARTITION_STATUS_TYPE *PARTITION_STATUS,
-  /* out */ RETURN_CODE_TYPE *RETURN_CODE );
+#define GET_ARG_i32( X ) args_and_results[X].i32
+#define GET_ARG_i64( X ) args_and_results[X].i64
 #endif
+
+
+#ifdef __WAMR__
+void WASM32_GET_PARTITION_STATUS(
+  wasm_exec_env_t exec_env,
+  uint32_t arg0, uint32_t arg1)
+{
+  wasm_module_inst_t module_inst = wasm_runtime_get_module_inst(exec_env);
+  uint8_t* wasm_baseaddr = wasm_runtime_addr_app_to_native(module_inst, 0);
+#else // WASMTIME
 wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
-
+#endif
 
   PARTITION_STATUS_TYPE STATUS;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -30,20 +43,8 @@ wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
     &RETURN_CODE
   );
 
-#if 0
-typedef struct {
-  SYSTEM_TIME_TYPE PERIOD;
-  SYSTEM_TIME_TYPE DURATION;
-  PARTITION_ID_TYPE IDENTIFIER;
-  LOCK_LEVEL_TYPE LOCK_LEVEL;
-  OPERATING_MODE_TYPE OPERATING_MODE;
-  START_CONDITION_TYPE START_CONDITION;
-  NUM_CORES_TYPE NUM_ASSIGNED_CORES;
-} PARTITION_STATUS_TYPE;
-#endif
-
-  uint8_t* STATUS_guest = &wasm_baseaddr[le32toh(args_and_results[0].i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  uint8_t* STATUS_guest = &wasm_baseaddr[le32toh(GET_ARG_i32(0))];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 
   camw32_set__PARTITION_STATUS_TYPE__PERIOD(STATUS_guest, STATUS.PERIOD);
   camw32_set__PARTITION_STATUS_TYPE__DURATION(STATUS_guest, STATUS.DURATION);
@@ -53,24 +54,29 @@ typedef struct {
   camw32_set__PARTITION_STATUS_TYPE__START_CONDITION(STATUS_guest, STATUS.START_CONDITION);
   camw32_set__PARTITION_STATUS_TYPE__NUM_ASSIGNED_CORES(STATUS_guest, STATUS.NUM_ASSIGNED_CORES);
 
+#ifndef __WAMR__
   return NULL;
+#endif
 }
 
 
-#if 0
-extern void SET_PARTITION_MODE (
-/* in  */ OPERATING_MODE_TYPE OPERATING_MODE,
-/* out */ RETURN_CODE_TYPE *RETURN_CODE );
-#endif
+#ifdef __WAMR__
+void WASM32_SET_PARTITION_MODE(
+  wasm_exec_env_t exec_env,
+  uint32_t arg0, uint32_t arg1)
+{
+  wasm_module_inst_t module_inst = wasm_runtime_get_module_inst(exec_env);
+  uint8_t* wasm_baseaddr = wasm_runtime_addr_app_to_native(module_inst, 0);
+#else // WASMTIME
 wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
-
+#endif
 
   OPERATING_MODE_TYPE OPERATING_MODE;
-  OPERATING_MODE = (OPERATING_MODE_TYPE)le32toh(args_and_results[0].i32);
+  OPERATING_MODE = (OPERATING_MODE_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   SET_PARTITION_MODE(
@@ -78,7 +84,9 @@ wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 
+#ifndef __WAMR__
   return NULL;
+#endif
 }
