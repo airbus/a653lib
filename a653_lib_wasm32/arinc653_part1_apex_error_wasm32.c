@@ -19,16 +19,16 @@ extern void REPORT_APPLICATION_MESSAGE (
 #endif
 const char* WASM32_SIGNATURE__REPORT_APPLICATION_MESSAGE = "(iii)";
 wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)le32toh(args[0].of.i32);
+  MESSAGE_ADDR = (int32_t)le32toh(args_and_results[0].i32);
   MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(args[1].of.i32);
+  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(args_and_results[1].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   REPORT_APPLICATION_MESSAGE(
@@ -37,7 +37,7 @@ wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -58,7 +58,7 @@ extern wasm_processes_t wasm_processes;
 
 /*
  * equivalent to wasm_trampoline()
- * However, in wasm_trampline() the args[0].of.i32 i.e. idx is stored after calling a653lib.
+ * However, in wasm_trampline() the args_and_results[0].of.i32 i.e. idx is stored after calling a653lib.
  * Thus, the struct is prefiled, the moment START() is called.
  * This seems to be not working for CREATE_ERROR_HANDLER()
  */
@@ -83,7 +83,7 @@ void *error_handler_trampoline(void) {
     return NULL;
   }
 
-  wasmtime_val_t args[1];
+  wasmtime_val_t args;
   /*
     *       Note: The 'correct' .kind is WASMTIME_FUNCREF !
     *       However, https://docs.wasmtime.dev/c-api/structwasmtime__func.html /
@@ -95,11 +95,11 @@ void *error_handler_trampoline(void) {
     *       supply this here as a int32_t (as a function pointer in 32-bit WASM
     *       is also just int32_t).
     */
-  args[0].kind = WASMTIME_I32;
-  args[0].of.i32 = wasm_processes.ENTRY_POINT_ERROR_HANDLER;
+  args.kind = WASMTIME_I32;
+  args.of.i32 = wasm_processes.ENTRY_POINT_ERROR_HANDLER;
   //      wasmtime_val_t results[1];
   wasm_trap_t* trap = NULL;
-  wasmtime_error_t* error = wasmtime_func_call(context, &export.of.func, args, 1, NULL /*results*/, 0, &trap);
+  wasmtime_error_t* error = wasmtime_func_call(context, &export.of.func, &args, 1, NULL /*results*/, 0, &trap);
   if (error != NULL || trap != NULL) {
     fprintf(stderr, "❌ Function call failed\n");
     // handle trap or error
@@ -121,19 +121,19 @@ extern void CREATE_ERROR_HANDLER (
 #endif
 const char* WASM32_SIGNATURE__CREATE_ERROR_HANDLER = "(iii)";
 wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   // FIXME: in case there are more then 1 error handlers supported
   //        and hoping, that the pid is not saved prcs_info.
-  wasm_processes.ENTRY_POINT_ERROR_HANDLER = args[0].of.i32;
+  wasm_processes.ENTRY_POINT_ERROR_HANDLER = args_and_results[0].i32;
 
 
   STACK_SIZE_TYPE STACK_SIZE;
-  STACK_SIZE = (STACK_SIZE_TYPE)le32toh(args[1].of.i32);
+  STACK_SIZE = (STACK_SIZE_TYPE)le32toh(args_and_results[1].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   CREATE_ERROR_HANDLER(
@@ -142,7 +142,7 @@ wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -155,8 +155,8 @@ extern void GET_ERROR_STATUS (
 #endif
 const char* WASM32_SIGNATURE__GET_ERROR_STATUS = "(ii)";
 wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -179,8 +179,8 @@ typedef struct             {
 } ERROR_STATUS_TYPE;
 #endif
 
-  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[le32toh(args[0].of.i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[le32toh(args_and_results[0].i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   camw32_set__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, (ERROR_MESSAGE_SIZE_TYPE)ERROR_STATUS.ERROR_CODE);
   camw32_write__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, ERROR_STATUS.MESSAGE);
@@ -203,18 +203,18 @@ extern void RAISE_APPLICATION_ERROR (
 #endif
 const char* WASM32_SIGNATURE__RAISE_APPLICATION_ERROR = "(iiii)";
 wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   ERROR_CODE_TYPE ERROR_CODE;
-  ERROR_CODE = (ERROR_CODE_TYPE)le32toh(args[0].of.i32);
+  ERROR_CODE = (ERROR_CODE_TYPE)le32toh(args_and_results[0].i32);
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)le32toh(args[1].of.i32);
+  MESSAGE_ADDR = (int32_t)le32toh(args_and_results[1].i32);
   ERROR_MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)le32toh(args[2].of.i32);
+  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)le32toh(args_and_results[2].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   RAISE_APPLICATION_ERROR(
@@ -224,7 +224,7 @@ wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[3].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[3].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -238,16 +238,16 @@ extern void CONFIGURE_ERROR_HANDLER (
 #endif
 const char* WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER = "(iii)";
 wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE CONCURRENCY_CONTROL;
-  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)le32toh(args[0].of.i32);
+  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)le32toh(args_and_results[0].i32);
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
-  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args[1].of.i32);
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args_and_results[1].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   CONFIGURE_ERROR_HANDLER(
@@ -256,7 +256,7 @@ wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

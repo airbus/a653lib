@@ -16,19 +16,19 @@ extern const char* WASM32_SIGNATURE__GET_SEMAPHORE_ID;
 extern const char* WASM32_SIGNATURE__GET_SEMAPHORE_STATUS;
 
 wasm_trap_t* WASM32_CREATE_SEMAPHORE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_WAIT_SEMAPHORE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_SIGNAL_SEMAPHORE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_GET_SEMAPHORE_ID(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_GET_SEMAPHORE_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 
 #endif /* #ifndef ARINC653_PART1_APEX_SEMAPHORE_WASM32 */

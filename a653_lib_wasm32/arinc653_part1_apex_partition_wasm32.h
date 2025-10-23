@@ -13,10 +13,10 @@ extern const char* WASM32_SIGNATURE__GET_PARTITION_STATUS;
 extern const char* WASM32_SIGNATURE__SET_PARTITION_MODE;
 
 wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 
 #endif /* #ifndef ARINC653_PART1_APEX_PARTITION_WASM32 */

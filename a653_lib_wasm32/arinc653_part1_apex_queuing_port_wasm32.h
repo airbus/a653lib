@@ -17,22 +17,22 @@ extern const char* WASM32_SIGNATURE__GET_QUEUING_PORT_STATUS;
 extern const char* WASM32_SIGNATURE__CLEAR_QUEUING_PORT;
 
 wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 
 #endif /* #ifndef ARINC653_PART1_APEX_QUEUING_PORT_WASM32 */

@@ -16,19 +16,19 @@ extern const char* WASM32_SIGNATURE__RAISE_APPLICATION_ERROR;
 extern const char* WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER;
 
 wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 
 #endif /* #ifndef ARINC653_PART1_APEX_ERROR_WASM32 */

@@ -17,8 +17,8 @@ extern void GET_PARTITION_STATUS (
 #endif
 const char* WASM32_SIGNATURE__GET_PARTITION_STATUS = "(ii)";
 wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -43,8 +43,8 @@ typedef struct {
 } PARTITION_STATUS_TYPE;
 #endif
 
-  uint8_t* STATUS_guest = &wasm_baseaddr[le32toh(args[0].of.i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  uint8_t* STATUS_guest = &wasm_baseaddr[le32toh(args_and_results[0].i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   camw32_set__PARTITION_STATUS_TYPE__PERIOD(STATUS_guest, STATUS.PERIOD);
   camw32_set__PARTITION_STATUS_TYPE__DURATION(STATUS_guest, STATUS.DURATION);
@@ -65,14 +65,14 @@ extern void SET_PARTITION_MODE (
 #endif
 const char* WASM32_SIGNATURE__SET_PARTITION_MODE = "(ii)";
 wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   OPERATING_MODE_TYPE OPERATING_MODE;
-  OPERATING_MODE = (OPERATING_MODE_TYPE)le32toh(args[0].of.i32);
+  OPERATING_MODE = (OPERATING_MODE_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SET_PARTITION_MODE(
@@ -80,7 +80,7 @@ wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

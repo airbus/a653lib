@@ -72,7 +72,7 @@ extern wasm_processes_t wasm_processes;
 #define WASM_HOSTFUNC_SIGNATURE( FNC ) { #FNC, WASM32_##FNC, &WASM32_SIGNATURE__##FNC, NULL }
 struct {
   const char* symbol;
-  wasmtime_func_callback_t func_ptr;
+  wasmtime_func_unchecked_callback_t func_ptr;
   const char** signature;
   void *attachment;
 } wasm_hostfuncs[] = {
@@ -361,7 +361,7 @@ printf("!!!!!!!!!! works here!\n");
 
     wasm_functype_t* func_type = wasm_functype_new(&params, &results);
 
-    wasmtime_func_new(
+    wasmtime_func_new_unchecked(
       context,
       func_type,
       wasm_hostfunc->func_ptr,

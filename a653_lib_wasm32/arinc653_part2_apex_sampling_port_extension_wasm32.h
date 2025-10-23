@@ -14,13 +14,13 @@ extern const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_CURRENT_STATUS;
 extern const char* WASM32_SIGNATURE__READ_SAMPLING_MESSAGE_CONDITIONAL;
 
 wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_GET_SAMPLING_PORT_CURRENT_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE_CONDITIONAL(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults);
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
 
 #endif /* #ifndef ARINC653_PART2_APEX_SAMPLING_PORT_EXTENSION_WASM32 */

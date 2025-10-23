@@ -21,25 +21,25 @@ extern void CREATE_QUEUING_PORT (
 #endif
 const char* WASM32_SIGNATURE__CREATE_QUEUING_PORT = "(iiiiiii)";
 wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   MESSAGE_SIZE_TYPE MAX_MESSAGE_SIZE;
-  MAX_MESSAGE_SIZE = (MESSAGE_SIZE_TYPE)le32toh(args[1].of.i32);
+  MAX_MESSAGE_SIZE = (MESSAGE_SIZE_TYPE)le32toh(args_and_results[1].i32);
   MESSAGE_RANGE_TYPE MAX_NB_MESSAGE;
-  MAX_NB_MESSAGE = (MESSAGE_RANGE_TYPE)le32toh(args[2].of.i32);
+  MAX_NB_MESSAGE = (MESSAGE_RANGE_TYPE)le32toh(args_and_results[2].i32);
   PORT_DIRECTION_TYPE PORT_DIRECTION;
-  PORT_DIRECTION = (PORT_DIRECTION_TYPE)le32toh(args[3].of.i32);
+  PORT_DIRECTION = (PORT_DIRECTION_TYPE)le32toh(args_and_results[3].i32);
   QUEUING_DISCIPLINE_TYPE QUEUING_DISCIPLINE;
-  QUEUING_DISCIPLINE = (QUEUING_DISCIPLINE_TYPE)le32toh(args[4].of.i32);
+  QUEUING_DISCIPLINE = (QUEUING_DISCIPLINE_TYPE)le32toh(args_and_results[4].i32);
   QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
   RETURN_CODE_TYPE RETURN_CODE;
 
   CREATE_QUEUING_PORT(
-    (char*)&wasm_baseaddr[le32toh(args[0].of.i32)], // FIXME: only safe as long as char[]
+    (char*)&wasm_baseaddr[le32toh(args_and_results[0].i32)], // FIXME: only safe as long as char[]
     MAX_MESSAGE_SIZE,
     MAX_NB_MESSAGE,
     PORT_DIRECTION,
@@ -48,8 +48,8 @@ wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__QUEUING_PORT_ID_TYPE(&wasm_baseaddr[le32toh(args[5].of.i32)], (int32_t)QUEUING_PORT_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[6].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__QUEUING_PORT_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[5].i32)], (int32_t)QUEUING_PORT_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[6].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -65,20 +65,20 @@ extern void SEND_QUEUING_MESSAGE (
 #endif
 const char* WASM32_SIGNATURE__SEND_QUEUING_MESSAGE = "(iiiIi)";
 wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
-  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args[0].of.i32);
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args_and_results[0].i32);
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = le32toh(args[1].of.i32);
+  MESSAGE_ADDR = le32toh(args_and_results[1].i32);
   MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(args[2].of.i32);
+  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(args_and_results[2].i32);
   SYSTEM_TIME_TYPE TIME_OUT;
-  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args[3].of.i64);
+  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args_and_results[3].i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SEND_QUEUING_MESSAGE(
@@ -89,7 +89,7 @@ wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[4].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[4].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -107,18 +107,18 @@ extern void RECEIVE_QUEUING_MESSAGE (
 #endif
 const char* WASM32_SIGNATURE__RECEIVE_QUEUING_MESSAGE = "(iIiii)";
 wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
-  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args[0].of.i32);
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args_and_results[0].i32);
   SYSTEM_TIME_TYPE TIME_OUT;
-  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args[1].of.i64);
+  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args_and_results[1].i64);
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = le32toh(args[2].of.i32);
+  MESSAGE_ADDR = le32toh(args_and_results[2].i32);
   MESSAGE_SIZE_TYPE LENGTH;
   RETURN_CODE_TYPE RETURN_CODE;
 
@@ -130,8 +130,8 @@ wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[le32toh(args[3].of.i32)], (int32_t)LENGTH);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[4].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__MESSAGE_SIZE_TYPE(&wasm_baseaddr[le32toh(args_and_results[3].i32)], (int32_t)LENGTH);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[4].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -145,8 +145,8 @@ extern void GET_QUEUING_PORT_ID (
 #endif
 const char* WASM32_SIGNATURE__GET_QUEUING_PORT_ID = "(iii)";
 wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -155,13 +155,13 @@ wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
   RETURN_CODE_TYPE RETURN_CODE;
 
   GET_QUEUING_PORT_ID(
-    (char*)&wasm_baseaddr[le32toh(args[0].of.i32)], // FIXME: only safe as long as char[]
+    (char*)&wasm_baseaddr[le32toh(args_and_results[0].i32)], // FIXME: only safe as long as char[]
     &QUEUING_PORT_ID,
     &RETURN_CODE
   );
 
-  camw32_set__QUEUING_PORT_ID_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)QUEUING_PORT_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__QUEUING_PORT_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)QUEUING_PORT_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -175,14 +175,14 @@ extern void GET_QUEUING_PORT_STATUS (
 #endif
 const char* WASM32_SIGNATURE__GET_QUEUING_PORT_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
-  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args[0].of.i32);
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args_and_results[0].i32);
   QUEUING_PORT_STATUS_TYPE QUEUING_PORT_STATUS;
   RETURN_CODE_TYPE RETURN_CODE;
 
@@ -192,8 +192,8 @@ wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
     &RETURN_CODE
   );
 
-  uint8_t* QUEUING_PORT_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args[1].of.i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  uint8_t* QUEUING_PORT_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args_and_results[1].i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
 #if 0
 typedef struct {
@@ -222,14 +222,14 @@ extern void CLEAR_QUEUING_PORT (
 #endif
 const char* WASM32_SIGNATURE__CLEAR_QUEUING_PORT = "(ii)";
 wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   QUEUING_PORT_ID_TYPE QUEUING_PORT_ID;
-  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args[0].of.i32);
+  QUEUING_PORT_ID = (QUEUING_PORT_ID_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   CLEAR_QUEUING_PORT(
@@ -237,7 +237,7 @@ wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

@@ -21,8 +21,8 @@ extern void GET_PROCESS_ID (
 #endif
 const char* WASM32_SIGNATURE__GET_PROCESS_ID = "(iii)";
 wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -31,13 +31,13 @@ wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
   RETURN_CODE_TYPE RETURN_CODE;
 
   GET_PROCESS_ID(
-    (char*)&wasm_baseaddr[le32toh(args[0].of.i32)],  // FIXME: only safe as long as char[]
+    (char*)&wasm_baseaddr[le32toh(args_and_results[0].i32)],  // FIXME: only safe as long as char[]
     &PROCESS_ID,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -93,7 +93,7 @@ void *wasm_trampoline(void) {
         return NULL;
       }
 
-      wasmtime_val_t args[1];
+      wasmtime_val_t args;
       /*
        *       Note: The 'correct' .kind is WASMTIME_FUNCREF !
        *       However, https://docs.wasmtime.dev/c-api/structwasmtime__func.html /
@@ -105,11 +105,11 @@ void *wasm_trampoline(void) {
        *       supply this here as a int32_t (as a function pointer in 32-bit WASM
        *       is also just int32_t).
        */
-      args[0].kind = WASMTIME_I32;
-      args[0].of.i32 = wasm_processes.ENTRY_POINT[prcs_info[i].id];
+      args.kind = WASMTIME_I32;
+      args.of.i32 = wasm_processes.ENTRY_POINT[prcs_info[i].id];
       //      wasmtime_val_t results[1];
       wasm_trap_t* trap = NULL;
-      wasmtime_error_t* error = wasmtime_func_call(context, &export.of.func, args, 1, NULL /*results*/, 0, &trap);
+      wasmtime_error_t* error = wasmtime_func_call(context, &export.of.func, &args, 1, NULL /*results*/, 0, &trap);
       if (error != NULL || trap != NULL) {
         fprintf(stderr, "❌ Function call failed\n");
         // handle trap or error
@@ -155,14 +155,14 @@ extern void GET_PROCESS_STATUS (
 #endif
 const char* WASM32_SIGNATURE__GET_PROCESS_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE pid;
-  pid = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  pid = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   PROCESS_STATUS_TYPE PROCESS_STATUS;
@@ -172,8 +172,8 @@ wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
     &RETURN_CODE
   );
 
-  uint8_t* PROCESS_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args[1].of.i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  uint8_t* PROCESS_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args_and_results[1].i32)];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
 
 #if 0
@@ -235,14 +235,14 @@ extern void CREATE_PROCESS (
 /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
 const char* WASM32_SIGNATURE__CREATE_PROCESS = "(iii)";
-wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+wasm_trap_t* WASM32_CREATE_PROCESS(void *env,
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
-  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[le32toh(args[0].of.i32)];
+  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[le32toh(args_and_results[0].i32)];
 
   PROCESS_ATTRIBUTE_TYPE ATTRIBUTES;
   ATTRIBUTES.PERIOD = camw32_get__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES__guest);
@@ -264,8 +264,8 @@ wasm_trap_t* WASM32_CREATE_PROCESS(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
 
   // we get the pid late, and the real start of the thread will be in CREATE_PROCESS
@@ -283,16 +283,16 @@ extern void SET_PRIORITY (
 #endif
 const char* WASM32_SIGNATURE__SET_PRIORITY = "(iii)";
 wasm_trap_t* WASM32_SET_PRIORITY(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   PRIORITY_TYPE PRIORITY;
-  PRIORITY = (PRIORITY_TYPE)le32toh(args[1].of.i32);
+  PRIORITY = (PRIORITY_TYPE)le32toh(args_and_results[1].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SET_PRIORITY(
@@ -301,7 +301,7 @@ wasm_trap_t* WASM32_SET_PRIORITY(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -314,14 +314,14 @@ extern void SUSPEND_SELF (
 #endif
 const char* WASM32_SIGNATURE__SUSPEND_SELF = "(Ii)";
 wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SYSTEM_TIME_TYPE TIME_OUT;
-  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args[0].of.i64);
+  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args_and_results[0].i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SUSPEND_SELF(
@@ -329,7 +329,7 @@ wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -342,14 +342,14 @@ extern void SUSPEND (
 #endif
 const char* WASM32_SIGNATURE__SUSPEND = "(ii)";
 wasm_trap_t* WASM32_SUSPEND(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   SUSPEND(
@@ -357,7 +357,7 @@ wasm_trap_t* WASM32_SUSPEND(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -370,14 +370,14 @@ extern void RESUME (
 #endif
 const char* WASM32_SIGNATURE__RESUME = "(ii)";
 wasm_trap_t* WASM32_RESUME(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   RESUME(
@@ -385,7 +385,7 @@ wasm_trap_t* WASM32_RESUME(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -396,8 +396,8 @@ extern void STOP_SELF  (void);
 #endif
 const char* WASM32_SIGNATURE__STOP_SELF = "()";
 wasm_trap_t* WASM32_STOP_SELF(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   STOP_SELF(
   );
@@ -413,14 +413,14 @@ extern void STOP (
 #endif
 const char* WASM32_SIGNATURE__STOP = "(ii)";
 wasm_trap_t* WASM32_STOP(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   STOP(
@@ -428,7 +428,7 @@ wasm_trap_t* WASM32_STOP(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -441,14 +441,14 @@ extern void START (
 #endif
 const char* WASM32_SIGNATURE__START = "(ii)";
 wasm_trap_t* WASM32_START(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   START(
@@ -456,7 +456,7 @@ wasm_trap_t* WASM32_START(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -470,16 +470,16 @@ extern void DELAYED_START (
 #endif
 const char* WASM32_SIGNATURE__DELAYED_START = "(iIi)";
 wasm_trap_t* WASM32_DELAYED_START(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   SYSTEM_TIME_TYPE DELAY_TIME;
-  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args[1].of.i64);
+  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args_and_results[1].i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   DELAYED_START(
@@ -488,7 +488,7 @@ wasm_trap_t* WASM32_DELAYED_START(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -501,8 +501,8 @@ extern void LOCK_PREEMPTION (
 #endif
 const char* WASM32_SIGNATURE__LOCK_PREEMPTION = "(ii)";
 wasm_trap_t* WASM32_LOCK_PREEMPTION(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -515,8 +515,8 @@ wasm_trap_t* WASM32_LOCK_PREEMPTION(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)LOCK_LEVEL);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)LOCK_LEVEL);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -529,8 +529,8 @@ extern void UNLOCK_PREEMPTION (
 #endif
 const char* WASM32_SIGNATURE__UNLOCK_PREEMPTION = "(ii)";
 wasm_trap_t* WASM32_UNLOCK_PREEMPTION(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -543,8 +543,8 @@ wasm_trap_t* WASM32_UNLOCK_PREEMPTION(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)LOCK_LEVEL);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)LOCK_LEVEL);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -558,8 +558,8 @@ extern void GET_MY_ID (
 #endif
 const char* WASM32_SIGNATURE__GET_MY_ID = "(ii)";
 wasm_trap_t* WASM32_GET_MY_ID(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -572,8 +572,8 @@ wasm_trap_t* WASM32_GET_MY_ID(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -587,16 +587,16 @@ extern void INITIALIZE_PROCESS_CORE_AFFINITY (
 #endif
 const char* WASM32_SIGNATURE__INITIALIZE_PROCESS_CORE_AFFINITY = "(iii)";
 wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args[0].of.i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
-  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args[1].of.i32);
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args_and_results[1].i32);
   RETURN_CODE_TYPE RETURN_CODE;
 
   INITIALIZE_PROCESS_CORE_AFFINITY(
@@ -605,7 +605,7 @@ wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[2].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -618,8 +618,8 @@ extern void GET_MY_PROCESSOR_CORE_ID (
 #endif
 const char* WASM32_SIGNATURE__GET_MY_PROCESSOR_CORE_ID = "(ii)";
 wasm_trap_t* WASM32_GET_MY_PROCESSOR_CORE_ID(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -632,8 +632,8 @@ wasm_trap_t* WASM32_GET_MY_PROCESSOR_CORE_ID(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESSOR_CORE_ID_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)PROCESSOR_CORE_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESSOR_CORE_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)PROCESSOR_CORE_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -646,8 +646,8 @@ extern void GET_MY_INDEX (
 #endif
 const char* WASM32_SIGNATURE__GET_MY_INDEX = "(ii)";
 wasm_trap_t* WASM32_GET_MY_INDEX(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -660,8 +660,8 @@ wasm_trap_t* WASM32_GET_MY_INDEX(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_INDEX_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)PROCESS_INDEX);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_INDEX_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)PROCESS_INDEX);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }

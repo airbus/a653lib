@@ -16,14 +16,14 @@ extern void TIMED_WAIT (
 #endif
 const char* WASM32_SIGNATURE__TIMED_WAIT = "(Ii)";
 wasm_trap_t* WASM32_TIMED_WAIT(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SYSTEM_TIME_TYPE DELAY_TIME;
-  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args[0].of.i64);
+  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args_and_results[0].i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   TIMED_WAIT(
@@ -31,7 +31,7 @@ wasm_trap_t* WASM32_TIMED_WAIT(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -43,8 +43,8 @@ extern void PERIODIC_WAIT (
 #endif
 const char* WASM32_SIGNATURE__PERIODIC_WAIT = "(i)";
 wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -55,7 +55,7 @@ wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -68,8 +68,8 @@ extern void GET_TIME (
 #endif
 const char* WASM32_SIGNATURE__GET_TIME = "(ii)";
 wasm_trap_t* WASM32_GET_TIME(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
@@ -82,8 +82,8 @@ wasm_trap_t* WASM32_GET_TIME(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[le32toh(args[0].of.i32)], (int64_t)SYSTEM_TIME);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__SYSTEM_TIME_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int64_t)SYSTEM_TIME);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
@@ -96,14 +96,14 @@ extern void REPLENISH (
 #endif
 const char* WASM32_SIGNATURE__REPLENISH = "(Ii)";
 wasm_trap_t* WASM32_REPLENISH(void* env,
-  wasmtime_caller_t* caller, const wasmtime_val_t* args, size_t nargs,
-  wasmtime_val_t* results, size_t nresults)
+  wasmtime_caller_t *caller,
+  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
 {
   uint8_t* wasm_baseaddr = get_linear_memory(caller);
 
 
   SYSTEM_TIME_TYPE BUDGET_TIME;
-  BUDGET_TIME = (SYSTEM_TIME_TYPE)le64toh(args[0].of.i64);
+  BUDGET_TIME = (SYSTEM_TIME_TYPE)le64toh(args_and_results[0].i64);
   RETURN_CODE_TYPE RETURN_CODE;
 
   REPLENISH(
@@ -111,7 +111,7 @@ wasm_trap_t* WASM32_REPLENISH(void* env,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args[1].of.i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
 
   return NULL;
 }
