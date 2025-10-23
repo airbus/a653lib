@@ -19,7 +19,6 @@
 #endif
 
 
-const char* WASM32_SIGNATURE__TIMED_WAIT = "(Ii)";
 #ifdef __WAMR__
 void WASM32_TIMED_WAIT(
   wasm_exec_env_t exec_env,
@@ -52,7 +51,6 @@ wasm_trap_t* WASM32_TIMED_WAIT(void* env,
 }
 
 
-const char* WASM32_SIGNATURE__PERIODIC_WAIT = "(i)";
 #ifdef __WAMR__
 void WASM32_PERIODIC_WAIT(
   wasm_exec_env_t exec_env,
@@ -82,7 +80,6 @@ wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
 }
 
 
-const char* WASM32_SIGNATURE__GET_TIME = "(ii)";
 #ifdef __WAMR__
 void WASM32_GET_TIME(
   wasm_exec_env_t exec_env,
@@ -115,7 +112,6 @@ wasm_trap_t* WASM32_GET_TIME(void* env,
 }
 
 
-const char* WASM32_SIGNATURE__REPLENISH = "(Ii)";
 #ifdef __WAMR__
 void WASM32_REPLENISH(
   wasm_exec_env_t exec_env,

@@ -9,11 +9,11 @@
 #include "a653_i_common_wasm32.h"
 
 /* APEX (ARINC 653 Part 1): ERROR */
-extern const char* WASM32_SIGNATURE__REPORT_APPLICATION_MESSAGE;
-extern const char* WASM32_SIGNATURE__CREATE_ERROR_HANDLER;
-extern const char* WASM32_SIGNATURE__GET_ERROR_STATUS;
-extern const char* WASM32_SIGNATURE__RAISE_APPLICATION_ERROR;
-extern const char* WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER;
+#define WASM32_SIGNATURE__REPORT_APPLICATION_MESSAGE        "(iii)"
+#define WASM32_SIGNATURE__CREATE_ERROR_HANDLER              "(iii)"
+#define WASM32_SIGNATURE__GET_ERROR_STATUS                  "(ii)"
+#define WASM32_SIGNATURE__RAISE_APPLICATION_ERROR           "(iiii)"
+#define WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER           "(iii)"
 
 wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
   wasmtime_caller_t *caller,

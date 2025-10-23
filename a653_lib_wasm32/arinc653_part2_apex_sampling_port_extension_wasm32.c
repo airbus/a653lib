@@ -17,7 +17,6 @@ extern void READ_UPDATED_SAMPLING_MESSAGE (
   /*out*/ UPDATED_TYPE               *UPDATED,
   /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__READ_UPDATED_SAMPLING_MESSAGE = "(iiiii)";
 wasm_trap_t* WASM32_READ_UPDATED_SAMPLING_MESSAGE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -56,7 +55,6 @@ extern void GET_SAMPLING_PORT_CURRENT_STATUS (
   *SAMPLING_PORT_CURRENT_STATUS,
   / *out*/ RETURN_CODE_TYPE           *RETURN_CODE );*
 #endif
-const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_CURRENT_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_SAMPLING_PORT_CURRENT_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -111,7 +109,6 @@ extern void READ_SAMPLING_MESSAGE_CONDITIONAL (
   /* out */ SYSTEM_TIME_TYPE *      TIME_STAMP,
   /* out */ RETURN_CODE_TYPE *      RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__READ_SAMPLING_MESSAGE_CONDITIONAL = "(iIiiii)";
 wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE_CONDITIONAL(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)

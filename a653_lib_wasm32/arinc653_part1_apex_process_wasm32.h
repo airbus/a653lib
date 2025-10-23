@@ -9,23 +9,23 @@
 #include "a653_i_common_wasm32.h"
 
 /* APEX (ARINC 653 Part 1): PROCESS */
-extern const char* WASM32_SIGNATURE__CREATE_PROCESS;
-extern const char* WASM32_SIGNATURE__SET_PRIORITY;
-extern const char* WASM32_SIGNATURE__SUSPEND_SELF;
-extern const char* WASM32_SIGNATURE__SUSPEND;
-extern const char* WASM32_SIGNATURE__RESUME;
-extern const char* WASM32_SIGNATURE__STOP_SELF;
-extern const char* WASM32_SIGNATURE__STOP;
-extern const char* WASM32_SIGNATURE__START;
-extern const char* WASM32_SIGNATURE__DELAYED_START;
-extern const char* WASM32_SIGNATURE__LOCK_PREEMPTION;
-extern const char* WASM32_SIGNATURE__UNLOCK_PREEMPTION;
-extern const char* WASM32_SIGNATURE__GET_MY_ID;
-extern const char* WASM32_SIGNATURE__GET_PROCESS_ID;
-extern const char* WASM32_SIGNATURE__GET_PROCESS_STATUS;
-extern const char* WASM32_SIGNATURE__INITIALIZE_PROCESS_CORE_AFFINITY;
-extern const char* WASM32_SIGNATURE__GET_MY_PROCESSOR_CORE_ID;
-extern const char* WASM32_SIGNATURE__GET_MY_INDEX;
+#define WASM32_SIGNATURE__GET_PROCESS_ID                    "(iii)"
+#define WASM32_SIGNATURE__GET_PROCESS_STATUS                "(iii)"
+#define WASM32_SIGNATURE__CREATE_PROCESS                    "(iii)"
+#define WASM32_SIGNATURE__SET_PRIORITY                      "(iii)"
+#define WASM32_SIGNATURE__SUSPEND_SELF                      "(Ii)"
+#define WASM32_SIGNATURE__SUSPEND                           "(ii)"
+#define WASM32_SIGNATURE__RESUME                            "(ii)"
+#define WASM32_SIGNATURE__STOP_SELF                         "()"
+#define WASM32_SIGNATURE__STOP                              "(ii)"
+#define WASM32_SIGNATURE__START                             "(ii)"
+#define WASM32_SIGNATURE__DELAYED_START                     "(iIi)"
+#define WASM32_SIGNATURE__LOCK_PREEMPTION                   "(ii)"
+#define WASM32_SIGNATURE__UNLOCK_PREEMPTION                 "(ii)"
+#define WASM32_SIGNATURE__GET_MY_ID                         "(ii)"
+#define WASM32_SIGNATURE__INITIALIZE_PROCESS_CORE_AFFINITY  "(iii)"
+#define WASM32_SIGNATURE__GET_MY_PROCESSOR_CORE_ID          "(ii)"
+#define WASM32_SIGNATURE__GET_MY_INDEX                      "(ii)"
 
 wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
   wasmtime_caller_t *caller,

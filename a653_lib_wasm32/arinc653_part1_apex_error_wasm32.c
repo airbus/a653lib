@@ -17,7 +17,6 @@ extern void REPORT_APPLICATION_MESSAGE (
   /*in */   MESSAGE_SIZE_TYPE        LENGTH,
   /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__REPORT_APPLICATION_MESSAGE = "(iii)";
 wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -119,7 +118,6 @@ extern void CREATE_ERROR_HANDLER (
   /*in */   STACK_SIZE_TYPE          STACK_SIZE,
   /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__CREATE_ERROR_HANDLER = "(iii)";
 wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -153,7 +151,6 @@ extern void GET_ERROR_STATUS (
 /*out*/   ERROR_STATUS_TYPE        *ERROR_STATUS,
 /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_ERROR_STATUS = "(ii)";
 wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -201,7 +198,6 @@ extern void RAISE_APPLICATION_ERROR (
   /*in */   ERROR_MESSAGE_SIZE_TYPE  LENGTH,
   /*out*/   RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__RAISE_APPLICATION_ERROR = "(iiii)";
 wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -236,7 +232,6 @@ extern void CONFIGURE_ERROR_HANDLER (
   /*in */   PROCESSOR_CORE_ID_TYPE                  PROCESSOR_CORE_ID,
   /*out*/   RETURN_CODE_TYPE                        *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER = "(iii)";
 wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)

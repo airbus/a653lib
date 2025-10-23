@@ -18,7 +18,6 @@ extern void CREATE_SAMPLING_PORT (
   /*out*/ SAMPLING_PORT_ID_TYPE      *SAMPLING_PORT_ID,
   /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__CREATE_SAMPLING_PORT = "(iiiIii)";
 wasm_trap_t* WASM32_CREATE_SAMPLING_PORT(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -57,7 +56,6 @@ extern void WRITE_SAMPLING_MESSAGE (
   /*in */ MESSAGE_SIZE_TYPE          LENGTH,
   /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__WRITE_SAMPLING_MESSAGE = "(iiii)";
 wasm_trap_t* WASM32_WRITE_SAMPLING_MESSAGE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -96,7 +94,6 @@ extern void READ_SAMPLING_MESSAGE (
   /*out*/ VALIDITY_TYPE              *VALIDITY,
   /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__READ_SAMPLING_MESSAGE = "(iiiii)";
 wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -134,7 +131,6 @@ extern void GET_SAMPLING_PORT_ID (
   /*out*/ SAMPLING_PORT_ID_TYPE      *SAMPLING_PORT_ID,
   /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_ID = "(iii)";
 wasm_trap_t* WASM32_GET_SAMPLING_PORT_ID(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -164,7 +160,6 @@ extern void GET_SAMPLING_PORT_STATUS (
   /*out*/ SAMPLING_PORT_STATUS_TYPE  *SAMPLING_PORT_STATUS,
   /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_SAMPLING_PORT_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_SAMPLING_PORT_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)

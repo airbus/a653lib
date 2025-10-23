@@ -69,11 +69,11 @@
 
 extern wasm_processes_t wasm_processes;
 
-#define WASM_HOSTFUNC_SIGNATURE( FNC ) { #FNC, WASM32_##FNC, &WASM32_SIGNATURE__##FNC, NULL }
+#define WASM_HOSTFUNC_SIGNATURE( FNC ) { #FNC, WASM32_##FNC, WASM32_SIGNATURE__##FNC, NULL }
 struct {
   const char* symbol;
   wasmtime_func_unchecked_callback_t func_ptr;
-  const char** signature;
+  const char* signature;
   void *attachment;
 } wasm_hostfuncs[] = {
 /* APEX (ARINC 653 Part 1): BUFFER */
@@ -320,7 +320,7 @@ printf("!!!!!!!!!! works here!\n");
   for(unsigned i = 0; i < sizeof(wasm_hostfuncs)/sizeof(wasm_hostfuncs[0]); ++i) {
     typeof(wasm_hostfuncs[0])* wasm_hostfunc = &wasm_hostfuncs[i];
 
-    const char *signature = *wasm_hostfunc->signature;
+    const char *signature = wasm_hostfunc->signature;
     int parms_c = signature_parameter_count(signature);
 
     wasm_valtype_vec_t params;

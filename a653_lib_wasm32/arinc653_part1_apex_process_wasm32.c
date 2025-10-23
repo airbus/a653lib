@@ -19,7 +19,6 @@ extern void GET_PROCESS_ID (
   /* out */ PROCESS_ID_TYPE * PROCESS_ID,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__GET_PROCESS_ID = "(iii)";
 wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -153,7 +152,6 @@ extern void GET_PROCESS_STATUS (
   /* out */ PROCESS_STATUS_TYPE * PROCESS_STATUS,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__GET_PROCESS_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -234,7 +232,6 @@ extern void CREATE_PROCESS (
 /* out */ PROCESS_ID_TYPE * PROCESS_ID,
 /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__CREATE_PROCESS = "(iii)";
 wasm_trap_t* WASM32_CREATE_PROCESS(void *env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -281,7 +278,6 @@ extern void SET_PRIORITY (
   /* in  */ PRIORITY_TYPE PRIORITY,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__SET_PRIORITY = "(iii)";
 wasm_trap_t* WASM32_SET_PRIORITY(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -312,7 +308,6 @@ extern void SUSPEND_SELF (
   /* in  */ SYSTEM_TIME_TYPE TIME_OUT,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__SUSPEND_SELF = "(Ii)";
 wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -340,7 +335,6 @@ extern void SUSPEND (
   /* in  */ PROCESS_ID_TYPE PROCESS_ID,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__SUSPEND = "(ii)";
 wasm_trap_t* WASM32_SUSPEND(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -368,7 +362,6 @@ extern void RESUME (
   /* in  */ PROCESS_ID_TYPE PROCESS_ID,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__RESUME = "(ii)";
 wasm_trap_t* WASM32_RESUME(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -394,7 +387,6 @@ wasm_trap_t* WASM32_RESUME(void* env,
 #if 0
 extern void STOP_SELF  (void);
 #endif
-const char* WASM32_SIGNATURE__STOP_SELF = "()";
 wasm_trap_t* WASM32_STOP_SELF(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -411,7 +403,6 @@ extern void STOP (
   /* in  */ PROCESS_ID_TYPE PROCESS_ID,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__STOP = "(ii)";
 wasm_trap_t* WASM32_STOP(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -439,7 +430,6 @@ extern void START (
   /* in  */ PROCESS_ID_TYPE PROCESS_ID,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__START = "(ii)";
 wasm_trap_t* WASM32_START(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -468,7 +458,6 @@ extern void DELAYED_START (
   /* in  */ SYSTEM_TIME_TYPE  DELAY_TIME,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__DELAYED_START = "(iIi)";
 wasm_trap_t* WASM32_DELAYED_START(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -499,7 +488,6 @@ extern void LOCK_PREEMPTION (
   /* out */ LOCK_LEVEL_TYPE * LOCK_LEVEL,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__LOCK_PREEMPTION = "(ii)";
 wasm_trap_t* WASM32_LOCK_PREEMPTION(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -527,7 +515,6 @@ extern void UNLOCK_PREEMPTION (
   /* out */ LOCK_LEVEL_TYPE * LOCK_LEVEL,
   /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__UNLOCK_PREEMPTION = "(ii)";
 wasm_trap_t* WASM32_UNLOCK_PREEMPTION(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -556,7 +543,6 @@ extern void GET_MY_ID (
 /* out */ PROCESS_ID_TYPE * PROCESS_ID,
 /* out */ RETURN_CODE_TYPE * RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__GET_MY_ID = "(ii)";
 wasm_trap_t* WASM32_GET_MY_ID(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -585,7 +571,6 @@ extern void INITIALIZE_PROCESS_CORE_AFFINITY (
   /*in */ PROCESSOR_CORE_ID_TYPE   PROCESSOR_CORE_ID,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__INITIALIZE_PROCESS_CORE_AFFINITY = "(iii)";
 wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -616,7 +601,6 @@ extern void GET_MY_PROCESSOR_CORE_ID (
   /*out*/ PROCESSOR_CORE_ID_TYPE   *PROCESSOR_CORE_ID,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_MY_PROCESSOR_CORE_ID = "(ii)";
 wasm_trap_t* WASM32_GET_MY_PROCESSOR_CORE_ID(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -644,7 +628,6 @@ extern void GET_MY_INDEX (
   /*out*/ PROCESS_INDEX_TYPE       *PROCESS_INDEX,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_MY_INDEX = "(ii)";
 wasm_trap_t* WASM32_GET_MY_INDEX(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)

@@ -13,10 +13,10 @@
 #endif
 
 /* APEX (ARINC 653 Part 1): TIME */
-extern const char* WASM32_SIGNATURE__TIMED_WAIT;
-extern const char* WASM32_SIGNATURE__PERIODIC_WAIT;
-extern const char* WASM32_SIGNATURE__GET_TIME;
-extern const char* WASM32_SIGNATURE__REPLENISH;
+#define WASM32_SIGNATURE__TIMED_WAIT            "(Ii)"
+#define WASM32_SIGNATURE__PERIODIC_WAIT         "(i)"
+#define WASM32_SIGNATURE__GET_TIME              "(ii)"
+#define WASM32_SIGNATURE__REPLENISH             "(Ii)"
 
 #ifdef __WAMR__
 void WASM32_TIMED_WAIT(

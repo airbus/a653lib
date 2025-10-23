@@ -15,7 +15,6 @@ extern void GET_PARTITION_STATUS (
   /* out */ PARTITION_STATUS_TYPE *PARTITION_STATUS,
   /* out */ RETURN_CODE_TYPE *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_PARTITION_STATUS = "(ii)";
 wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -63,7 +62,6 @@ extern void SET_PARTITION_MODE (
 /* in  */ OPERATING_MODE_TYPE OPERATING_MODE,
 /* out */ RETURN_CODE_TYPE *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__SET_PARTITION_MODE = "(ii)";
 wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)

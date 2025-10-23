@@ -18,7 +18,6 @@ void CREATE_SEMAPHORE
   /*out*/ SEMAPHORE_ID_TYPE *SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 #endif
-const char* WASM32_SIGNATURE__CREATE_SEMAPHORE = "(iiiiii)";
 wasm_trap_t* WASM32_CREATE_SEMAPHORE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -57,7 +56,6 @@ void WAIT_SEMAPHORE
   /*in */ SYSTEM_TIME_TYPE TIME_OUT,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 #endif
-const char* WASM32_SIGNATURE__WAIT_SEMAPHORE = "(iIi)";
 wasm_trap_t* WASM32_WAIT_SEMAPHORE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -88,7 +86,6 @@ void SIGNAL_SEMAPHORE
 ( /*in */ SEMAPHORE_ID_TYPE SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 #endif
-const char* WASM32_SIGNATURE__SIGNAL_SEMAPHORE = "(ii)";
 wasm_trap_t* WASM32_SIGNAL_SEMAPHORE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -117,7 +114,6 @@ void GET_SEMAPHORE_ID
   /*out*/ SEMAPHORE_ID_TYPE *SEMAPHORE_ID,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 #endif
-const char* WASM32_SIGNATURE__GET_SEMAPHORE_ID = "(iii)";
 wasm_trap_t* WASM32_GET_SEMAPHORE_ID(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -153,7 +149,6 @@ void GET_SEMAPHORE_STATUS
   /*out*/ SEMAPHORE_STATUS_TYPE *SEMAPHORE_STATUS,
   /*out*/ RETURN_CODE_TYPE *RETURN_CODE )
 #endif
-const char* WASM32_SIGNATURE__GET_SEMAPHORE_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_SEMAPHORE_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)

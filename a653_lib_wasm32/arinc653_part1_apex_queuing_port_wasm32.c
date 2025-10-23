@@ -19,7 +19,6 @@ extern void CREATE_QUEUING_PORT (
   /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__CREATE_QUEUING_PORT = "(iiiiiii)";
 wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -63,7 +62,6 @@ extern void SEND_QUEUING_MESSAGE (
   /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
 #endif
-const char* WASM32_SIGNATURE__SEND_QUEUING_MESSAGE = "(iiiIi)";
 wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -105,7 +103,6 @@ extern void RECEIVE_QUEUING_MESSAGE (
   /*out*/ MESSAGE_SIZE_TYPE        *LENGTH,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__RECEIVE_QUEUING_MESSAGE = "(iIiii)";
 wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -143,7 +140,6 @@ extern void GET_QUEUING_PORT_ID (
   /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_QUEUING_PORT_ID = "(iii)";
 wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -173,7 +169,6 @@ extern void GET_QUEUING_PORT_STATUS (
   /*out*/ QUEUING_PORT_STATUS_TYPE *QUEUING_PORT_STATUS,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__GET_QUEUING_PORT_STATUS = "(iii)";
 wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
@@ -220,7 +215,6 @@ extern void CLEAR_QUEUING_PORT (
   /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
   /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 #endif
-const char* WASM32_SIGNATURE__CLEAR_QUEUING_PORT = "(ii)";
 wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
