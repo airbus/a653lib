@@ -11,7 +11,7 @@ wasm_processes_t wasm_processes;
 uint8_t* get_linear_memory(wasmtime_caller_t* caller) {
     wasmtime_extern_t ext;
     const char *m = "memory";
-    if (!wasmtime_caller_export_get(caller, m, strlen(m), &ext)) {
+    if ( ! wasmtime_caller_export_get(caller, m, strlen(m), &ext)) {
         fprintf(stderr, "Error: memory export not found!\n");
         return NULL;
     }

@@ -5,8 +5,12 @@
 #ifndef A653_I_COMMON_WASM32
 #define A653_I_COMMON_WASM32
 
+#ifdef __WAMR__
+#include <wasm_export.h>
+#else
 #include <wasmtime.h>
-#include "../a653_inc/a653Lib.h"
+#endif
+#include "../a653_inc/a653Init.h"
 
 typedef struct {
   wasm_engine_t* engine;

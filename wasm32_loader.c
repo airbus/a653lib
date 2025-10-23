@@ -177,7 +177,7 @@ void print_wasmtime_error(wasmtime_error_t* error)
   }
 }
 
-int signature_parameter_count(const char *signature) {
+static int signature_parameter_count(const char *signature) {
   int parmc = 0;
   for (char *s = (char*)signature, *bgn_braket = NULL; *s != '\0'; ++s) {
     switch ( *s ) {

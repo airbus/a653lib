@@ -6,7 +6,11 @@
 #ifndef ARINC653_PART1_APEX_TIME_WASM32
 #define ARINC653_PART1_APEX_TIME_WASM32
 
-#include "a653_i_common_wasm32.h"
+#ifdef __WAMR__
+#include <wasm_export.h>
+#else // WASMTIME
+#include <wasmtime.h>
+#endif
 
 /* APEX (ARINC 653 Part 1): TIME */
 extern const char* WASM32_SIGNATURE__TIMED_WAIT;
@@ -14,17 +18,41 @@ extern const char* WASM32_SIGNATURE__PERIODIC_WAIT;
 extern const char* WASM32_SIGNATURE__GET_TIME;
 extern const char* WASM32_SIGNATURE__REPLENISH;
 
+#ifdef __WAMR__
+void WASM32_TIMED_WAIT(
+  wasm_exec_env_t exec_env,
+  uint64_t arg0, uint32_t arg1);
+#else // WASMTIME
 wasm_trap_t* WASM32_TIMED_WAIT(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+#endif
+#ifdef __WAMR__
+void WASM32_PERIODIC_WAIT(
+  wasm_exec_env_t exec_env,
+  uint32_t arg0);
+#else // WASMTIME
 wasm_trap_t* WASM32_PERIODIC_WAIT(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+#endif
+#ifdef __WAMR__
+void WASM32_GET_TIME(
+  wasm_exec_env_t exec_env,
+  uint32_t arg0, uint32_t arg1);
+#else // WASMTIME
 wasm_trap_t* WASM32_GET_TIME(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+#endif
+#ifdef __WAMR__
+void WASM32_REPLENISH(
+  wasm_exec_env_t exec_env,
+  uint64_t arg0, uint32_t arg1);
+#else // WASMTIME
 wasm_trap_t* WASM32_REPLENISH(void* env,
   wasmtime_caller_t *caller,
   wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+#endif
 
 #endif /* #ifndef ARINC653_PART1_APEX_TIME_WASM32 */
