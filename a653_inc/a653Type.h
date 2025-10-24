@@ -63,8 +63,6 @@ typedef enum {
 } RETURN_CODE_TYPE;
 
 
-typedef char Boolean;
-
 typedef enum {
   READ = 0,
   READ_WRITE = 1
