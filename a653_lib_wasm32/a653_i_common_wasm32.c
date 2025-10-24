@@ -91,9 +91,9 @@ int exec_wasm_guest_func(uint32_t idx)
    motivated by the WASI-THREADS
 */
 
-  bool ok = wasmtime_instance_export_get(context, &instance, "WASM_GUEST_FUNC_TRAMPOLINE", strlen("WASM_GUEST_FUNC_TRAMPOLINE"), &ext );
+  bool ok = wasmtime_instance_export_get(context, &instance, "__WASM_GUEST_CALL_INDIRECT", strlen("__WASM_GUEST_CALL_INDIRECT"), &ext );
   if ( ! (ok && export.kind == WASMTIME_EXTERN_FUNC)) {
-    fprintf(stderr, "❌ Function WASM_GUEST_FUNC_TRAMPOLINE not found or not a function\n");
+    fprintf(stderr, "❌ Function __WASM_GUEST_CALL_INDIRECT not found or not a function\n");
     return -1;
   }
 

@@ -3,7 +3,7 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 
 __attribute__((used)) // don't optimise out!
-__attribute__((export_name("WASM_GUEST_FUNC_TRAMPOLINE")))
-void WASM_GUEST_FUNC_TRAMPOLINE(void (*fnc)(void)) {
+__attribute__((export_name("__WASM_GUEST_CALL_INDIRECT")))
+void __WASM_GUEST_CALL_INDIRECT(void (*fnc)(void)) {
   (*fnc)();
 }
