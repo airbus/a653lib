@@ -49,10 +49,13 @@ extern void initialize_wasm_instance(
   wasmtime_linker_t** _linker,
   wasmtime_store_t** _store,
   wasmtime_context_t** _context,
-  wasmtime_instance_t* instance,
-  bool create_func_table);
+  wasmtime_instance_t* instance);
 
-int exec_wasm_guest_func(uint32_t idx)
+/**
+ * Either start the default, which is _start()
+ * Or based on an index into the __indirect_function_table[]
+ */
+int exec_wasm_guest_func(int start_default, uint32_t idx)
 {
   // linker, store and context are not thread-safe
   wasmtime_linker_t* linker;
@@ -60,23 +63,34 @@ int exec_wasm_guest_func(uint32_t idx)
   wasmtime_context_t* context;
   wasmtime_instance_t instance;
   initialize_wasm_instance(wasm_processes.engine, wasm_processes.shm_memory,
-                            wasm_processes.module, &linker, &store, &context, &instance, false);
-
-  wasmtime_extern_t ext;
-  if ( ! wasmtime_instance_export_get(context, &instance, "__indirect_function_table", strlen("__indirect_function_table"), &ext)
-      || ext.kind != WASMTIME_EXTERN_TABLE ) {
-    fprintf(stderr, "ERR: __indirect_function_table could not be found.\n");
-    return -1;
-  }
-
-  wasmtime_val_t fnc;
-  if ( ! wasmtime_table_get(context, &ext.of.table, idx, &fnc)) {
-    fprintf(stderr, "ERR: Index %u not given in __indirect_function_table.\n", idx);
-    return -1;
-  }
+                            wasm_processes.module, &linker, &store, &context, &instance);
 
   wasmtime_error_t *err;
-  if ((err = wasmtime_func_call(context, &fnc.of.funcref, NULL, 0, NULL, 0, NULL)) != NULL) {
+  wasmtime_func_t fnc;
+  if(start_default) {
+    if ((err = wasmtime_linker_get_default(linker, context, NULL, 0, &fnc)) != NULL) {
+      print_wasmtime_error(err);
+      return -1;
+    }
+  }
+  else {
+    wasmtime_extern_t ext;
+    if ( ! wasmtime_instance_export_get(context, &instance, "__indirect_function_table", strlen("__indirect_function_table"), &ext)
+        || ext.kind != WASMTIME_EXTERN_TABLE ) {
+      fprintf(stderr, "ERR: __indirect_function_table could not be found.\n");
+      return -1;
+    }
+
+    wasmtime_val_t val;
+    if ( ! wasmtime_table_get(context, &ext.of.table, idx, &val)) {
+      fprintf(stderr, "ERR: Index %u not given in __indirect_function_table.\n", idx);
+      return -1;
+    }
+
+    fnc = val.of.funcref;
+  }
+
+  if ((err = wasmtime_func_call(context, &fnc, NULL, 0, NULL, 0, NULL)) != NULL) {
     print_wasmtime_error(err);
     return -1;
   }

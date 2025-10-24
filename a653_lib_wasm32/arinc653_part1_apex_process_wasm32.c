@@ -54,7 +54,7 @@ void *wasm_trampoline(void) {
   for (unsigned i = 0; i < MAX_PRCS; ++i) {
     if(prcs_info[i].t_ctx == tid) {
       uint64_t idx = wasm_processes.ENTRY_POINT[prcs_info[i].id];
-      ret = exec_wasm_guest_func(idx);
+      ret = exec_wasm_guest_func(0, idx);
       break;
     }
   }

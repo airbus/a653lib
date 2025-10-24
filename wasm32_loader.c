@@ -204,15 +204,14 @@ static int signature_parameter_count(const char *signature) {
 
 
 void initialize_wasm_instance(
-  wasm_engine_t* engine, 
+  wasm_engine_t* engine,
   wasmtime_sharedmemory_t* shm_memory,
   wasmtime_module_t* module,
 
   wasmtime_linker_t** _linker,
   wasmtime_store_t** _store,
   wasmtime_context_t** _context,
-  wasmtime_instance_t* instance,
-  bool create_func_table)
+  wasmtime_instance_t* instance)
 {
   // Configure WASI context (currently given for debugging... not for true avionics)
   wasi_config_t* wasi_config = wasi_config_new();
@@ -372,7 +371,6 @@ printf("!!!!!!!!!! works here!\n");
       return;
     }
   }
-//---------------------------------------------------
 
   // Add the compiled module to the linker
   error = wasmtime_linker_module(linker, context, NULL, 0, module);
@@ -425,43 +423,20 @@ int main(int argc, char* argv[])
   load_wasm_file(&wasm, wasm_file);
 
   // Compile the module
-  wasm_processes.module = NULL;
-  wasmtime_error_t* error = wasmtime_module_new(wasm_processes.engine, (uint8_t*)wasm.data, wasm.size, &wasm_processes.module);
+  wasmtime_error_t* err;
+  if ((err = wasmtime_module_new(wasm_processes.engine, (uint8_t*)wasm.data, wasm.size, &wasm_processes.module)) != NULL) {
+    print_wasmtime_error(err);
+    return -1;
+  }
   wasm_byte_vec_delete(&wasm);
-  if (error != NULL) {
-    print_wasmtime_error(error);
-    return -1;
-  }
 
-
-  wasmtime_linker_t* linker;
-  wasmtime_store_t* store;
-  wasmtime_context_t* context;
-  wasmtime_instance_t instance;
-  initialize_wasm_instance(wasm_processes.engine, wasm_processes.shm_memory, wasm_processes.module,
-                           &linker, &store, &context, &instance, true);
-
-  // Get the default (start) function
-  wasmtime_func_t start_func;
-  if (wasmtime_linker_get_default(linker, context, NULL, 0, &start_func) != NULL) {
-    print_wasmtime_error(error);
-    return -1;
-  }
-
-
-  // Call the start function
-  error = wasmtime_func_call(context, &start_func, NULL, 0, NULL, 0, NULL);
-  if (error != NULL) {
-    print_wasmtime_error(error);
-    return -1;
-  }
-
+  if ( ! exec_wasm_guest_func(1, -1))
+    fprintf(stderr, "ERR: wasm_processid not found\n");
 
   printf("✅ Module executed successfully via _start\n");
 
   // Cleanup
   wasmtime_module_delete(wasm_processes.module);
-  wasmtime_store_delete(store);
   wasm_engine_delete(wasm_processes.engine);
 
   return 0;

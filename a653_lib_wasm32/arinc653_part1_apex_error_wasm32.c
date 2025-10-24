@@ -48,7 +48,7 @@ extern wasm_processes_t wasm_processes;
 void *error_handler_trampoline(void) {
 
   uint32_t idx = wasm_processes.ENTRY_POINT_ERROR_HANDLER;
-  if ( ! exec_wasm_guest_func(idx))
+  if ( ! exec_wasm_guest_func(0, idx))
     fprintf(stderr, "ERR: wasm_processid not found\n");
 
   return NULL;
