@@ -22,6 +22,8 @@ typedef struct {
   uint32_t ENTRY_POINT_ERROR_HANDLER;
 } wasm_processes_t;
 
+void print_wasmtime_error(wasmtime_error_t* error);
 uint8_t* get_linear_memory(wasmtime_caller_t* caller);
+int exec_wasm_guest_func(uint32_t idx);
 
 #endif

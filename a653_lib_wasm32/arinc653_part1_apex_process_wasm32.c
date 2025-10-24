@@ -43,85 +43,23 @@ wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
 
 
 
-/*
-motivated by the WASI-THREADS
-
-in a nutshell:
-- Each thread is spawn as a new instance of a WASM module.
-- Each instance of a WASM module uses then shared memory to ensure the threads
-can communicate with each other.
-*/
-
-extern void initialize_wasm_instance(
-  wasm_engine_t* engine,
-  wasmtime_sharedmemory_t* shm_memory,
-  wasmtime_module_t* module,
-
-  wasmtime_linker_t** _linker,
-  wasmtime_store_t** _store,
-  wasmtime_context_t** _context,
-  wasmtime_instance_t* instance,
-  bool create_func_table);
-
-extern prcs_info_t *prcs_info;
 extern wasm_processes_t wasm_processes;
+extern prcs_info_t *prcs_info;
 
 void *wasm_trampoline(void) {
   /* trying to reverse engineer the index within the a653lib */
   pthread_t tid = pthread_self();
 
-  for(unsigned i = 0; i < MAX_PRCS; ++i) {
+  int ret = 0;
+  for (unsigned i = 0; i < MAX_PRCS; ++i) {
     if(prcs_info[i].t_ctx == tid) {
-      // linker, store and context are not thread-safe
-      wasmtime_linker_t* linker;
-      wasmtime_store_t* store;
-      wasmtime_context_t* context;
-      wasmtime_instance_t instance;
-      initialize_wasm_instance(wasm_processes.engine, wasm_processes.shm_memory,
-                               wasm_processes.module, &linker, &store, &context, &instance, false);
-
-      wasmtime_extern_t export;
-      bool ok = wasmtime_instance_export_get(
-        context, &instance,
-        "WASM_GUEST_FUNC_TRAMPOLINE", strlen("WASM_GUEST_FUNC_TRAMPOLINE"),
-                                             &export
-      );
-
-      if (!(ok && export.kind == WASMTIME_EXTERN_FUNC)) {
-        fprintf(stderr, "❌ Function WASM_GUEST_FUNC_TRAMPOLINE not found or not a function\n");
-        return NULL;
-      }
-
-      wasmtime_val_t args;
-      /*
-       *       Note: The 'correct' .kind is WASMTIME_FUNCREF !
-       *       However, https://docs.wasmtime.dev/c-api/structwasmtime__func.html /
-       *       https://docs.wasmtime.dev/c-api/extern_8h.html#ac3661fabd7972df1ade869f17de29dc5
-       *       would require the __private stuff, which is store and context bound.
-       *       Thus, it would bail out in the new module instance / thread. However,
-       *       what is 'truly' required is not wasmtime_func_t, but rather the 'function
-       *       reference'. And the 'function reference' is purely the index. Thus, we
-       *       supply this here as a int32_t (as a function pointer in 32-bit WASM
-       *       is also just int32_t).
-       */
-      args.kind = WASMTIME_I32;
-      args.of.i32 = wasm_processes.ENTRY_POINT[prcs_info[i].id];
-      //      wasmtime_val_t results[1];
-      wasm_trap_t* trap = NULL;
-      wasmtime_error_t* error = wasmtime_func_call(context, &export.of.func, &args, 1, NULL /*results*/, 0, &trap);
-      if (error != NULL || trap != NULL) {
-        fprintf(stderr, "❌ Function call failed\n");
-        // handle trap or error
-      } else {
-        printf("✅ Function \n");
-      }
-
-      wasmtime_store_delete(store);
-
-      return NULL;
+      uint64_t idx = wasm_processes.ENTRY_POINT[prcs_info[i].id];
+      ret = exec_wasm_guest_func(idx);
+      break;
     }
   }
-  fprintf(stderr, "ERR: wasm_processid not found\n");
+  if ( ! ret)
+    fprintf(stderr, "ERR: wasm_processid not found\n");
 
   return NULL;
 }

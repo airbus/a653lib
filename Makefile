@@ -80,23 +80,26 @@ part_bootstrap_wasm: $(OBJS_WASM_BOOTSTRAP) alib_wasm32
 
 part_wasms: $(TARGET_A_WASM) $(TARGET_B_WASM)
 
+$(MY_BUILD_DIR)/camw32_getset.h: mk_build_dir
+	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens || { cd $(MY_BUILD_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-old; }
+	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens || { cd $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens && rustup default stable && cargo build; }
+	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
+	$(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(SRC_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
+	sed -i 's|camw|camw32|g' $@
+
 # for guest:
 # $ yay -S clang lld wasi-libc wasi-compiler-rt
 %.wasm: alib
 	@echo build dir $(MY_BUILD_DIR)
 	# 1. we use the wasm32-wasi to include the stdlib (thus having __start() and main() support).
-	# however, long term for avionics it would make sense to drop and go to wasm32-unknown
+	# however, long term for avionics it would make sense to drop and go to wasm32-unknown with likely -Wl,-export=_start or similar
 	# 2. --allow-undefined is required for symbols (such as WIT functions) that are not yet defined.
-	#cd $(MY_BUILD_DIR); wasm-as ../../wasm_func_tbl.wat -o wasm_func_tbl.o --enable-reference-types --relocatable
-	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc --target=wasm32-wasi -Wl,-export=_start -Wl,--allow-undefined --sysroot=/usr/share/wasi-sysroot -o $@ ../../$(basename $(notdir $@)).c ../../wasm_guest_trampoline.c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt
+	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc --target=wasm32-wasi -Wl,--export-table -Wl,--allow-undefined --sysroot=/usr/share/wasi-sysroot -o $@ ../../$(basename $(notdir $@)).c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt # ../../wasm_guest_trampoline.c
 
-
-# clang a653_inc/a653Lib.h -Xclang -ast-dump -fsyntax-only -o - --target=wasm32 -Ia653_inc
-# or use tool:
-# https://github.com/gilzoide/c_api_extract-py.git
-$(VENV_DIR)/bin/activate:
-	test -d $(VENV_DIR) || $(PYTHON) -m venv $(VENV_DIR)
-	. $(VENV_DIR)/bin/activate; pip install c-api-extract
+# for testing purpose
+wamr:
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR)
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR)
 
 alib_wasm32: alib
 	make -e -C $(SRC_DIR)/a653_lib_wasm32 a653_lib_wasm32
@@ -106,18 +109,6 @@ alib:
 	cp -r $(SRC_DIR)/a653_inc $(MY_BUILD_DIR)
 #	cp -r $(SRC_DIR)/a653_ada $(MY_BUILD_DIR)
 
-$(MY_BUILD_DIR)/camw32_getset.h: mk_build_dir
-	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens || { cd $(MY_BUILD_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-old; }
-	test -d $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens || { cd $(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens && rustup default stable && cargo build; }
-	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
-	$(MY_BUILD_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(SRC_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
-	sed -i 's|camw|camw32|g' $@
-
-
-# for testing purpose
-wamr:
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR)
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR)
 
 
 gcc_version: 

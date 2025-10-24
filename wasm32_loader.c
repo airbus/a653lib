@@ -164,19 +164,6 @@ int load_wasm_file(wasm_byte_vec_t* wasm, const char* filename)
   return 0;
 }
 
-void print_wasmtime_error(wasmtime_error_t* error)
-{
-  if (error) {
-    wasm_byte_vec_t msg;
-    wasmtime_error_message(error, &msg);
-    wasmtime_error_delete(error);
-    fprintf(stderr, "❌ ERR: %.*s\n", (int)msg.size, msg.data);
-    wasm_byte_vec_delete(&msg);
-  } else {
-    fprintf(stderr, "❌ ERR: Unknown\n");
-  }
-}
-
 static int signature_parameter_count(const char *signature) {
   int parmc = 0;
   for (char *s = (char*)signature, *bgn_braket = NULL; *s != '\0'; ++s) {
@@ -348,6 +335,9 @@ printf("!!!!!!!!!! works here!\n");
           break;
         case 'r': // externref type (usually a uintptr_t), or GC references
           params.data[j++] = wasm_valtype_new(WASM_EXTERNREF);
+          break;
+        case 'R': // funcref ... not official and only applicable for Wasmtime (not WAMR)
+          params.data[j++] = wasm_valtype_new(WASM_FUNCREF);
           break;
         case '$': // String in WASM memory
         case '*': // Buffer address (pointer) in WASM memory
