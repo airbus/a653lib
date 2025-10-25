@@ -36,19 +36,25 @@
 
 /* function declarations */
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
 extern void initTime(void);
+#endif /* #ifndef __wasm__ */
 
+WASM_IMPORT_MODULE("arinc653")
 extern void TIMED_WAIT (
        /*in */ SYSTEM_TIME_TYPE         DELAY_TIME,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void PERIODIC_WAIT (
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_TIME (
        /*out*/ SYSTEM_TIME_TYPE         *SYSTEM_TIME, /* 64bit - 1 nanosecond LSB */
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void REPLENISH (
        /*in */ SYSTEM_TIME_TYPE         BUDGET_TIME,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);

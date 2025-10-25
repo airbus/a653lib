@@ -33,6 +33,13 @@
 
 /* defines */
 
+/* clang attribute for the WebAssembly target */
+#ifdef __wasm__
+#define WASM_IMPORT_MODULE(name) __attribute__((import_module(name)))
+#else
+#define WASM_IMPORT_MODULE(name)
+#endif
+
 /* PORT queuing definition */
 
 /* PORT sampling definition */

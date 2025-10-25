@@ -6,7 +6,7 @@
 CC = gcc
 AR = ar
 
-CFLAGS   = -Wall -Wno-unused-function -g2 -O0 -fPIC -c -I../a653_inc $(COMMON_SWITCH)
+CFLAGS   = -Wall -Wno-unused-function -g2 -O0 -fPIC -c -I../a653_inc -I$(BUILD_DIR) $(COMMON_SWITCH)
 LDFLAGS  = -g2 #-L /tools/gcc-810-ppc/lib
 
 OBJS = a653_i_semaphore.o a653_i_partition.o a653_i_process.o a653_i_sampling.o a653_i_queuing.o a653_i_time.o a653Init.o a653_i_shm_if.o a653_i_sync.o a653_i_time_lib.o a653_i_error.o
