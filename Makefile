@@ -5,6 +5,7 @@
 #export COMMON_SWITCH   = -D__LITTLE_ENDIAN -m32 -rdynamic	
 export COMMON_SWITCH   = -D__LITTLE_ENDIAN -rdynamic	
 
+HOME ?= $(shell pwd)
 
 #  CC_PATH=/home/tools/gnat/bin/
 CC_PATH=
@@ -38,12 +39,16 @@ export CC
 OBJS = main.o
 OBJS_A = partition_a.o init.o
 OBJS_B = partition_b.o init.o
+OBJS_WASM_BOOTSTRAP = wasm32_loader.o init.o
 
 
 MY_BUILD_DIR  =  $(BUILD_DIR)
 TARGET        =  $(BIN_DIR)/a653_main
 TARGET_A       =  $(BIN_DIR)/partition_a
+TARGET_A_WASM = $(BIN_DIR)/partition_a.wasm
 TARGET_B       =  $(BIN_DIR)/partition_b
+TARGET_B_WASM = $(BIN_DIR)/partition_b.wasm
+TARGET_WASMTIME_CLI   = $(BIN_DIR)/wasm32_rt
 
 
 
@@ -63,6 +68,52 @@ part_b: $(OBJS_B)
 	@echo build dir $(MY_BUILD_DIR)
 	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET_B) $(OBJS_B) ./liba653.a $(LDLIBS)
 
+part_wasmtime: $(OBJS_WASM_BOOTSTRAP) alib_wasm32
+	@echo build dir $(MY_BUILD_DIR)
+	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -fsanitize=address -lwasmtime -o $(TARGET_WASMTIME_CLI) $(OBJS_WASM_BOOTSTRAP) ./liba653_wasm32.a $(LDLIBS)
+
+
+# for host:
+# $ yay -S libwasmtime # wit-bindgen wasm-tools wabt
+
+
+wasm_host: alib mk_build_dir $(MY_BUILD_DIR)/camw32_getset.h alib_wasm32 amain_wasm part_wasmtime
+wasm_guest: $(TARGET_A_WASM) $(TARGET_B_WASM)
+
+amain_wasm: CFLAGS += -D__WASM_RT__
+amain_wasm: $(OBJS)
+	@echo build dir $(MY_BUILD_DIR)
+	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS) ./liba653.a $(LDLIBS)
+
+$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens:
+	test -d $@ || { cd $(TMP_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-old; }
+
+$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens: $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens
+	test -f $@ || { cd $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens && rustup default stable && cargo build; }
+
+$(MY_BUILD_DIR)/camw32_getset.h: $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens
+	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
+	$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(SRC_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
+	sed -i 's|camw|camw32|g' $@
+
+WASI_SYSROOT ?= /usr/share/wasi-sysroot
+
+# for guest:
+# $ yay -S clang lld wasi-libc wasi-compiler-rt
+%.wasm: alib
+	@echo build dir $(MY_BUILD_DIR)
+	# 1. we use the wasm32-wasi to include the stdlib (thus having __start() and main() support).
+	# however, long term for avionics it would make sense to drop and go to wasm32-unknown with likely -Wl,-export=_start or similar
+	# 2. --allow-undefined is required for symbols (such as WIT functions) that are not yet defined.
+	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc --target=wasm32-wasi -Wl,--export-table -Wl,--allow-undefined --sysroot=$(WASI_SYSROOT)  -o $@ $(SRC_DIR)/$(basename $(notdir $@)).c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt # ../../wasm_guest_trampoline.c
+
+# for testing purpose
+wamr:
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR)
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR)
+
+alib_wasm32:
+	make -e -C $(SRC_DIR)/a653_lib_wasm32 a653_lib_wasm32
 
 alib: $(TMP_DIR)/download/a653Blackboard.h $(TMP_DIR)/download/a653Buffer.h $(TMP_DIR)/download/a653Event.h $(TMP_DIR)/download/a653Mutex.h
 	cp -r $(SRC_DIR)/a653_inc $(MY_BUILD_DIR)

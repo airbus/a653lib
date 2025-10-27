@@ -60,7 +60,7 @@ extern int64_t time_slice;
 int number_of_processes = 0;
 int prcs_id_next = PRCS_START_ID;
 
-static prcs_info_t *prcs_info;
+prcs_info_t *prcs_info;
 static int *prcsHash;
 
 static void prcs_main(void);
