@@ -5,36 +5,14 @@
 
 
 #include <endian.h>
+#include "arinc653_wasm32_helper.h"
 #include "arinc653_part1_apex_partition_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Partition.h"
 
-#ifdef __WAMR__
-#define GET_ARG_i32( X ) arg##X
-#define GET_ARG_i64( X ) arg##X
-#else // WASMTIME
-#include "a653_i_common_wasm32.h"
 
-#define GET_ARG_i32( X ) args_and_results[X].i32
-#define GET_ARG_i64( X ) args_and_results[X].i64
-#endif
-
-
-#ifdef __WAMR__
-void WASM32_GET_PARTITION_STATUS(
-  wasm_exec_env_t exec_env,
-  uint32_t arg0, uint32_t arg1)
+WASM_HOST_FUNCTION(GET_PARTITION_STATUS, wasm_baseaddr,
 {
-  wasm_module_inst_t module_inst = wasm_runtime_get_module_inst(exec_env);
-  uint8_t* wasm_baseaddr = wasm_runtime_addr_app_to_native(module_inst, 0);
-#else // WASMTIME
-wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
-{
-  uint8_t* wasm_baseaddr = get_linear_memory(caller);
-#endif
-
   PARTITION_STATUS_TYPE STATUS;
   RETURN_CODE_TYPE RETURN_CODE;
 
@@ -53,28 +31,11 @@ wasm_trap_t* WASM32_GET_PARTITION_STATUS(void* env,
   camw32_set__PARTITION_STATUS_TYPE__OPERATING_MODE(STATUS_guest, STATUS.OPERATING_MODE);
   camw32_set__PARTITION_STATUS_TYPE__START_CONDITION(STATUS_guest, STATUS.START_CONDITION);
   camw32_set__PARTITION_STATUS_TYPE__NUM_ASSIGNED_CORES(STATUS_guest, STATUS.NUM_ASSIGNED_CORES);
-
-#ifndef __WAMR__
-  return NULL;
-#endif
-}
+})
 
 
-#ifdef __WAMR__
-void WASM32_SET_PARTITION_MODE(
-  wasm_exec_env_t exec_env,
-  uint32_t arg0, uint32_t arg1)
+WASM_HOST_FUNCTION(SET_PARTITION_MODE, wasm_baseaddr,
 {
-  wasm_module_inst_t module_inst = wasm_runtime_get_module_inst(exec_env);
-  uint8_t* wasm_baseaddr = wasm_runtime_addr_app_to_native(module_inst, 0);
-#else // WASMTIME
-wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results)
-{
-  uint8_t* wasm_baseaddr = get_linear_memory(caller);
-#endif
-
   OPERATING_MODE_TYPE OPERATING_MODE;
   OPERATING_MODE = (OPERATING_MODE_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
@@ -85,8 +46,4 @@ wasm_trap_t* WASM32_SET_PARTITION_MODE(void* env,
   );
 
   camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
-
-#ifndef __WAMR__
-  return NULL;
-#endif
-}
+})

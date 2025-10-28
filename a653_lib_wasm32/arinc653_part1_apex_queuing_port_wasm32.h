@@ -6,7 +6,7 @@
 #ifndef ARINC653_PART1_APEX_QUEUING_PORT_WASM32
 #define ARINC653_PART1_APEX_QUEUING_PORT_WASM32
 
-#include "a653_i_common_wasm32.h"
+#include "arinc653_wasm32_helper.h"
 
 /* APEX (ARINC 653 Part 1): QUEUING PORT */
 #define WASM32_SIGNATURE__CREATE_QUEUING_PORT               "(iiiiiii)"
@@ -16,23 +16,11 @@
 #define WASM32_SIGNATURE__GET_QUEUING_PORT_STATUS           "(iii)"
 #define WASM32_SIGNATURE__CLEAR_QUEUING_PORT                "(ii)"
 
-wasm_trap_t* WASM32_CREATE_QUEUING_PORT(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_SEND_QUEUING_MESSAGE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_RECEIVE_QUEUING_MESSAGE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_QUEUING_PORT_ID(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_QUEUING_PORT_STATUS(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_CLEAR_QUEUING_PORT(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+WASM_HOST_FUNC_HEADER(CREATE_QUEUING_PORT);
+WASM_HOST_FUNC_HEADER(SEND_QUEUING_MESSAGE);
+WASM_HOST_FUNC_HEADER(RECEIVE_QUEUING_MESSAGE);
+WASM_HOST_FUNC_HEADER(GET_QUEUING_PORT_ID);
+WASM_HOST_FUNC_HEADER(GET_QUEUING_PORT_STATUS);
+WASM_HOST_FUNC_HEADER(CLEAR_QUEUING_PORT);
 
 #endif /* #ifndef ARINC653_PART1_APEX_QUEUING_PORT_WASM32 */
