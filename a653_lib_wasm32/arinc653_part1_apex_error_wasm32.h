@@ -6,7 +6,7 @@
 #ifndef ARINC653_PART1_APEX_ERROR_WASM32
 #define ARINC653_PART1_APEX_ERROR_WASM32
 
-#include "a653_i_common_wasm32.h"
+#include "arinc653_wasm32_helper.h"
 
 /* APEX (ARINC 653 Part 1): ERROR */
 #define WASM32_SIGNATURE__REPORT_APPLICATION_MESSAGE        "(iii)"
@@ -15,20 +15,10 @@
 #define WASM32_SIGNATURE__RAISE_APPLICATION_ERROR           "(iiii)"
 #define WASM32_SIGNATURE__CONFIGURE_ERROR_HANDLER           "(iii)"
 
-wasm_trap_t* WASM32_REPORT_APPLICATION_MESSAGE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_CREATE_ERROR_HANDLER(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_ERROR_STATUS(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_RAISE_APPLICATION_ERROR(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_CONFIGURE_ERROR_HANDLER(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+WASM_HOST_FUNC_HEADER(REPORT_APPLICATION_MESSAGE);
+WASM_HOST_FUNC_HEADER(CREATE_ERROR_HANDLER);
+WASM_HOST_FUNC_HEADER(GET_ERROR_STATUS);
+WASM_HOST_FUNC_HEADER(RAISE_APPLICATION_ERROR);
+WASM_HOST_FUNC_HEADER(CONFIGURE_ERROR_HANDLER);
 
 #endif /* #ifndef ARINC653_PART1_APEX_ERROR_WASM32 */

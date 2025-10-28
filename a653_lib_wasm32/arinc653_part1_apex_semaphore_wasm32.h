@@ -6,7 +6,7 @@
 #ifndef ARINC653_PART1_APEX_SEMAPHORE_WASM32
 #define ARINC653_PART1_APEX_SEMAPHORE_WASM32
 
-#include "a653_i_common_wasm32.h"
+#include "arinc653_wasm32_helper.h"
 
 /* APEX (ARINC 653 Part 1): SEMAPHORE */
 #define WASM32_SIGNATURE__CREATE_SEMAPHORE                  "(iiiiii)"
@@ -15,20 +15,10 @@
 #define WASM32_SIGNATURE__GET_SEMAPHORE_ID                  "(iii)"
 #define WASM32_SIGNATURE__GET_SEMAPHORE_STATUS              "(iii)"
 
-wasm_trap_t* WASM32_CREATE_SEMAPHORE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_WAIT_SEMAPHORE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_SIGNAL_SEMAPHORE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_SEMAPHORE_ID(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_SEMAPHORE_STATUS(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+WASM_HOST_FUNC_HEADER(CREATE_SEMAPHORE);
+WASM_HOST_FUNC_HEADER(WAIT_SEMAPHORE);
+WASM_HOST_FUNC_HEADER(SIGNAL_SEMAPHORE);
+WASM_HOST_FUNC_HEADER(GET_SEMAPHORE_ID);
+WASM_HOST_FUNC_HEADER(GET_SEMAPHORE_STATUS);
 
 #endif /* #ifndef ARINC653_PART1_APEX_SEMAPHORE_WASM32 */

@@ -6,7 +6,7 @@
 #ifndef ARINC653_PART1_APEX_SAMPLING_PORT_WASM32
 #define ARINC653_PART1_APEX_SAMPLING_PORT_WASM32
 
-#include "a653_i_common_wasm32.h"
+#include "arinc653_wasm32_helper.h"
 
 /* APEX (ARINC 653 Part 1): SAMPLING PORT */
 #define WASM32_SIGNATURE__CREATE_SAMPLING_PORT              "(iiiIii)"
@@ -15,20 +15,10 @@
 #define WASM32_SIGNATURE__GET_SAMPLING_PORT_ID              "(iii)"
 #define WASM32_SIGNATURE__GET_SAMPLING_PORT_STATUS          "(iii)"
 
-wasm_trap_t* WASM32_CREATE_SAMPLING_PORT(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_WRITE_SAMPLING_MESSAGE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_READ_SAMPLING_MESSAGE(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_SAMPLING_PORT_ID(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_SAMPLING_PORT_STATUS(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+WASM_HOST_FUNC_HEADER(CREATE_SAMPLING_PORT);
+WASM_HOST_FUNC_HEADER(WRITE_SAMPLING_MESSAGE);
+WASM_HOST_FUNC_HEADER(READ_SAMPLING_MESSAGE);
+WASM_HOST_FUNC_HEADER(GET_SAMPLING_PORT_ID);
+WASM_HOST_FUNC_HEADER(GET_SAMPLING_PORT_STATUS);
 
 #endif /* #ifndef ARINC653_PART1_APEX_SAMPLING_PORT_WASM32 */

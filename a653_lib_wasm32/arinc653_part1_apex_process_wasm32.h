@@ -6,7 +6,7 @@
 #ifndef ARINC653_PART1_APEX_PROCESS_WASM32
 #define ARINC653_PART1_APEX_PROCESS_WASM32
 
-#include "a653_i_common_wasm32.h"
+#include "arinc653_wasm32_helper.h"
 
 /* APEX (ARINC 653 Part 1): PROCESS */
 #define WASM32_SIGNATURE__GET_PROCESS_ID                    "(iii)"
@@ -27,56 +27,22 @@
 #define WASM32_SIGNATURE__GET_MY_PROCESSOR_CORE_ID          "(ii)"
 #define WASM32_SIGNATURE__GET_MY_INDEX                      "(ii)"
 
-wasm_trap_t* WASM32_GET_PROCESS_ID(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_MY_ID(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_PROCESS_STATUS(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_CREATE_PROCESS(void *env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_SET_PRIORITY(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_SUSPEND_SELF(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_SUSPEND(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_RESUME(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_STOP_SELF(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_STOP(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_START(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_DELAYED_START(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_LOCK_PREEMPTION(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_UNLOCK_PREEMPTION(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_INITIALIZE_PROCESS_CORE_AFFINITY(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_MY_PROCESSOR_CORE_ID(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
-wasm_trap_t* WASM32_GET_MY_INDEX(void* env,
-  wasmtime_caller_t *caller,
-  wasmtime_val_raw_t *args_and_results, size_t num_args_and_results);
+WASM_HOST_FUNC_HEADER(GET_PROCESS_ID);
+WASM_HOST_FUNC_HEADER(GET_MY_ID);
+WASM_HOST_FUNC_HEADER(GET_PROCESS_STATUS);
+WASM_HOST_FUNC_HEADER(CREATE_PROCESS);
+WASM_HOST_FUNC_HEADER(SET_PRIORITY);
+WASM_HOST_FUNC_HEADER(SUSPEND_SELF);
+WASM_HOST_FUNC_HEADER(SUSPEND);
+WASM_HOST_FUNC_HEADER(RESUME);
+WASM_HOST_FUNC_HEADER(STOP_SELF);
+WASM_HOST_FUNC_HEADER(STOP);
+WASM_HOST_FUNC_HEADER(START);
+WASM_HOST_FUNC_HEADER(DELAYED_START);
+WASM_HOST_FUNC_HEADER(LOCK_PREEMPTION);
+WASM_HOST_FUNC_HEADER(UNLOCK_PREEMPTION);
+WASM_HOST_FUNC_HEADER(INITIALIZE_PROCESS_CORE_AFFINITY);
+WASM_HOST_FUNC_HEADER(GET_MY_PROCESSOR_CORE_ID);
+WASM_HOST_FUNC_HEADER(GET_MY_INDEX);
 
 #endif /* #ifndef ARINC653_PART1_APEX_PROCESS_WASM32 */
