@@ -30,6 +30,8 @@
 #ifndef __A653INIT_H__
 #define __A653INIT_H__
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
+
 #include "a653Type.h"
 
 //#define S_TRACE 1
@@ -113,5 +115,7 @@ void a653_i_wait_next(void);
 void a653_i_update_partitions(void);
 void setDebug(int level);
 void printDebug(int level,const char *format, ... );
+
+#endif /* #ifndef __wasm__ */
 
 #endif /* __A653INIT_H__ */

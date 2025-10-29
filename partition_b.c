@@ -76,7 +76,9 @@ void PeriodicProcess(void){
     
     if (validity == VALID && length > 0){
       
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
       printDebug(3,"Prcs B: SP we got this : >%s< validity >%d< length >%d<\n",(char *)data_sp_rx,validity,length);
+#endif /* #ifndef __wasm__ */
       
       WRITE_SAMPLING_MESSAGE(sp_id_tx,          /* sampling port id */
 			     data_sp_tx,        /* pointer to data */
@@ -92,7 +94,9 @@ void PeriodicProcess(void){
     			    &return_code);    /* return code */
     if(return_code == NO_ERROR && length !=0){
       
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
       printDebug(3,"Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);   
+#endif /* #ifndef __wasm__ */
 
       SEND_QUEUING_MESSAGE(qp_id_tx,
 			   data_qp_tx,
@@ -112,7 +116,9 @@ void PeriodicProcess_2(void){
   RETURN_CODE_TYPE return_code;
 
   while (1){
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
     printDebug(3,"Prcs C: activated\n");
+#endif /* #ifndef __wasm__ */
     SIGNAL_SEMAPHORE(semaphore_id,
     		     &return_code);
     PERIODIC_WAIT(&return_code);
@@ -126,7 +132,9 @@ void APeriodicProcess(void){
     WAIT_SEMAPHORE(semaphore_id,
     		   0,
     		   &return_code);   
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
     printDebug(3,"Prcs D: activated\n");  
+#endif /* #ifndef __wasm__ */
     TIMED_WAIT(1000000,&return_code);
   }
 }
@@ -200,9 +208,11 @@ int main (int argc, char *argv[]){
 		       &semaphore_status,
 		       &return_code);
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
   printDebug(3,"semaphore: %d : %d\n",
 	     semaphore_status.CURRENT_VALUE,
 	     semaphore_status.MAXIMUM_VALUE); 
+#endif /* #ifndef __wasm__ */
 
   usleep(50000);
 
