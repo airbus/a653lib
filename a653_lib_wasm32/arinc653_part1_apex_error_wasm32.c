@@ -7,17 +7,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arinc653_wasm32_helper.h"
+#include "a653_i_common_wasm32.h"
 #include "arinc653_part1_apex_error_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Error.h"
 
 
-WASM_HOST_FUNCTION(REPORT_APPLICATION_MESSAGE, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(REPORT_APPLICATION_MESSAGE, wasm_baseaddr,
 {
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)le32toh(args_and_results[0].i32);
+  MESSAGE_ADDR = (int32_t)le32toh(GET_ARG_i32(0));
   MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(args_and_results[1].i32);
+  LENGTH = (MESSAGE_SIZE_TYPE)le32toh(GET_ARG_i32(1));
   RETURN_CODE_TYPE RETURN_CODE;
 
   REPORT_APPLICATION_MESSAGE(
@@ -26,7 +27,7 @@ WASM_HOST_FUNCTION(REPORT_APPLICATION_MESSAGE, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
 
 
@@ -60,12 +61,12 @@ void *error_handler_trampoline(void) {
  *
  *    However, WAMR does not support WASM_FUNCREF.
  */
-WASM_HOST_FUNCTION(CREATE_ERROR_HANDLER, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(CREATE_ERROR_HANDLER, wasm_baseaddr,
 {
-  wasm_processes.ENTRY_POINT_ERROR_HANDLER = le32toh(args_and_results[0].i32);
+  wasm_processes.ENTRY_POINT_ERROR_HANDLER = le32toh(GET_ARG_i32(0));
 
   STACK_SIZE_TYPE STACK_SIZE;
-  STACK_SIZE = (STACK_SIZE_TYPE)le32toh(args_and_results[1].i32);
+  STACK_SIZE = (STACK_SIZE_TYPE)le32toh(GET_ARG_i32(1));
   RETURN_CODE_TYPE RETURN_CODE;
 
   CREATE_ERROR_HANDLER(
@@ -74,11 +75,11 @@ WASM_HOST_FUNCTION(CREATE_ERROR_HANDLER, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(GET_ERROR_STATUS, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(GET_ERROR_STATUS, wasm_baseaddr,
 {
   ERROR_STATUS_TYPE ERROR_STATUS;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -87,8 +88,8 @@ WASM_HOST_FUNCTION(GET_ERROR_STATUS, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[le32toh(args_and_results[0].i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  uint8_t* ERROR_STATUS__guest = &wasm_baseaddr[le32toh(GET_ARG_i32(0))];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 
   camw32_set__ERROR_STATUS_TYPE__ERROR_CODE(ERROR_STATUS__guest, (ERROR_MESSAGE_SIZE_TYPE)ERROR_STATUS.ERROR_CODE);
   camw32_write__ERROR_STATUS_TYPE__MESSAGE(ERROR_STATUS__guest, ERROR_STATUS.MESSAGE);
@@ -100,14 +101,14 @@ WASM_HOST_FUNCTION(GET_ERROR_STATUS, wasm_baseaddr,
 })
 
 
-WASM_HOST_FUNCTION(RAISE_APPLICATION_ERROR, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iiii(RAISE_APPLICATION_ERROR, wasm_baseaddr,
 {
   ERROR_CODE_TYPE ERROR_CODE;
-  ERROR_CODE = (ERROR_CODE_TYPE)le32toh(args_and_results[0].i32);
+  ERROR_CODE = (ERROR_CODE_TYPE)le32toh(GET_ARG_i32(0));
   int32_t MESSAGE_ADDR; /* is a pointer / address into Wasm linear memory */
-  MESSAGE_ADDR = (int32_t)le32toh(args_and_results[1].i32);
+  MESSAGE_ADDR = (int32_t)le32toh(GET_ARG_i32(1));
   ERROR_MESSAGE_SIZE_TYPE LENGTH;
-  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)le32toh(args_and_results[2].i32);
+  LENGTH = (ERROR_MESSAGE_SIZE_TYPE)le32toh(GET_ARG_i32(2));
   RETURN_CODE_TYPE RETURN_CODE;
 
   RAISE_APPLICATION_ERROR(
@@ -117,16 +118,16 @@ WASM_HOST_FUNCTION(RAISE_APPLICATION_ERROR, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[3].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(3))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(CONFIGURE_ERROR_HANDLER, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(CONFIGURE_ERROR_HANDLER, wasm_baseaddr,
 {
   ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE CONCURRENCY_CONTROL;
-  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)le32toh(args_and_results[0].i32);
+  CONCURRENCY_CONTROL = (ERROR_HANDLER_CONCURRENCY_CONTROL_TYPE)le32toh(GET_ARG_i32(0));
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
-  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args_and_results[1].i32);
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(GET_ARG_i32(1));
   RETURN_CODE_TYPE RETURN_CODE;
 
   CONFIGURE_ERROR_HANDLER(
@@ -135,5 +136,5 @@ WASM_HOST_FUNCTION(CONFIGURE_ERROR_HANDLER, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
