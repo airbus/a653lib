@@ -38,6 +38,7 @@
 #define A653_QUEUING_INTERN
 
 #include "a653Init.h"
+#include "a653Time.h"
 #include "a653Type.h"
 #include "a653Error.h"
 #include "a653Process.h"

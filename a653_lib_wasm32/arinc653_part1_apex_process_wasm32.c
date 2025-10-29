@@ -6,27 +6,27 @@
 #include <endian.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "arinc653_wasm32_helper.h"
+#include "a653_i_common_wasm32.h"
 #include "arinc653_part1_apex_process_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_lib/a653_i_process.h"
 #include "../a653_inc/a653Process.h"
 
 
-WASM_HOST_FUNCTION(GET_PROCESS_ID, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(GET_PROCESS_ID, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
   RETURN_CODE_TYPE RETURN_CODE;
 
   GET_PROCESS_ID(
-    (char*)&wasm_baseaddr[le32toh(args_and_results[0].i32)],  // FIXME: only safe as long as char[]
+    (char*)&wasm_baseaddr[le32toh(GET_ARG_i32(0))],  // FIXME: only safe as long as char[]
     &PROCESS_ID,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
 
 
@@ -53,10 +53,10 @@ void *wasm_trampoline(void) {
 }
 
 
-WASM_HOST_FUNCTION(GET_PROCESS_STATUS, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(GET_PROCESS_STATUS, wasm_baseaddr,
 {
   PROCESS_ID_TYPE pid;
-  pid = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  pid = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   PROCESS_STATUS_TYPE PROCESS_STATUS;
@@ -66,8 +66,8 @@ WASM_HOST_FUNCTION(GET_PROCESS_STATUS, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  uint8_t* PROCESS_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(args_and_results[1].i32)];
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  uint8_t* PROCESS_STATUS_guest = (uint8_t*)&wasm_baseaddr[le32toh(GET_ARG_i32(1))];
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 
   camw32_set__PROCESS_STATUS_TYPE__DEADLINE_TIME(PROCESS_STATUS_guest, PROCESS_STATUS.DEADLINE_TIME);
   camw32_set__PROCESS_STATUS_TYPE__CURRENT_PRIORITY(PROCESS_STATUS_guest, PROCESS_STATUS.CURRENT_PRIORITY);
@@ -85,9 +85,9 @@ WASM_HOST_FUNCTION(GET_PROCESS_STATUS, wasm_baseaddr,
 })
 
 
-WASM_HOST_FUNCTION(CREATE_PROCESS, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(CREATE_PROCESS, wasm_baseaddr,
 {
-  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[le32toh(args_and_results[0].i32)];
+  uint8_t* ATTRIBUTES__guest = (uint8_t*)&wasm_baseaddr[le32toh(GET_ARG_i32(0))];
 
   PROCESS_ATTRIBUTE_TYPE ATTRIBUTES;
   ATTRIBUTES.PERIOD = camw32_get__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES__guest);
@@ -109,20 +109,20 @@ WASM_HOST_FUNCTION(CREATE_PROCESS, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 
   // we get the pid late, and the real start of the thread will be in CREATE_PROCESS
   wasm_processes.ENTRY_POINT[PROCESS_ID] = ENTRY_POINT_idx;
 })
 
 
-WASM_HOST_FUNCTION(SET_PRIORITY, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(SET_PRIORITY, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   PRIORITY_TYPE PRIORITY;
-  PRIORITY = (PRIORITY_TYPE)le32toh(args_and_results[1].i32);
+  PRIORITY = (PRIORITY_TYPE)le32toh(GET_ARG_i32(1));
   RETURN_CODE_TYPE RETURN_CODE;
 
   SET_PRIORITY(
@@ -131,14 +131,14 @@ WASM_HOST_FUNCTION(SET_PRIORITY, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(SUSPEND_SELF, wasm_baseaddr,
+WASM32_HOST_FUNCTION__Ii(SUSPEND_SELF, wasm_baseaddr,
 {
   SYSTEM_TIME_TYPE TIME_OUT;
-  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(args_and_results[0].i64);
+  TIME_OUT = (SYSTEM_TIME_TYPE)le64toh(GET_ARG_i64(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   SUSPEND_SELF(
@@ -146,14 +146,14 @@ WASM_HOST_FUNCTION(SUSPEND_SELF, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(SUSPEND, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(SUSPEND, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   SUSPEND(
@@ -161,14 +161,14 @@ WASM_HOST_FUNCTION(SUSPEND, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(RESUME, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(RESUME, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   RESUME(
@@ -176,11 +176,11 @@ WASM_HOST_FUNCTION(RESUME, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(STOP_SELF, wasm_baseaddr,
+WASM32_HOST_FUNCTION(STOP_SELF, wasm_baseaddr,
 {
   (void)wasm_baseaddr;
 
@@ -189,10 +189,10 @@ WASM_HOST_FUNCTION(STOP_SELF, wasm_baseaddr,
 })
 
 
-WASM_HOST_FUNCTION(STOP, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(STOP, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   STOP(
@@ -200,14 +200,14 @@ WASM_HOST_FUNCTION(STOP, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(START, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(START, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   RETURN_CODE_TYPE RETURN_CODE;
 
   START(
@@ -215,16 +215,16 @@ WASM_HOST_FUNCTION(START, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(DELAYED_START, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iIi(DELAYED_START, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   SYSTEM_TIME_TYPE DELAY_TIME;
-  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(args_and_results[1].i64);
+  DELAY_TIME = (SYSTEM_TIME_TYPE)le64toh(GET_ARG_i64(1));
   RETURN_CODE_TYPE RETURN_CODE;
 
   DELAYED_START(
@@ -233,11 +233,11 @@ WASM_HOST_FUNCTION(DELAYED_START, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(LOCK_PREEMPTION, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(LOCK_PREEMPTION, wasm_baseaddr,
 {
   LOCK_LEVEL_TYPE LOCK_LEVEL;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -247,12 +247,12 @@ WASM_HOST_FUNCTION(LOCK_PREEMPTION, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)LOCK_LEVEL);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(0))], (int32_t)LOCK_LEVEL);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(UNLOCK_PREEMPTION, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(UNLOCK_PREEMPTION, wasm_baseaddr,
 {
   LOCK_LEVEL_TYPE LOCK_LEVEL;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -262,12 +262,12 @@ WASM_HOST_FUNCTION(UNLOCK_PREEMPTION, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)LOCK_LEVEL);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__LOCK_LEVEL_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(0))], (int32_t)LOCK_LEVEL);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(GET_MY_ID, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(GET_MY_ID, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -277,17 +277,17 @@ WASM_HOST_FUNCTION(GET_MY_ID, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)PROCESS_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_ID_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(0))], (int32_t)PROCESS_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(INITIALIZE_PROCESS_CORE_AFFINITY, wasm_baseaddr,
+WASM32_HOST_FUNCTION__iii(INITIALIZE_PROCESS_CORE_AFFINITY, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
-  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(args_and_results[0].i32);
+  PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
-  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(args_and_results[1].i32);
+  PROCESSOR_CORE_ID = (PROCESSOR_CORE_ID_TYPE)le32toh(GET_ARG_i32(1));
   RETURN_CODE_TYPE RETURN_CODE;
 
   INITIALIZE_PROCESS_CORE_AFFINITY(
@@ -296,11 +296,11 @@ WASM_HOST_FUNCTION(INITIALIZE_PROCESS_CORE_AFFINITY, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[2].i32)], (int32_t)RETURN_CODE);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(GET_MY_PROCESSOR_CORE_ID, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(GET_MY_PROCESSOR_CORE_ID, wasm_baseaddr,
 {
   PROCESSOR_CORE_ID_TYPE PROCESSOR_CORE_ID;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -310,12 +310,12 @@ WASM_HOST_FUNCTION(GET_MY_PROCESSOR_CORE_ID, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESSOR_CORE_ID_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)PROCESSOR_CORE_ID);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESSOR_CORE_ID_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(0))], (int32_t)PROCESSOR_CORE_ID);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
 
 
-WASM_HOST_FUNCTION(GET_MY_INDEX, wasm_baseaddr,
+WASM32_HOST_FUNCTION__ii(GET_MY_INDEX, wasm_baseaddr,
 {
   PROCESS_INDEX_TYPE PROCESS_INDEX;
   RETURN_CODE_TYPE RETURN_CODE;
@@ -325,6 +325,6 @@ WASM_HOST_FUNCTION(GET_MY_INDEX, wasm_baseaddr,
     &RETURN_CODE
   );
 
-  camw32_set__PROCESS_INDEX_TYPE(&wasm_baseaddr[le32toh(args_and_results[0].i32)], (int32_t)PROCESS_INDEX);
-  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(args_and_results[1].i32)], (int32_t)RETURN_CODE);
+  camw32_set__PROCESS_INDEX_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(0))], (int32_t)PROCESS_INDEX);
+  camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(1))], (int32_t)RETURN_CODE);
 })
