@@ -1,9 +1,9 @@
-{ lib, stdenv, fetchurl, fetchFromGitHub, bintools }:
+{ lib, stdenv, fetchzip, bintools, gawk }:
 
 let
-  arinc653Zip = fetchurl {
+  arinc653Zip = fetchzip {
     url = "https://brx-content.fullsight.org/site/binaries/content/assets/itc/content/support-files/arinc653.h.zip";
-    sha256 = "1xml8ki31pidxp5gzyqb4bp819809zpx4kkg2k5x1nhar50gxjp2";
+    sha256 = "sha256-BGR3haRc+5I9VuyI+P8E/qTNnqVhnJKjP7j7RRCMFwg=";
     curlOptsList = [ "--user-agent" "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0" ];
   };
 in
@@ -18,9 +18,14 @@ stdenv.mkDerivation {
   preConfigure = ''
     mkdir home
     export HOME="$PWD/home"
+
+    # make the Makefile happy
+    mkdir --parent -- $HOME/tmp/download
+    touch $HOME/tmp/download/arinc653.h.zip
+    cp ${arinc653Zip}/ARINC653.h $HOME/tmp/download/.
   '';
 
-  buildInputs = [ bintools ];
+  buildInputs = [ bintools gawk ];
 
   makeFlags = [
     "CC=${stdenv.cc.targetPrefix}gcc"
@@ -31,8 +36,6 @@ stdenv.mkDerivation {
   installPhase = ''
     mkdir --parent -- $out/bin
     mv $HOME/bin/* $out/bin
-
-    cp ${arinc653Zip}/ARINC653.h $(HOME)/tmp/download/ARINC653.h
   '';
   dontStrip = true;
 
