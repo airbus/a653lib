@@ -88,3 +88,7 @@ pid: 578773 <1702486050.349254883>: > taskset --cpu-list 1 ./partition_b & :
 ## Tests debugging
 
 ## Build with Make
+
+## Links
+
+[Required Services](https://www.aviation-ia.com/support-files/arinc653h)

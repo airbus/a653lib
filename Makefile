@@ -47,7 +47,7 @@ TARGET_B       =  $(BIN_DIR)/partition_b
 
 
 
-all: clean mk_build_dir alib amain part_a part_b
+all: mk_build_dir alib amain part_a part_b
 	@echo done!
 
 
@@ -64,12 +64,33 @@ part_b: $(OBJS_B)
 	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET_B) $(OBJS_B) ./liba653.a $(LDLIBS)
 
 
-alib:
-	make -e -C $(SRC_DIR)/a653_lib
+alib: $(TMP_DIR)/download/a653Blackboard.h $(TMP_DIR)/download/a653Buffer.h $(TMP_DIR)/download/a653Event.h $(TMP_DIR)/download/a653Mutex.h
 	cp -r $(SRC_DIR)/a653_inc $(MY_BUILD_DIR)
+	cp $^ $(MY_BUILD_DIR)/a653_inc
 #	cp -r $(SRC_DIR)/a653_ada $(MY_BUILD_DIR)
+	# relies on the above headers
+	make -e -C $(SRC_DIR)/a653_lib
 
 
+# rule to download the ARINC headerfiles
+$(TMP_DIR)/download/arinc653.h.zip:
+	@mkdir -p -- $(@D)
+	test -f $@ || curl --user-agent 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0' \
+		--location --output-dir $(TMP_DIR)/download --remote-name-all \
+		https://brx-content.fullsight.org/site/binaries/content/assets/itc/content/support-files/arinc653.h.zip
+
+# rule to extract the ARINC headerfiles
+$(TMP_DIR)/download/ARINC653.h: $(TMP_DIR)/download/arinc653.h.zip
+	@mkdir -p -- $(@D)
+	test -f $@ || echo $^ | xargs --max-args=1 bsdtar -x --cd $(TMP_DIR)/download --modification-time --file
+
+# rule to generate our Wasm header file, by making every open type a 32 Bit integer
+$(TMP_DIR)/download/ARINC653_patched.h: $(TMP_DIR)/download/ARINC653.h
+	@mkdir -p -- $(@D)
+	awk -f $(SRC_DIR)/scripts/process-arinc-header.awk $< > $@
+
+$(TMP_DIR)/download/a653Blackboard.h $(TMP_DIR)/download/a653Buffer.h $(TMP_DIR)/download/a653Event.h $(TMP_DIR)/download/a653Mutex.h &: $(TMP_DIR)/download/ARINC653_patched.h
+	cd $(TMP_DIR)/download; awk -f $(SRC_DIR)/scripts/split-arinc-header.awk $<
 
 
 gcc_version: 
