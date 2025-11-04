@@ -95,7 +95,7 @@ void PeriodicProcess(void){
     if(return_code == NO_ERROR && length !=0){
       
 #ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
-      printDebug(3,"Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);   
+      printDebug(3,"Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);
 #endif /* #ifndef __wasm__ */
 
       SEND_QUEUING_MESSAGE(qp_id_tx,
@@ -133,7 +133,7 @@ void APeriodicProcess(void){
     		   0,
     		   &return_code);   
 #ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
-    printDebug(3,"Prcs D: activated\n");  
+    printDebug(3,"Prcs D: activated\n");
 #endif /* #ifndef __wasm__ */
     TIMED_WAIT(1000000,&return_code);
   }

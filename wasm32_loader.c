@@ -10,14 +10,8 @@
 //#include <wasmtime/val.h>
 
 #include "a653_lib_wasm32/a653_i_common_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_error_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_process_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_queuing_port_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_sampling_port_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part2_apex_sampling_port_extension_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_semaphore_wasm32.h"
-#include "a653_lib_wasm32/arinc653_part1_apex_time_wasm32.h"
+#include "a653_lib_wasm32/apex_host_fncs_wasm32.h"
+
 
 /*
  * 0. https://clang.llvm.org/docs/AttributeReference.html#import-module
@@ -69,77 +63,7 @@
 
 extern wasm_processes_t wasm_processes;
 
-#define WASM_HOSTFUNC_SIGNATURE( FNC ) { #FNC, WASM32_##FNC, WASM32_SIGNATURE__##FNC, NULL }
-struct {
-  const char* symbol;
-  wasmtime_func_unchecked_callback_t func_ptr;
-  const char* signature;
-  void *attachment;
-} wasm_hostfuncs[] = {
-/* APEX (ARINC 653 Part 1): BUFFER */
-  /* missing */
-/* APEX (ARINC 653 Part 1): BLACKBOARD */
-  /* missing */
-/* APEX (ARINC 653 Part 1): ERROR */
-  WASM_HOSTFUNC_SIGNATURE( REPORT_APPLICATION_MESSAGE ),
-  WASM_HOSTFUNC_SIGNATURE( CREATE_ERROR_HANDLER ),
-  WASM_HOSTFUNC_SIGNATURE( GET_ERROR_STATUS ),
-  WASM_HOSTFUNC_SIGNATURE( RAISE_APPLICATION_ERROR ),
-  WASM_HOSTFUNC_SIGNATURE( CONFIGURE_ERROR_HANDLER ),
-/* APEX (ARINC 653 Part 1): EVENT */
-  /* missing */
-/* APEX (ARINC 653 Part 1): MUTEX */
-  /* missing */
-/* APEX (ARINC 653 Part 1): PARTITION */
-  WASM_HOSTFUNC_SIGNATURE( GET_PARTITION_STATUS ),
-  WASM_HOSTFUNC_SIGNATURE( SET_PARTITION_MODE ),
-/* APEX (ARINC 653 Part 1): PROCESS */
-  WASM_HOSTFUNC_SIGNATURE( CREATE_PROCESS ),
-  WASM_HOSTFUNC_SIGNATURE( SET_PRIORITY ),
-  WASM_HOSTFUNC_SIGNATURE( SUSPEND_SELF ),
-  WASM_HOSTFUNC_SIGNATURE( SUSPEND ),
-  WASM_HOSTFUNC_SIGNATURE( RESUME ),
-  WASM_HOSTFUNC_SIGNATURE( STOP_SELF ),
-  WASM_HOSTFUNC_SIGNATURE( STOP ),
-  WASM_HOSTFUNC_SIGNATURE( START ),
-  WASM_HOSTFUNC_SIGNATURE( DELAYED_START ),
-  WASM_HOSTFUNC_SIGNATURE( LOCK_PREEMPTION ),
-  WASM_HOSTFUNC_SIGNATURE( UNLOCK_PREEMPTION ),
-  WASM_HOSTFUNC_SIGNATURE( GET_MY_ID ),
-  WASM_HOSTFUNC_SIGNATURE( GET_PROCESS_ID ),
-  WASM_HOSTFUNC_SIGNATURE( GET_PROCESS_STATUS ),
-  WASM_HOSTFUNC_SIGNATURE( INITIALIZE_PROCESS_CORE_AFFINITY ),
-  WASM_HOSTFUNC_SIGNATURE( GET_MY_PROCESSOR_CORE_ID ),
-  WASM_HOSTFUNC_SIGNATURE( GET_MY_INDEX ),
-/* APEX (ARINC 653 Part 1): QUEUING PORT */
-  WASM_HOSTFUNC_SIGNATURE( CREATE_QUEUING_PORT ),
-  WASM_HOSTFUNC_SIGNATURE( SEND_QUEUING_MESSAGE ),
-  WASM_HOSTFUNC_SIGNATURE( RECEIVE_QUEUING_MESSAGE ),
-  WASM_HOSTFUNC_SIGNATURE( GET_QUEUING_PORT_ID ),
-  WASM_HOSTFUNC_SIGNATURE( GET_QUEUING_PORT_STATUS ),
-  WASM_HOSTFUNC_SIGNATURE( CLEAR_QUEUING_PORT ),
-/* APEX (ARINC 653 Part 1): SAMPLING PORT */
-  WASM_HOSTFUNC_SIGNATURE( CREATE_SAMPLING_PORT ),
-  WASM_HOSTFUNC_SIGNATURE( WRITE_SAMPLING_MESSAGE ),
-  WASM_HOSTFUNC_SIGNATURE( READ_SAMPLING_MESSAGE ),
-  WASM_HOSTFUNC_SIGNATURE( GET_SAMPLING_PORT_ID ),
-  WASM_HOSTFUNC_SIGNATURE( GET_SAMPLING_PORT_STATUS ),
-/* APEX (ARINC 653 Part 2: SAMPLING PORT EXTENSIONS */
-  WASM_HOSTFUNC_SIGNATURE( READ_UPDATED_SAMPLING_MESSAGE ),
-  WASM_HOSTFUNC_SIGNATURE( GET_SAMPLING_PORT_CURRENT_STATUS ),
-  WASM_HOSTFUNC_SIGNATURE( READ_SAMPLING_MESSAGE_CONDITIONAL ),
-/* APEX (ARINC 653 Part 1): SEMAPHORE */
-  WASM_HOSTFUNC_SIGNATURE( CREATE_SEMAPHORE ),
-  WASM_HOSTFUNC_SIGNATURE( WAIT_SEMAPHORE ),
-  WASM_HOSTFUNC_SIGNATURE( SIGNAL_SEMAPHORE ),
-  WASM_HOSTFUNC_SIGNATURE( GET_SEMAPHORE_ID ),
-  WASM_HOSTFUNC_SIGNATURE( GET_SEMAPHORE_STATUS ),
-/* APEX (ARINC 653 Part 1): TIME */
-  WASM_HOSTFUNC_SIGNATURE( TIMED_WAIT ),
-  WASM_HOSTFUNC_SIGNATURE( PERIODIC_WAIT ),
-  WASM_HOSTFUNC_SIGNATURE( GET_TIME ),
-  WASM_HOSTFUNC_SIGNATURE( REPLENISH )
-};
+
 
 // Helper to load a binary file (e.g., guest.wasm)
 int load_wasm_file(wasm_byte_vec_t* wasm, const char* filename)
@@ -303,8 +227,11 @@ printf("!!!!!!!!!! works here!\n");
   wasmtime_extern_t item;
   item.kind = WASMTIME_EXTERN_FUNC;
 
-  for(unsigned i = 0; i < sizeof(wasm_hostfuncs)/sizeof(wasm_hostfuncs[0]); ++i) {
-    typeof(wasm_hostfuncs[0])* wasm_hostfunc = &wasm_hostfuncs[i];
+  NativeSymbol *native_symbols;
+  unsigned native_symbolc = getNativeSymbols(&native_symbols);
+
+  for(unsigned i = 0; i < native_symbolc; ++i) {
+    typeof(native_symbols[0])* wasm_hostfunc = &native_symbols[i];
 
     const char *signature = wasm_hostfunc->signature;
     int parms_c = signature_parameter_count(signature);

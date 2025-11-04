@@ -105,5 +105,6 @@ typedef A653_BYTE *         MEMORY_BLOCK_ADDR_TYPE;
 typedef A653_INTEGER        MEMORY_BLOCK_SIZE_TYPE;
 typedef NAME_TYPE           MEMORY_BLOCK_NAME_TYPE;
 
+typedef A653_INTEGER     PRIORITY_TYPE;      /* priority type      */
 
 #endif /* __A653_TYPES_H */

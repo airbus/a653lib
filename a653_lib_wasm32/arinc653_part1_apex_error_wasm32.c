@@ -3,6 +3,7 @@
 // SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
 // ARINC 653 Part 1: APEX Interface: ERROR
 
+#include <endian.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>

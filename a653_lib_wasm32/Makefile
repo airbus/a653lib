@@ -6,6 +6,7 @@ include ../a653_lib/Makefile
 
 OBJS_REL = $(patsubst %, $(MY_BUILD_DIR)/%, $(OBJS))
 OBJS_WASM32 = $(OBJS_REL) a653_i_common_wasm32.o \
+	apex_host_fncs_wasm32.o \
 	arinc653_part1_apex_time_wasm32.o \
 	arinc653_part1_apex_process_wasm32.o \
 	arinc653_part1_apex_partition_wasm32.o \
@@ -13,7 +14,11 @@ OBJS_WASM32 = $(OBJS_REL) a653_i_common_wasm32.o \
 	arinc653_part2_apex_sampling_port_extension_wasm32.o \
 	arinc653_part1_apex_queuing_port_wasm32.o \
 	arinc653_part1_apex_semaphore_wasm32.o \
-	arinc653_part1_apex_error_wasm32.o
+	arinc653_part1_apex_error_wasm32.o \
+	arinc653_part1_apex_buffer_wasm32.o \
+	arinc653_part1_apex_event_wasm32.o \
+	arinc653_part1_apex_blackboard_wasm32.o \
+	arinc653_part1_apex_mutex_wasm32.o
 
 TARGET_WASM32 =  $(BUILD_DIR)/liba653_wasm32.a
 

@@ -276,12 +276,8 @@ void WASM32_##NAME( \
   \
 }
 
-
-
-
-
-
 #else // WASMTIME
+
 #define WASM_HOST_FUNC_HEADER(NAME) \
 wasm_trap_t* WASM32_##NAME(void* env, \
   wasmtime_caller_t *caller, \

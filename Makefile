@@ -77,7 +77,7 @@ part_wasmtime: $(OBJS_WASM_BOOTSTRAP) alib_wasm32
 # $ yay -S libwasmtime # wit-bindgen wasm-tools wabt
 
 
-wasm_host: alib mk_build_dir $(MY_BUILD_DIR)/camw32_getset.h alib_wasm32 amain_wasm part_wasmtime
+wasm_host: mk_build_dir alib $(MY_BUILD_DIR)/camw32_getset.h alib_wasm32 amain_wasm part_wasmtime
 wasm_guest: $(TARGET_A_WASM) $(TARGET_B_WASM)
 
 amain_wasm: CFLAGS += -D__WASM_RT__
@@ -93,7 +93,7 @@ $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens: $(TMP_DIR)/ari
 
 $(MY_BUILD_DIR)/camw32_getset.h: $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens
 	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
-	$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(SRC_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
+	$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(BUILD_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
 	sed -i 's|camw|camw32|g' $@
 
 WASI_SYSROOT ?= /usr/share/wasi-sysroot
@@ -109,14 +109,18 @@ WASI_SYSROOT ?= /usr/share/wasi-sysroot
 
 # for testing purpose
 wamr: mk_build_dir $(MY_BUILD_DIR)/camw32_getset.h
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_error_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_error_wasm32.o -I$(BUILD_DIR)
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR)
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_error_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_error_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
 	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_process_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_process_wasm32.o -I$(BUILD_DIR) -I$(MY_BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_queuing_port_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_queuing_port_wasm32.o -I$(BUILD_DIR)
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_sampling_port_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_sampling_port_wasm32.o -I$(BUILD_DIR)
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_semaphore_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_semaphore_wasm32.o -I$(BUILD_DIR)
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR)
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part2_apex_sampling_port_extension_wasm32.c -o $(TMP_DIR)/arinc653_part2_apex_sampling_port_extension_wasm32.o -I$(BUILD_DIR)
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_queuing_port_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_queuing_port_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_sampling_port_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_sampling_port_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_semaphore_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_semaphore_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_buffer_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_buffer_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_event_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_event_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_mutex_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_mutex_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_blackboard_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_blackboard_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
+	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part2_apex_sampling_port_extension_wasm32.c -o $(TMP_DIR)/arinc653_part2_apex_sampling_port_extension_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
 
 alib_wasm32:
 	make -e -C $(SRC_DIR)/a653_lib_wasm32 a653_lib_wasm32

@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: LGPL-2.1-or-later
+// SPDX-FileCopyrightText: Copyright 2025 Airbus Defence and Space
+// SPDX-FileContributor: Patrick Siegl <patrick.siegl@airbus.com>
+// ARINC 653 Part 1: APEX Interface: BLACKBOARD
+
+#ifndef ARINC653_PART1_APEX_BLACKBOARD_WASM32
+#define ARINC653_PART1_APEX_BLACKBOARD_WASM32
+
+#include "arinc653_wasm32_helper.h"
+
+/* APEX (ARINC 653 Part 1): BLACKBOARD */
+#define WASM32_SIGNATURE__CREATE_BLACKBOARD                 "(iiii)"
+#define WASM32_SIGNATURE__DISPLAY_BLACKBOARD                "(iiii)"
+#define WASM32_SIGNATURE__READ_BLACKBOARD                   "(iIiii)"
+#define WASM32_SIGNATURE__CLEAR_BLACKBOARD                  "(ii)"
+#define WASM32_SIGNATURE__GET_BLACKBOARD_ID                 "(iii)"
+#define WASM32_SIGNATURE__GET_BLACKBOARD_STATUS             "(iii)"
+
+WASM32_HOST_FUNC_HEADER__iiii(CREATE_BLACKBOARD);
+WASM32_HOST_FUNC_HEADER__iiii(DISPLAY_BLACKBOARD);
+WASM32_HOST_FUNC_HEADER__iIiii(READ_BLACKBOARD);
+WASM32_HOST_FUNC_HEADER__ii(CLEAR_BLACKBOARD);
+WASM32_HOST_FUNC_HEADER__iii(GET_BLACKBOARD_ID);
+WASM32_HOST_FUNC_HEADER__iii(GET_BLACKBOARD_STATUS);
+
+#endif /* #ifndef ARINC653_PART1_APEX_BLACKBOARD_WASM32 */

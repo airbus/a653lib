@@ -37,7 +37,6 @@
 
 typedef NAME_TYPE        PROCESS_NAME_TYPE;  /* process name type  */
 typedef A653_INTEGER     PROCESS_INDEX_TYPE;
-typedef A653_INTEGER     PRIORITY_TYPE;      /* priority type      */
 
 /* process state type */
 typedef
