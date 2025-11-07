@@ -7,12 +7,13 @@
 #ifdef __WAMR__
 #include <stdint.h>
 #include <wasm_export.h>
+#include "a653_wamr.h"
 
 #define GET_ARG_i32( X ) arg##X
 #define GET_ARG_i64( X ) arg##X
 #else // WASMTIME
 #include <wasmtime.h>
-#include "a653_i_common_wasm32.h"
+#include "a653_wasmtime.h"
 
 #define GET_ARG_i32( X ) args_and_results[X].i32
 #define GET_ARG_i64( X ) args_and_results[X].i64

@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include "arinc653_wasm32_helper.h"
-#include "a653_i_common_wasm32.h"
+#include "generic_helper.h"
 #include "arinc653_part1_apex_process_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_lib/a653_i_process.h"
@@ -31,7 +31,7 @@ WASM32_HOST_FUNCTION__iii(GET_PROCESS_ID, wasm_baseaddr,
 
 
 
-extern wasm_processes_t wasm_processes;
+extern wasm_prcs_info_t wasm_prcs_info;
 extern prcs_info_t *prcs_info;
 
 void *wasm_trampoline(void) {
@@ -41,8 +41,8 @@ void *wasm_trampoline(void) {
   int ret = 0;
   for (unsigned i = 0; i < MAX_PRCS; ++i) {
     if(prcs_info[i].t_ctx == tid) {
-      uint64_t idx = wasm_processes.ENTRY_POINT[prcs_info[i].id];
-      ret = exec_wasm_guest_func(0, idx);
+      int64_t idx = wasm_prcs_info.ENTRY_POINT[prcs_info[i].id];
+      ret = exec_wasm_guest_func(wasm_prcs_info.wasm_rt_ctx, idx);
       break;
     }
   }
@@ -76,7 +76,7 @@ WASM32_HOST_FUNCTION__iii(GET_PROCESS_STATUS, wasm_baseaddr,
   uint8_t* ATTRIBUTES_guest = camw32_get_struct_base_addr__PROCESS_STATUS_TYPE__ATTRIBUTES(PROCESS_STATUS_guest);
   camw32_set__PROCESS_ATTRIBUTE_TYPE__PERIOD(ATTRIBUTES_guest, PROCESS_STATUS.ATTRIBUTES.PERIOD);
   camw32_set__PROCESS_ATTRIBUTE_TYPE__TIME_CAPACITY(ATTRIBUTES_guest, PROCESS_STATUS.ATTRIBUTES.TIME_CAPACITY);
-  uint32_t ENTRY_POINT_idx = wasm_processes.ENTRY_POINT[pid];
+  uint32_t ENTRY_POINT_idx = wasm_prcs_info.ENTRY_POINT[pid];
   camw32_set__PROCESS_ATTRIBUTE_TYPE__ENTRY_POINT(ATTRIBUTES_guest, ENTRY_POINT_idx);
   camw32_set__PROCESS_ATTRIBUTE_TYPE__STACK_SIZE(ATTRIBUTES_guest, PROCESS_STATUS.ATTRIBUTES.STACK_SIZE);
   camw32_set__PROCESS_ATTRIBUTE_TYPE__BASE_PRIORITY(ATTRIBUTES_guest, PROCESS_STATUS.ATTRIBUTES.BASE_PRIORITY);
@@ -113,7 +113,7 @@ WASM32_HOST_FUNCTION__iii(CREATE_PROCESS, wasm_baseaddr,
   camw32_set__RETURN_CODE_TYPE(&wasm_baseaddr[le32toh(GET_ARG_i32(2))], (int32_t)RETURN_CODE);
 
   // we get the pid late, and the real start of the thread will be in CREATE_PROCESS
-  wasm_processes.ENTRY_POINT[PROCESS_ID] = ENTRY_POINT_idx;
+  wasm_prcs_info.ENTRY_POINT[PROCESS_ID] = ENTRY_POINT_idx;
 })
 
 

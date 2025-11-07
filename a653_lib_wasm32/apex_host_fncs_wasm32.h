@@ -5,18 +5,20 @@
 #ifndef APEX_HOST_FNCS_WASM32
 #define APEX_HOST_FNCS_WASM32
 
+#include <stddef.h>
 #ifdef __WAMR__
-
-/* WAMR has a define for NativeSymbol */
-
+#include <wasm_export.h>
 #else
-
 #include <wasmtime.h>
+#endif
 
+#ifndef __WAMR__
+
+/* defined in WAMR */
 typedef struct {
   const char* symbol;
-  wasmtime_func_unchecked_callback_t func_ptr;
-  const char* signature;
+  void* func_ptr;
+  const char *signature;
   void *attachment;
 } NativeSymbol;
 

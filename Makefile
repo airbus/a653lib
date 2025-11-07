@@ -39,7 +39,7 @@ export CC
 OBJS = main.o
 OBJS_A = partition_a.o init.o
 OBJS_B = partition_b.o init.o
-OBJS_WASM_BOOTSTRAP = wasm32_loader.o init.o
+OBJS_WASM_BOOTSTRAP =
 
 
 MY_BUILD_DIR  =  $(BUILD_DIR)
@@ -48,7 +48,8 @@ TARGET_A       =  $(BIN_DIR)/partition_a
 TARGET_A_WASM = $(BIN_DIR)/partition_a.wasm
 TARGET_B       =  $(BIN_DIR)/partition_b
 TARGET_B_WASM = $(BIN_DIR)/partition_b.wasm
-TARGET_WASMTIME_CLI   = $(BIN_DIR)/wasm32_rt
+TARGET_WASMTIME_CLI   = $(BIN_DIR)/p_wasmtime
+TARGET_WAMR_CLI   = $(BIN_DIR)/p_wamr
 
 
 
@@ -68,62 +69,32 @@ part_b: $(OBJS_B)
 	@echo build dir $(MY_BUILD_DIR)
 	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET_B) $(OBJS_B) ./liba653.a $(LDLIBS)
 
-part_wasmtime: $(OBJS_WASM_BOOTSTRAP) alib_wasm32
-	@echo build dir $(MY_BUILD_DIR)
-	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -fsanitize=address -lwasmtime -o $(TARGET_WASMTIME_CLI) $(OBJS_WASM_BOOTSTRAP) ./liba653_wasm32.a $(LDLIBS)
 
-
-# for host:
-# $ yay -S libwasmtime # wit-bindgen wasm-tools wabt
-
-
-wasm_host: mk_build_dir alib $(MY_BUILD_DIR)/camw32_getset.h alib_wasm32 amain_wasm part_wasmtime
-wasm_guest: $(TARGET_A_WASM) $(TARGET_B_WASM)
+# $ yay -S clang lld wasi-libc wasi-compiler-rt		# guest compilation
+# $ yay -S libwasmtime iwasm				# host libraries
+all_wasm: mk_build_dir alib amain_wasm part_wasmtime part_wamr $(TARGET_A_WASM) $(TARGET_B_WASM)
+	# set a default runtime, change link to p_wamr if wamr desired
+	cd $(BIN_DIR); ln -s p_wasmtime wasm32_rt
 
 amain_wasm: CFLAGS += -D__WASM_RT__
 amain_wasm: $(OBJS)
 	@echo build dir $(MY_BUILD_DIR)
-	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS) ./liba653.a $(LDLIBS)
+	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET)_wasm $(OBJS) ./liba653.a $(LDLIBS)
 
-$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens:
-	test -d $@ || { cd $(TMP_DIR) && git clone https://github.com/psiegl/arinc653-wasm.git --branch psiegl-old; }
+part_wasmtime: mk_build_dir alib amain_wasm
+	make -e -C $(SRC_DIR)/a653_lib_wasm32 $(TARGET_WASMTIME_CLI)
 
-$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens: $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens
-	test -f $@ || { cd $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens && rustup default stable && cargo build; }
-
-$(MY_BUILD_DIR)/camw32_getset.h: $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens
-	# not ideal, but currently without --sysroot=/usr/share/wasi-sysroot (should be the same as during wasm compilation)
-	$(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target/debug/c-abi-lens $(BUILD_DIR)/a653_inc/a653Lib.h -- --target=wasm32-wasi > $@
-	sed -i 's|camw|camw32|g' $@
+part_wamr: mk_build_dir alib amain_wasm
+	make -e -C $(SRC_DIR)/a653_lib_wasm32 $(TARGET_WAMR_CLI)
 
 WASI_SYSROOT ?= /usr/share/wasi-sysroot
 
-# for guest:
-# $ yay -S clang lld wasi-libc wasi-compiler-rt
 %.wasm: alib
 	@echo build dir $(MY_BUILD_DIR)
 	# 1. we use the wasm32-wasi to include the stdlib (thus having __start() and main() support).
 	# however, long term for avionics it would make sense to drop and go to wasm32-unknown with likely -Wl,-export=_start or similar
 	# 2. --allow-undefined is required for symbols (such as WIT functions) that are not yet defined.
 	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc --target=wasm32-wasi -Wl,--export-table -Wl,--allow-undefined --sysroot=$(WASI_SYSROOT)  -o $@ $(SRC_DIR)/$(basename $(notdir $@)).c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt # ../../wasm_guest_trampoline.c
-
-# for testing purpose
-wamr: mk_build_dir $(MY_BUILD_DIR)/camw32_getset.h
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_error_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_error_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_partition_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_partition_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_process_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_process_wasm32.o -I$(BUILD_DIR) -I$(MY_BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_queuing_port_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_queuing_port_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_sampling_port_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_sampling_port_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_semaphore_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_semaphore_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_time_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_time_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_buffer_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_buffer_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_event_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_event_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_mutex_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_mutex_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part1_apex_blackboard_wasm32.c -o $(TMP_DIR)/arinc653_part1_apex_blackboard_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-	$(CC) -D__WAMR__ -c a653_lib_wasm32/arinc653_part2_apex_sampling_port_extension_wasm32.c -o $(TMP_DIR)/arinc653_part2_apex_sampling_port_extension_wasm32.o -I$(BUILD_DIR) -I$(BUILD_DIR)/a653_inc
-
-alib_wasm32:
-	make -e -C $(SRC_DIR)/a653_lib_wasm32 a653_lib_wasm32
 
 alib: $(TMP_DIR)/download/a653Blackboard.h $(TMP_DIR)/download/a653Buffer.h $(TMP_DIR)/download/a653Event.h $(TMP_DIR)/download/a653Mutex.h
 	cp -r $(SRC_DIR)/a653_inc $(MY_BUILD_DIR)

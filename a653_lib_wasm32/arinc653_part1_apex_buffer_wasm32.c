@@ -5,7 +5,6 @@
 
 #include <endian.h>
 #include "arinc653_wasm32_helper.h"
-#include "a653_i_common_wasm32.h"
 #include "arinc653_part1_apex_buffer_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "a653Buffer.h"

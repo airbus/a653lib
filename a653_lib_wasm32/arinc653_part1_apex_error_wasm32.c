@@ -6,9 +6,8 @@
 #include <endian.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "arinc653_wasm32_helper.h"
-#include "a653_i_common_wasm32.h"
+#include "generic_helper.h"
 #include "arinc653_part1_apex_error_wasm32.h"
 #include "camw32_getset.h" /* auto-generated header */
 #include "../a653_inc/a653Error.h"
@@ -33,12 +32,12 @@ WASM32_HOST_FUNCTION__iii(REPORT_APPLICATION_MESSAGE, wasm_baseaddr,
 
 
 
-extern wasm_processes_t wasm_processes;
+extern wasm_prcs_info_t wasm_prcs_info;
 
 void *error_handler_trampoline(void) {
 
-  uint32_t idx = wasm_processes.ENTRY_POINT_ERROR_HANDLER;
-  if ( ! exec_wasm_guest_func(0, idx))
+  uint32_t idx = wasm_prcs_info.ENTRY_POINT_ERROR_HANDLER;
+  if ( ! exec_wasm_guest_func(wasm_prcs_info.wasm_rt_ctx, idx))
     fprintf(stderr, "ERR: wasm_processid not found\n");
 
   return NULL;
@@ -64,7 +63,7 @@ void *error_handler_trampoline(void) {
  */
 WASM32_HOST_FUNCTION__iii(CREATE_ERROR_HANDLER, wasm_baseaddr,
 {
-  wasm_processes.ENTRY_POINT_ERROR_HANDLER = le32toh(GET_ARG_i32(0));
+  wasm_prcs_info.ENTRY_POINT_ERROR_HANDLER = le32toh(GET_ARG_i32(0));
 
   STACK_SIZE_TYPE STACK_SIZE;
   STACK_SIZE = (STACK_SIZE_TYPE)le32toh(GET_ARG_i32(1));
@@ -97,7 +96,7 @@ WASM32_HOST_FUNCTION__ii(GET_ERROR_STATUS, wasm_baseaddr,
   camw32_set__ERROR_STATUS_TYPE__LENGTH(ERROR_STATUS__guest, ERROR_STATUS.LENGTH);
   camw32_set__ERROR_STATUS_TYPE__FAILED_PROCESS_ID(ERROR_STATUS__guest, ERROR_STATUS.FAILED_PROCESS_ID);
 
-  uint32_t FAILED_ADDRESS_idx = wasm_processes.ENTRY_POINT[ERROR_STATUS.FAILED_PROCESS_ID];
+  uint32_t FAILED_ADDRESS_idx = wasm_prcs_info.ENTRY_POINT[ERROR_STATUS.FAILED_PROCESS_ID];
   camw32_set__ERROR_STATUS_TYPE__FAILED_ADDRESS(ERROR_STATUS__guest, FAILED_ADDRESS_idx);
 })
 
