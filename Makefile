@@ -87,6 +87,8 @@ part_wasmtime: mk_build_dir alib amain_wasm
 part_wamr: mk_build_dir alib amain_wasm
 	make -e -C $(SRC_DIR)/a653_lib_wasm32 $(TARGET_WAMR_CLI)
 
+part_wasm_guest: $(TARGET_A_WASM) $(TARGET_B_WASM)
+
 WASI_SYSROOT ?= /usr/share/wasi-sysroot
 
 %.wasm: alib

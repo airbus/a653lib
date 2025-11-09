@@ -8,11 +8,9 @@
 #include <stddef.h>
 #ifdef __WAMR__
 #include <wasm_export.h>
-#else
-#include <wasmtime.h>
 #endif
-
-#ifndef __WAMR__
+#ifdef __WASMTIME__
+#include <wasmtime.h>
 
 /* defined in WAMR */
 typedef struct {

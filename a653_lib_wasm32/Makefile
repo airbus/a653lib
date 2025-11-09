@@ -38,7 +38,7 @@ $(MY_BUILD_DIR)/camw32_getset.h: $(TMP_DIR)/arinc653-wasm/pkgs/c-abi-lens/target
 	sed -i 's|camw|camw32|g' $@
 
 
-WAMR_OBJS_WASM32 = $(patsubst %, $(MY_BUILD_DIR)/wamr/%, $(notdir $(OBJS_WASM32_RT_SPECIFIC))) a653_wamr.o
+WAMR_OBJS_WASM32 = $(patsubst %, $(MY_BUILD_DIR)/wamr/%, $(notdir $(OBJS_WASM32_RT_SPECIFIC)) a653_wamr.o)
 $(WAMR_OBJS_WASM32): | $(MY_BUILD_DIR)/wamr/ $(MY_BUILD_DIR)/camw32_getset.h
 
 $(MY_BUILD_DIR)/wamr/:
@@ -47,11 +47,12 @@ $(MY_BUILD_DIR)/wamr/:
 $(MY_BUILD_DIR)/wamr/%.o: %.c
 	$(CC) -c $(CFLAGS) -D__WAMR__ $(CINCL) $< -o $@
 
+# Do not use ASAN (-fsanitize=address) ... https://github.com/bytecodealliance/wasm-micro-runtime/issues/4638
 %/p_wamr: $(OBJS_REL) $(WAMR_OBJS_WASM32)
-	cd $(MY_BUILD_DIR); $(CC) $(LDFLAGS) -fsanitize=address -o $@ $^ $(LDLIBS) /usr/lib/libiwasm.a $(TMP_DIR)/a653_build/liba653.a
+	cd $(MY_BUILD_DIR); $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) -liwasm -lm /usr/lib/libiwasm.a $(TMP_DIR)/a653_build/liba653.a
 
 
-WASMTIME_OBJS_WASM32 = $(patsubst %, $(MY_BUILD_DIR)/wasmtime/%, $(notdir $(OBJS_WASM32_RT_SPECIFIC))) a653_wasmtime.o
+WASMTIME_OBJS_WASM32 = $(patsubst %, $(MY_BUILD_DIR)/wasmtime/%, $(notdir $(OBJS_WASM32_RT_SPECIFIC)) a653_wasmtime.o)
 $(WASMTIME_OBJS_WASM32): | $(MY_BUILD_DIR)/wasmtime/ $(MY_BUILD_DIR)/camw32_getset.h
 
 $(MY_BUILD_DIR)/wasmtime/:
