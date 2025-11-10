@@ -8,7 +8,7 @@
 #include "generic_helper.h"
 
 void* generate_wasm_runtime_context(wasm_file_t* wasm);
-void cleanup_wasm_runtime_context(void* context);
+void cleanup_wasm_runtime_context(void* wasm_runtime_context);
 /**
  * idx = -1 -> default
  *             otherwise use __indirect_function_table[]

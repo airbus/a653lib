@@ -10,7 +10,7 @@
 #include "a653Buffer.h"
 
 
-WASM32_HOST_FUNCTION__iiiiii(CREATE_BUFFER, wasm_baseaddr,
+WASM32_HOST_FUNCTION(CREATE_BUFFER, wasm_baseaddr,
 {
   int32_t BUFFER_NAME; /* is a pointer / address into Wasm linear memory */
   BUFFER_NAME = (int32_t)le32toh(GET_ARG_i32(0));
@@ -38,7 +38,7 @@ WASM32_HOST_FUNCTION__iiiiii(CREATE_BUFFER, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iiiIi(SEND_BUFFER, wasm_baseaddr,
+WASM32_HOST_FUNCTION(SEND_BUFFER, wasm_baseaddr,
 {
   BUFFER_ID_TYPE BUFFER_ID;
   BUFFER_ID = (BUFFER_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -63,7 +63,7 @@ WASM32_HOST_FUNCTION__iiiIi(SEND_BUFFER, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iIiii(RECEIVE_BUFFER, wasm_baseaddr,
+WASM32_HOST_FUNCTION(RECEIVE_BUFFER, wasm_baseaddr,
 {
   BUFFER_ID_TYPE BUFFER_ID;
   BUFFER_ID = (BUFFER_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -88,7 +88,7 @@ WASM32_HOST_FUNCTION__iIiii(RECEIVE_BUFFER, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_BUFFER_ID, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_BUFFER_ID, wasm_baseaddr,
 {
   int32_t BUFFER_NAME; /* is a pointer / address into Wasm linear memory */
   BUFFER_NAME = (int32_t)le32toh(GET_ARG_i32(0));
@@ -107,7 +107,7 @@ WASM32_HOST_FUNCTION__iii(GET_BUFFER_ID, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_BUFFER_STATUS, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_BUFFER_STATUS, wasm_baseaddr,
 {
   BUFFER_ID_TYPE BUFFER_ID; /* is a pointer / address into Wasm linear memory */
   BUFFER_ID = (int32_t)le32toh(GET_ARG_i32(0));

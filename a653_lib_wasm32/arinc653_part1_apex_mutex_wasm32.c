@@ -10,7 +10,7 @@
 #include "a653Mutex.h"
 
 
-WASM32_HOST_FUNCTION__iiiii(CREATE_MUTEX, wasm_baseaddr,
+WASM32_HOST_FUNCTION(CREATE_MUTEX, wasm_baseaddr,
 {
   int32_t MUTEX_NAME; /* is a pointer / address into Wasm linear memory */
   MUTEX_NAME = (int32_t)le32toh(GET_ARG_i32(0));
@@ -35,7 +35,7 @@ WASM32_HOST_FUNCTION__iiiii(CREATE_MUTEX, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iIi(ACQUIRE_MUTEX, wasm_baseaddr,
+WASM32_HOST_FUNCTION(ACQUIRE_MUTEX, wasm_baseaddr,
 {
   MUTEX_ID_TYPE MUTEX_ID;
   MUTEX_ID = (MUTEX_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -54,7 +54,7 @@ WASM32_HOST_FUNCTION__iIi(ACQUIRE_MUTEX, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__ii(RELEASE_MUTEX, wasm_baseaddr,
+WASM32_HOST_FUNCTION(RELEASE_MUTEX, wasm_baseaddr,
 {
   MUTEX_ID_TYPE MUTEX_ID;
   MUTEX_ID = (MUTEX_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -70,7 +70,7 @@ WASM32_HOST_FUNCTION__ii(RELEASE_MUTEX, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(RESET_MUTEX, wasm_baseaddr,
+WASM32_HOST_FUNCTION(RESET_MUTEX, wasm_baseaddr,
 {
   MUTEX_ID_TYPE MUTEX_ID;
   MUTEX_ID = (MUTEX_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -89,7 +89,7 @@ WASM32_HOST_FUNCTION__iii(RESET_MUTEX, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_MUTEX_ID, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_MUTEX_ID, wasm_baseaddr,
 {
   int32_t MUTEX_NAME; /* is a pointer / address into Wasm linear memory */
   MUTEX_NAME = (int32_t)le32toh(GET_ARG_i32(0));
@@ -108,7 +108,7 @@ WASM32_HOST_FUNCTION__iii(GET_MUTEX_ID, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_MUTEX_STATUS, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_MUTEX_STATUS, wasm_baseaddr,
 {
   MUTEX_ID_TYPE MUTEX_ID;
   MUTEX_ID = (MUTEX_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -133,7 +133,7 @@ WASM32_HOST_FUNCTION__iii(GET_MUTEX_STATUS, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_PROCESS_MUTEX_STATE, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_PROCESS_MUTEX_STATE, wasm_baseaddr,
 {
   PROCESS_ID_TYPE PROCESS_ID;
   PROCESS_ID = (PROCESS_ID_TYPE)le32toh(GET_ARG_i32(0));

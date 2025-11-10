@@ -36,13 +36,16 @@ void* generate_wasm_runtime_context(wasm_file_t* wasm)
   memset(&init_args, 0, sizeof(RuntimeInitArgs));
 
   init_args.mem_alloc_type = Alloc_With_System_Allocator;
-  init_args.native_module_name = "arinc653";
-  init_args.n_native_symbols = getNativeSymbols(&init_args.native_symbols);
-/*
- * TODO: investigate wasm_runtime_register_natives_raw() / native_raw_return_type()
- */
+
   if ( ! wasm_runtime_full_init(&init_args)) {
     fprintf(stderr, "ERR: Failed to initialize WASM runtime!\n");
+    return NULL;
+  }
+
+  NativeSymbol *native_symbols;
+  unsigned n_native_symbols = getNativeSymbols(&native_symbols);
+  if ( ! wasm_runtime_register_natives_raw("arinc653", native_symbols, n_native_symbols)) {
+    fprintf(stderr, "ERR: Failed to initialize WASM host functions!\n");
     return NULL;
   }
 
@@ -55,6 +58,11 @@ void* generate_wasm_runtime_context(wasm_file_t* wasm)
   wamr_data->wasm.size = wasm->size;
   memcpy(wamr_data->wasm.data, wasm->data, wasm->size);
 
+  /**
+   * https://github.com/bytecodealliance/wasm-micro-runtime/discussions/3697
+   * WAMRs approach of having shared linear memory considers to solely set up 1 WASM module.
+   * Which is then used by any thread ..
+   */
   if ( ! (wamr_data->module = wasm_runtime_load((uint8_t*)wamr_data->wasm.data, wamr_data->wasm.size, error, sizeof(error)))) {
     fprintf(stderr, "ERR[wasm_runtime_load()]: %s\n", error);
     return NULL;
@@ -63,10 +71,10 @@ void* generate_wasm_runtime_context(wasm_file_t* wasm)
   return wamr_data;
 }
 
-void cleanup_wasm_runtime_context(void* context)
+void cleanup_wasm_runtime_context(void* wasm_runtime_context)
 {
-
   wasm_runtime_destroy();
+  free(wasm_runtime_context);
 }
 
 int exec_wasm_guest_func(void* wasm_runtime_context, int32_t idx)
@@ -92,16 +100,6 @@ int exec_wasm_guest_func(void* wasm_runtime_context, int32_t idx)
     wasm_runtime_create_exec_env(module_inst, STACK_SIZE);
   if (!exec_env) {
     fprintf(stderr, "ERR: Failed to create execution environment\n");
-    return -1;
-  }
-
-  if ( ! wasm_runtime_detect_native_stack_overflow(exec_env)) {
-    fprintf(stderr, "ERR: will overflow native stack!\n");
-    return -1;
-  }
-
-  if ( ! wasm_runtime_detect_native_stack_overflow_size(exec_env, STACK_SIZE)) {
-    fprintf(stderr, "ERR: will overflow native stack with STACK_SIZE!\n");
     return -1;
   }
 

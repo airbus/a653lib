@@ -10,7 +10,7 @@
 #include "a653Event.h"
 
 
-WASM32_HOST_FUNCTION__iii(CREATE_EVENT, wasm_baseaddr,
+WASM32_HOST_FUNCTION(CREATE_EVENT, wasm_baseaddr,
 {
   int32_t EVENT_NAME; /* is a pointer / address into Wasm linear memory */
   EVENT_NAME = (int32_t)le32toh(GET_ARG_i32(0));
@@ -29,7 +29,7 @@ WASM32_HOST_FUNCTION__iii(CREATE_EVENT, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__ii(SET_EVENT, wasm_baseaddr,
+WASM32_HOST_FUNCTION(SET_EVENT, wasm_baseaddr,
 {
   EVENT_ID_TYPE EVENT_ID;
   EVENT_ID = (EVENT_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -45,7 +45,7 @@ WASM32_HOST_FUNCTION__ii(SET_EVENT, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__ii(RESET_EVENT, wasm_baseaddr,
+WASM32_HOST_FUNCTION(RESET_EVENT, wasm_baseaddr,
 {
   EVENT_ID_TYPE EVENT_ID;
   EVENT_ID = (EVENT_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -61,7 +61,7 @@ WASM32_HOST_FUNCTION__ii(RESET_EVENT, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iIi(WAIT_EVENT, wasm_baseaddr,
+WASM32_HOST_FUNCTION(WAIT_EVENT, wasm_baseaddr,
 {
   EVENT_ID_TYPE EVENT_ID;
   EVENT_ID = (EVENT_ID_TYPE)le32toh(GET_ARG_i32(0));
@@ -80,7 +80,7 @@ WASM32_HOST_FUNCTION__iIi(WAIT_EVENT, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_EVENT_ID, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_EVENT_ID, wasm_baseaddr,
 {
   int32_t EVENT_NAME; /* is a pointer / address into Wasm linear memory */
   EVENT_NAME = (int32_t)le32toh(GET_ARG_i32(0));
@@ -99,7 +99,7 @@ WASM32_HOST_FUNCTION__iii(GET_EVENT_ID, wasm_baseaddr,
 })
 
 
-WASM32_HOST_FUNCTION__iii(GET_EVENT_STATUS, wasm_baseaddr,
+WASM32_HOST_FUNCTION(GET_EVENT_STATUS, wasm_baseaddr,
 {
   EVENT_ID_TYPE EVENT_ID;
   EVENT_ID = (EVENT_ID_TYPE)le32toh(GET_ARG_i32(0));

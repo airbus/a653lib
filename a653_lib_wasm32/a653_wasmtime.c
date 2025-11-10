@@ -8,24 +8,12 @@
 #include "apex_host_fncs_wasm32.h"
 #include "generic_helper.h"
 
+typedef struct {
+  wasm_engine_t* engine;
+  wasmtime_sharedmemory_t* shm_memory;
+  wasmtime_module_t* module;
+} wasmtime_data_t;
 
-uint8_t* get_linear_memory(wasmtime_caller_t* caller)
-{
-  wasmtime_extern_t ext;
-  const char *m = "memory";
-  if ( ! wasmtime_caller_export_get(caller, m, strlen(m), &ext)) {
-    fprintf(stderr, "ERR: 'memory' export not found!\n");
-    return NULL;
-  }
-
-  if (ext.kind != WASM_EXTERN_MEMORY) {
-    fprintf(stderr, "ERR: export 'memory' is not a memory!\n");
-    return NULL;
-  }
-
-  wasmtime_context_t *context = wasmtime_caller_context(caller);
-  return wasmtime_memory_data(context, &ext.of.memory);
-}
 
 static void print_wasmtime_error(wasmtime_error_t* error)
 {
@@ -69,11 +57,11 @@ void* generate_wasm_runtime_context(wasm_file_t* wasm)
   return wasmtime_data;
 }
 
-void cleanup_wasm_runtime_context(void* context)
+void cleanup_wasm_runtime_context(void* wasm_runtime_context)
 {
-  wasmtime_data_t* wasm_runtime_context = (wasmtime_data_t*)context;
-  wasmtime_module_delete(wasm_runtime_context->module);
-  wasm_engine_delete(wasm_runtime_context->engine);
+  wasmtime_data_t* _wasm_runtime_context = (wasmtime_data_t*)wasm_runtime_context;
+  wasmtime_module_delete(_wasm_runtime_context->module);
+  wasm_engine_delete(_wasm_runtime_context->engine);
 }
 
 
