@@ -5,6 +5,7 @@
 #export COMMON_SWITCH   = -D__LITTLE_ENDIAN -m32 -rdynamic	
 export COMMON_SWITCH   = -D__LITTLE_ENDIAN -rdynamic	
 
+HOME ?= $(shell pwd)
 
 #  CC_PATH=/home/tools/gnat/bin/
 CC_PATH=
@@ -38,16 +39,21 @@ export CC
 OBJS = main.o
 OBJS_A = partition_a.o init.o
 OBJS_B = partition_b.o init.o
+OBJS_WASM_BOOTSTRAP =
 
 
 MY_BUILD_DIR  =  $(BUILD_DIR)
 TARGET        =  $(BIN_DIR)/a653_main
 TARGET_A       =  $(BIN_DIR)/partition_a
+TARGET_A_WASM = $(BIN_DIR)/partition_a.wasm
 TARGET_B       =  $(BIN_DIR)/partition_b
+TARGET_B_WASM = $(BIN_DIR)/partition_b.wasm
+TARGET_WASMTIME_CLI   = $(BIN_DIR)/p_wasmtime
+TARGET_WAMR_CLI   = $(BIN_DIR)/p_wamr
 
 
 
-all: clean mk_build_dir alib amain part_a part_b
+all: mk_build_dir alib amain part_a part_b
 	@echo done!
 
 
@@ -64,12 +70,61 @@ part_b: $(OBJS_B)
 	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET_B) $(OBJS_B) ./liba653.a $(LDLIBS)
 
 
-alib:
-	make -e -C $(SRC_DIR)/a653_lib
+# $ yay -S clang lld wasi-libc wasi-compiler-rt		# guest compilation
+# $ yay -S libwasmtime iwasm				# host libraries
+all_wasm: mk_build_dir alib amain_wasm part_wasmtime part_wamr $(TARGET_A_WASM) $(TARGET_B_WASM)
+	# set a default runtime, change link to p_wamr if wamr desired
+	cd $(BIN_DIR); ln -s p_wasmtime wasm32_rt
+
+amain_wasm: CFLAGS += -D__WASM_RT__
+amain_wasm: $(OBJS)
+	@echo build dir $(MY_BUILD_DIR)
+	cd $(MY_BUILD_DIR); $(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET)_wasm $(OBJS) ./liba653.a $(LDLIBS)
+
+part_wasmtime: mk_build_dir alib amain_wasm
+	make -e -C $(SRC_DIR)/a653_lib_wasm32 $(TARGET_WASMTIME_CLI)
+
+part_wamr: mk_build_dir alib amain_wasm
+	make -e -C $(SRC_DIR)/a653_lib_wasm32 $(TARGET_WAMR_CLI)
+
+part_wasm_guest: $(TARGET_A_WASM) $(TARGET_B_WASM)
+
+WASI_SYSROOT ?= /usr/share/wasi-sysroot
+
+%.wasm: alib
+	@echo build dir $(MY_BUILD_DIR)
+	# 1. we use the wasm32-wasi to include the stdlib (thus having __start() and main() support).
+	# however, long term for avionics it would make sense to drop and go to wasm32-unknown with likely -Wl,-export=_start or similar
+	# 2. --allow-undefined is required for symbols (such as WIT functions) that are not yet defined.
+	cd $(MY_BUILD_DIR); clang -I$(MY_BUILD_DIR)/a653_inc --target=wasm32-wasi -Wl,--export-table -Wl,--allow-undefined --sysroot=$(WASI_SYSROOT)  -o $@ $(SRC_DIR)/$(basename $(notdir $@)).c 1> $(basename $(notdir $@)).wasm32_struct_layout.txt # ../../wasm_guest_trampoline.c
+
+alib: $(TMP_DIR)/download/a653Blackboard.h $(TMP_DIR)/download/a653Buffer.h $(TMP_DIR)/download/a653Event.h $(TMP_DIR)/download/a653Mutex.h
 	cp -r $(SRC_DIR)/a653_inc $(MY_BUILD_DIR)
+	cp $^ $(MY_BUILD_DIR)/a653_inc
 #	cp -r $(SRC_DIR)/a653_ada $(MY_BUILD_DIR)
+	# relies on the above headers
+	make -e -C $(SRC_DIR)/a653_lib
 
 
+# rule to download the ARINC headerfiles
+$(TMP_DIR)/download/arinc653.h.zip:
+	@mkdir -p -- $(@D)
+	test -f $@ || curl --user-agent 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0' \
+		--location --output-dir $(TMP_DIR)/download --remote-name-all \
+		https://brx-content.fullsight.org/site/binaries/content/assets/itc/content/support-files/arinc653.h.zip
+
+# rule to extract the ARINC headerfiles
+$(TMP_DIR)/download/ARINC653.h: $(TMP_DIR)/download/arinc653.h.zip
+	@mkdir -p -- $(@D)
+	test -f $@ || echo $^ | xargs --max-args=1 bsdtar -x --cd $(TMP_DIR)/download --modification-time --file
+
+# rule to generate our Wasm header file, by making every open type a 32 Bit integer
+$(TMP_DIR)/download/ARINC653_patched.h: $(TMP_DIR)/download/ARINC653.h
+	@mkdir -p -- $(@D)
+	awk -f $(SRC_DIR)/scripts/process-arinc-header.awk $< > $@
+
+$(TMP_DIR)/download/a653Blackboard.h $(TMP_DIR)/download/a653Buffer.h $(TMP_DIR)/download/a653Event.h $(TMP_DIR)/download/a653Mutex.h &: $(TMP_DIR)/download/ARINC653_patched.h
+	cd $(TMP_DIR)/download; awk -f $(SRC_DIR)/scripts/split-arinc-header.awk $<
 
 
 gcc_version: 

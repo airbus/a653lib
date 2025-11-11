@@ -62,10 +62,12 @@ typedef
       NUM_CORES_TYPE         NUM_ASSIGNED_CORES;
    } PARTITION_STATUS_TYPE;
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_PARTITION_STATUS (
        /*out*/ PARTITION_STATUS_TYPE      *PARTITION_STATUS,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void SET_PARTITION_MODE (
        /*in */ OPERATING_MODE_TYPE        OPERATING_MODE,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );

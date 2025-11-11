@@ -33,6 +33,13 @@
 
 /* defines */
 
+/* clang attribute for the WebAssembly target */
+#ifdef __wasm__
+#define WASM_IMPORT_MODULE(name) __attribute__((import_module(name)))
+#else
+#define WASM_IMPORT_MODULE(name)
+#endif
+
 /* PORT queuing definition */
 
 /* PORT sampling definition */
@@ -98,5 +105,6 @@ typedef A653_BYTE *         MEMORY_BLOCK_ADDR_TYPE;
 typedef A653_INTEGER        MEMORY_BLOCK_SIZE_TYPE;
 typedef NAME_TYPE           MEMORY_BLOCK_NAME_TYPE;
 
+typedef A653_INTEGER     PRIORITY_TYPE;      /* priority type      */
 
 #endif /* __A653_TYPES_H */

@@ -32,19 +32,22 @@
 
 /* a653 includes */
 #include <a653Type.h>
-  //#include <a653Blackboard.h>
+#include <a653Blackboard.h>
   //#include <a653MemoryBlock.h>
-  //#include <a653Buffer.h>
+#include <a653Buffer.h>
 #include <a653Error.h>
-  //#include <a653Event.h>
+#include <a653Event.h>
 #include <a653Partition.h>
 #include <a653Process.h>
 #include <a653Queuing.h>
 #include <a653Sampling.h>
 #include <a653Semaphore.h>
 #include <a653Time.h>
+#include <a653Mutex.h>
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
 #include <a653Init.h>
+#endif /* #ifndef __wasm__ */
 
 /* defines */
 
@@ -52,8 +55,10 @@
 
 /* function declarations */
 
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
 extern int a653LibInit ();
 extern int a653MinimalLibInit ();
+#endif /* #ifndef __wasm__ */
 
 
 #endif /* __A653_LIB_H */

@@ -18,6 +18,17 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Build
         run: nix build .#packages.x86_64-linux.a653lib --print-build-logs
+  x86_64-linux---a653-wasmtime:
+    name: x86_64-linux.a653-wasmtime
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build
+        run: nix build .#packages.x86_64-linux.a653-wasmtime --print-build-logs
   x86_64-linux---a653lib-aarch64:
     name: x86_64-linux.a653lib-aarch64
     runs-on:

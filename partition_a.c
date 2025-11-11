@@ -73,32 +73,40 @@ void PeriodicProcess(void){
 			 0, //timeout
 			 &return_code);
     
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
     printDebug(3,"%06d Prcs A send %s \n",index++,data_sp_tx);
+#endif /* #ifndef __wasm__ */
 
     READ_SAMPLING_MESSAGE(sp_id_rx,
     			  data_sp_rx,
     			  &length,
     			  &validity,
     			  &return_code);
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
     if (validity == VALID && length > 0){
       printDebug(3,"Prcs A: SP we got this : >%s<\n",(char *)data_sp_rx);
     } else {
       printDebug(3,"Prcs A:  validity >%d< length >%d<\n",validity,length);
     }
+#endif /* #ifndef __wasm__ */
     
     RECEIVE_QUEUING_MESSAGE(qp_id_rx,        
 			    0,                /* time out */
     			    data_qp_rx,       /* pointer to data */
     			    &length,          /* received length */
     			    &return_code);    /* return code */
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
     if(return_code == NO_ERROR && length !=0){
       printDebug(3,"Prcs A: QP we got this : >%s<\n",(char *)data_qp_rx);
     } else {
       printDebug(3,"Prcs A: return >%d<\n",return_code);
     }
+#endif /* #ifndef __wasm__ */
 
     GET_TIME (&system_time, &return_code);
+#ifndef __wasm__ /* Do not expose non ARINC653 functions into WebAssembly */
     printDebug(3,"Prcs A: GET_TIME >%lld<\n",system_time);
+#endif /* #ifndef __wasm__ */
     
     PERIODIC_WAIT(&return_code);
   }
