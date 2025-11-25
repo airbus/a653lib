@@ -5,28 +5,23 @@
 #export COMMON_SWITCH   = -D__LITTLE_ENDIAN -m32 -rdynamic	
 export COMMON_SWITCH   = -D__LITTLE_ENDIAN -rdynamic	
 
-
-#  CC_PATH=/home/tools/gnat/bin/
-CC_PATH=
-
-
-CC = $(CC_PATH)gcc
-#CC = $(CC_PATH)/tools/gcc-810-ppc/bin/powerpc-linux-gnu-gcc
-AR = $(CC_PATH)ar
+CC                    ?= gcc
+AR                    ?= ar
+EXTRA_LDFLAGS         ?= #-L /tools/gcc-810-ppc/lib  #-L/usr/lib/i386-linux-gnu/
 
 
-export TMP_DIR       = $(HOME)/tmp
-export SRC_DIR       = $(shell pwd)
-export BUILD_DIR     = $(TMP_DIR)/a653_build
-#export BIN_DIR       = $(HOME)/mut_bin_$(BUILD_TARGET)
-export BIN_DIR       = $(HOME)/bin
+export TMP_DIR         = $(HOME)/tmp
+export SRC_DIR         = $(shell pwd)
+export BUILD_DIR       = $(TMP_DIR)/a653_build
+#export BIN_DIR         = $(HOME)/mut_bin_$(BUILD_TARGET)
+export BIN_DIR         = $(HOME)/bin
 
 
-CFLAGS   = -Wall -g2 -fPIC  $(COMMON_SWITCH)
-CINCL    = -I$(SRC_DIR)/a653_lib -I$(MY_BUILD_DIR)/a653_inc -I/usr/include
+CFLAGS                 = -Wall -g2 -fPIC  $(COMMON_SWITCH)
+CINCL                  = -I$(SRC_DIR)/a653_lib -I$(MY_BUILD_DIR)/a653_inc -I/usr/include
 
-LDFLAGS  = -g2 #-L /tools/gcc-810-ppc/lib  #-L/usr/lib/i386-linux-gnu/
-LDLIBS   = -lpthread -lrt -lm -ldl
+LDFLAGS                = -g2 $(EXTRA_LDFLAGS)
+LDLIBS                 = -lpthread -lrt -lm -ldl
 
 
 
@@ -35,15 +30,15 @@ LDLIBS   = -lpthread -lrt -lm -ldl
 
 export CC
 
-OBJS = main.o
-OBJS_A = partition_a.o init.o
-OBJS_B = partition_b.o init.o
+OBJS                   = main.o
+OBJS_A                 = partition_a.o init.o
+OBJS_B                 = partition_b.o init.o
 
 
-MY_BUILD_DIR  =  $(BUILD_DIR)
-TARGET        =  $(BIN_DIR)/a653_main
-TARGET_A       =  $(BIN_DIR)/partition_a
-TARGET_B       =  $(BIN_DIR)/partition_b
+MY_BUILD_DIR           =  $(BUILD_DIR)
+TARGET                 =  $(BIN_DIR)/a653_main
+TARGET_A               =  $(BIN_DIR)/partition_a
+TARGET_B               =  $(BIN_DIR)/partition_b
 
 
 
@@ -73,7 +68,7 @@ alib:
 
 
 gcc_version: 
-	gcc -v
+	$(CC) -v
 
 mk_build_dir:
 	mkdir -p $(TMP_DIR)	
