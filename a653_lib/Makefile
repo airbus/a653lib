@@ -2,17 +2,20 @@
 # Makfile for liba653.a
 #
 
-#CC = $(CC_PATH)/tools/gcc-810-ppc/bin/powerpc-linux-gnu-gcc
-CC = gcc
-AR = ar
+CC            ?= gcc
+AR            ?= ar
+EXTRA_LDFLAGS ?= #-L /tools/gcc-810-ppc/lib
+RANLIB        ?= ranlib
 
-CFLAGS   = -Wall -Wno-unused-function -g2 -O0 -fPIC -c -I../a653_inc $(COMMON_SWITCH)
-LDFLAGS  = -g2 #-L /tools/gcc-810-ppc/lib
+CFLAGS         = -Wall -Wno-unused-function -g2 -O0 -fPIC -c -I../a653_inc $(COMMON_SWITCH)
+LDFLAGS        = -g2 $(EXTRA_LDFLAGS)
 
-OBJS = a653_i_semaphore.o a653_i_partition.o a653_i_process.o a653_i_sampling.o a653_i_queuing.o a653_i_time.o a653Init.o a653_i_shm_if.o a653_i_sync.o a653_i_time_lib.o a653_i_error.o
+OBJS           = a653_i_semaphore.o a653_i_partition.o a653_i_process.o a653_i_sampling.o
+OBJS          += a653_i_queuing.o a653_i_time.o a653Init.o a653_i_shm_if.o a653_i_sync.o
+OBJS          += a653_i_time_lib.o a653_i_error.o
 
-MY_BUILD_DIR  =  $(BUILD_DIR)/a653_lib
-TARGET        =  $(BUILD_DIR)/liba653.a
+MY_BUILD_DIR   =  $(BUILD_DIR)/a653_lib
+TARGET         =  $(BUILD_DIR)/liba653.a
 
 all: clean mk_build_dir a653_lib
 	echo build all $(MY_BUILD_DIR)
@@ -20,7 +23,7 @@ all: clean mk_build_dir a653_lib
 a653_lib: mk_build_dir $(OBJS)
 #	cd $(MY_BUILD_DIR); $(CC) $(LDFLAGS) -shared -o $(TARGET) $(OBJS) -lm -ldl
 	cd $(MY_BUILD_DIR); $(AR) crs $(TARGET) $(OBJS) # static lib
-	cd $(MY_BUILD_DIR); ranlib $(TARGET)
+	cd $(MY_BUILD_DIR); $(RANLIB) $(TARGET)
 
 copy: a653_lib
 	echo all

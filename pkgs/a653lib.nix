@@ -1,4 +1,7 @@
-{ lib, stdenv, fetchFromGitHub, bintools }:
+{
+  stdenv,
+  bintools,
+}:
 
 stdenv.mkDerivation {
   pname = "a653lib";
@@ -6,7 +9,6 @@ stdenv.mkDerivation {
 
   src = ./..;
 
-  patches = [ ../patches/allow-cc-override.patch ];
   preConfigure = ''
     mkdir home
     export HOME="$PWD/home"
