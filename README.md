@@ -46,16 +46,29 @@ can by used with the same interface as `printf()` with a leading debug level
 
 ## Compilation
 
-call Make in base directory to build `liba653.a` and bind to demo implementation. Result will be located at `~/bin` in your home
-directory. There will be the files:
+call CMake in base directory to build `liba653.a` and bind to demo implementation. Result will be located in `build` in the current working
+directory.
 
-- `a635_main`
+```bash
+cmake -Bbuild
+cmake --build build --parallel
+```
+
+ There will be the following files in the `build` dir:
+
+- `a653lib_main`
+- `liba653lib.a`
+- `liba653lib_partition_init.a`
+- `Makefile`
 - `partition_a`
 - `partition_b`
+- ...
+
+You can change code and re-run just `make` from within the `build` dir to quickly iterate.
 
 ## Run Demo
 
-go to `~/bin` and start `./a653_main`
+go to `build` and start `./a653lib_main`
 
 this will generate following output:
 
@@ -72,16 +85,6 @@ pid: 578773 <1702486050.349254883>: > taskset --cpu-list 1 ./partition_b & :
 ```
 
 ......
-
-## Useful targets
-
-|   target    |         Purpose        |
-| :---------- | :--------------------- |
-| `all` | Build everything. This is the default target. |
-| `amain` | Only build the main program (scheduler a653_main). |
-| `part_a` | Only build the partition a. |
-| `part_b` | Only build the partition b. |
-| `alib` | Only build the `liba653.a`. |
 
 ## Handle version
 
