@@ -85,19 +85,19 @@ typedef struct {
 typedef struct {
   unsigned short ChannelId;
   unsigned short Dir;
-  char           name_str[32];
+  char           name_str[MAX_NAME_LENGTH+1];
 } a653_sampling_port_config_t;
 
 typedef struct {
   unsigned short ChannelId;
   unsigned short Dir;
   unsigned short Type;
-  char           name_str[32];  
+  char           name_str[MAX_NAME_LENGTH+1];  
 } a653_queuing_port_config_t;
 
 typedef struct {
   unsigned short PartitionId;
-  char           name_str[32];
+  char           name_str[MAX_NAME_LENGTH+1];
   a653_sampling_port_config_t sp_config[MAX_S_PORT];
   a653_queuing_port_config_t qp_config[MAX_Q_PORT];
 } a653_partition_config_t;

@@ -98,7 +98,7 @@ void* a653_shm_get( int* shm_id, char* key_file, size_t segsize ) {
     exit(1);
   }
 
-  printDebug(0,"a653_shm id: 0x%04x ptr: %p\n",*shm_id,shm_ptr);
+  printDebug(0,"a653_shm id: %d ptr: %p\n",*shm_id,shm_ptr);
 
   //  memset(shm_ptr,0,TOTAL_A653_SHM_SIZE);
 
@@ -136,8 +136,6 @@ int a653_shm_init(void){
 	ret_val = 1;
       }
     }
-  } else {
-    exit(1);
   }
   return(ret_val);
 }

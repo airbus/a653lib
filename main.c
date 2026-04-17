@@ -63,6 +63,7 @@ void sig_handler(int sig){
     fprintf(stderr,"SIGSEGV !!!! \n");
     abort();
   case SIGINT:
+  case SIGHUP:
   case SIGQUIT:
   case SIGKILL:
     fprintf(stderr,"scheduler was stopped\n");
@@ -70,7 +71,8 @@ void sig_handler(int sig){
     dump_trace();
 #endif
     for (idx = 0;idx < global_config.partition_number; idx++){
-      sprintf(buf,"pkill %s",global_config.partition[idx].name_str);
+      fprintf(stderr,"Stopping %s\n", global_config.partition[idx].name_str);
+      sprintf(buf,"pkill -9 %s",global_config.partition[idx].name_str);
       system(buf);
     }
     memset(shm_ptr,0,sizeof(a653_shm_info_t));
@@ -83,20 +85,21 @@ void sig_handler(int sig){
 
 int main (int argc, char *argv[]){
 
-  int64_t rawtime;
+  time_t rawtime;
   struct tm * timeinfo;
 
   signal(SIGINT,sig_handler);
   signal(SIGQUIT,sig_handler);
   signal(SIGKILL,sig_handler);
   signal(SIGSEGV,sig_handler);
+  signal(SIGHUP,sig_handler);
   
-  setDebug(3);
+  setDebug(0);
 
-  time ( (time_t*)&rawtime );
-  timeinfo = localtime ( (const time_t*)&rawtime );
+  time ( &rawtime );
+  timeinfo = localtime ( &rawtime );
   printDebug(0,"Current local time and date: %s", asctime (timeinfo) );
-
+  
   a653_i_init_sync();
   
   a653_i_set_first();

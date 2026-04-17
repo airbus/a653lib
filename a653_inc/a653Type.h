@@ -42,17 +42,17 @@
 
 typedef unsigned char       A653_BYTE;              /*  8 bits unsigned   */
 typedef unsigned short int  A653_WORD;              /* 16 bits unsigned   */
-typedef long int            A653_INTEGER;           /* 32 bits            */
-typedef unsigned long       A653_UNSIGNED;          /* 32 bits unsigned   */
+typedef int                 A653_INTEGER;           /* 32 bits            */
+typedef unsigned int        A653_UNSIGNED;          /* 32 bits unsigned   */
 typedef long long           A653_LONG_INTEGER;      /* 64 bits            */
 
 typedef A653_INTEGER        PROCESS_ID_TYPE;        /* object ident type  */
-typedef A653_INTEGER     PROCESSOR_CORE_ID_TYPE;
+typedef A653_INTEGER        PROCESSOR_CORE_ID_TYPE;
 
 #define NULL_PROCESS_ID     0
 
 /* return code type */
-typedef enum {
+typedef enum RETURN_CODE_VALUE_TYPE {
   NO_ERROR       = 0, /* request valid and operation performed       */
   NO_ACTION      = 1, /* status of system unaffected by request      */
   NOT_AVAILABLE  = 2, /* resource required by request is unavailable */
@@ -63,12 +63,14 @@ typedef enum {
 } RETURN_CODE_TYPE;
 
 
-typedef enum {
+typedef char Boolean;
+
+typedef enum A653_ACCESS_MODE_TYPE{
   READ = 0,
   READ_WRITE = 1
-} A653_ACCESS_MODE_TYPE;
+}A653_ACCESS_MODE_TYPE;
 
-#define MAX_NAME_LENGTH                 30    /* name length                */
+#define MAX_NAME_LENGTH                 32    /* name length                */
 
 typedef char            NAME_TYPE[MAX_NAME_LENGTH];
 typedef void            (*SYSTEM_ADDRESS_TYPE); /* address type       */
@@ -77,13 +79,13 @@ typedef A653_INTEGER    MESSAGE_SIZE_TYPE;  /* message size type        */
 typedef A653_INTEGER    MESSAGE_RANGE_TYPE; /* message number type      */
 
 /* port direction type */
-typedef enum {
+typedef enum PORT_DIRECTION_VALUE_TYPE {
   SOURCE = 0,
   DESTINATION = 1
 } PORT_DIRECTION_TYPE;
 
 /* queuing discipline type */
-typedef enum {
+typedef enum QUEUING_DISCIPLINE_VALUE_TYPE {
   FIFO = 0,
   PRIORITY = 1
 } QUEUING_DISCIPLINE_TYPE;

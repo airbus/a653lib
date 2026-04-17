@@ -27,10 +27,14 @@
  * @details
  */
 
+#define _GNU_SOURCE
+#include <sched.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include <spawn.h>
 //--------------------
 #include <errno.h>
 #include <time.h>
@@ -44,6 +48,9 @@
 
 #include "a653Init.h"
 
+// Die globale Umgebungsvariable
+extern char **environ;
+
 typedef struct {
   int time_slice;
   int curr_partition_idx[MAX_CORE_NUM];
@@ -55,7 +62,6 @@ struct timespec t2;
 
 
 int64_t diff;
-
 extern a653_shm_info_t *shm_ptr;
 
 extern a653_global_config_t global_config;
@@ -63,6 +69,42 @@ extern a653_channel_config_t channel_config[];
 
 
 partition_local_info_t l_p_info;
+long cores = 0; /* number of cores on this system */
+
+void set_core_affinity(int pid, int core_id) {
+    cpu_set_t mask;
+    CPU_ZERO(&mask);
+    CPU_SET(core_id, &mask);
+
+
+    if (core_id >= 0 && core_id >= cores){
+      printDebug(0,"ERROR: core_id is out of range (%d) !!!\n",core_id);
+      exit(1);
+    }
+    
+    if (sched_setaffinity(pid, sizeof(cpu_set_t), &mask) == -1) {
+      printDebug(0,"ERROR: can not set core affinity !!!\n");
+      exit(1);
+    }
+}
+
+pid_t start_partition_process(char *p_name) {
+    pid_t pid = -1;
+    char *argv[] = {p_name, NULL}; // argv[0] sollte meist der Programmname sein
+
+    // Prozess spawnen (file_actions und attrp sind hier NULL für Standardeinstellungen)
+    int status = posix_spawn(&pid, p_name, NULL, NULL, argv, environ);
+
+    if (status == 0) {
+        printDebug(0,"child with PID %d started.\n", pid);
+    } else {
+        printDebug(0,"ERROR: posix_spawn failed!!!\n");
+	exit(1);
+    }
+
+    return pid;
+}
+
 
 void a653_i_init_channels(void) {
   int idx;
@@ -76,10 +118,21 @@ void a653_i_init_sync(void) {
 
   char buf[256];
   int idx = 0;
+  pid_t pid;
+
   
   if (a653_shm_init()){
-      
+
+    /* get number of cores on system */
+    cores = sysconf(_SC_NPROCESSORS_ONLN);
+    printDebug(0,"cores on system: %ld\n", cores);
+
+    /* run scheduler on last core */
+    set_core_affinity(getpid(),cores-1);
+
+    /* clear total shared memory */
     memset(shm_ptr,0,sizeof(a653_shm_info_t));
+    
     /* wait to kill running partitions - running will be zero */
     usleep(500);
 
@@ -90,47 +143,44 @@ void a653_i_init_sync(void) {
     for (idx = 0;idx < global_config.core_number; idx++){
       l_p_info.curr_partition_idx[idx]  = -1;
     }
-  
+
+    /* now start all patitions in configuration */
     for (idx = 0;idx < global_config.partition_number; idx++){
 
       shm_ptr->partition_info[idx].init = 1;
       shm_ptr->partition_info[idx].running = 1;
+      strcpy(shm_ptr->partition_info[idx].name, global_config.partition[idx].name_str);
+      
       if (sem_init(&(shm_ptr->partition_info[idx].sem_lock),1,0) != 0) {
-	return;
+	printDebug(0,"ERROR: sem_int get failure!!!\n");
+	exit(1);
       }
+      
       //sem_wait(&(shm_ptr->partition_info[idx].sem_lock));
       /*
 	sem_wait(&(fifo_ptr->sem_lock));
 	sem_post(&(fifo_ptr->sem_lock));
       */
-      
-      sprintf(buf,"taskset --cp %d ./%s &",idx,global_config.partition[idx].name_str);
-	
-      printDebug(0,"> %s : \n\n",buf);
-      system(buf);
 
-      //	printDebug(buf);
+      /* start partition code now */ 
+      sprintf(buf,"./%s",global_config.partition[idx].name_str);
+      pid = start_partition_process(buf);
 
-      {
-
-	strcpy(buf,"pidof ");
-	strcat(buf,global_config.partition[idx].name_str);
-	//printDebug(3,">> %s \n",buf);
-	FILE *fp = popen(buf,"r");
-	if (fp != 0){
-	  fscanf(fp, "%d",&shm_ptr->partition_info[idx].pid);
-	  pclose(fp);
-	} else { printDebug(0,"Problem opening file\n");}
+      /* check and store pid */
+      if (pid > 0){
+	shm_ptr->partition_info[idx].pid = pid;
+	/* run first on core 0 */
+	set_core_affinity(pid, 0); // run all first on core 0	
+      } else {
+	printDebug(0,"ERROR: can not start partition process!!!\n");
+	exit(1); 
       }
-    
-      strcpy(shm_ptr->partition_info[idx].name, global_config.partition[idx].name_str);
       
-    
+      /* wait until partition initialisation is finished */
       while(shm_ptr->partition_info[idx].init == 1){
 	usleep(50);
       }
 
- 
       //   kill(shm_ptr->partition_info[idx].pid, SIGSTOP);
        
       printDebug(1,"a653 start (other pid) %d\n", shm_ptr->partition_info[idx].pid);
@@ -155,6 +205,9 @@ void a653_i_init_sync(void) {
 
     usleep(500000);
     
+  } else {
+    printDebug(0,"ERROR: shared memory get failure!!!\n");
+    exit(1);
   }
 }
 
@@ -207,6 +260,11 @@ void a653_i_update_partitions(void){
 	/* partition must be started on this core */
 	l_p_info.curr_partition_idx[core_idx] = global_config.time_slice[l_p_info.time_slice][core_idx].PatitionIdx;
 	sem_post(&(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].sem_lock));
+	/* new !!! */
+	if (shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].core != core_idx){
+	  set_core_affinity(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, core_idx);
+	  shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].core = core_idx;
+	}
 	//	printDebug(3,"SIGCONT %d\n",shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid);
 #ifndef S_DEBUG
 	kill(shm_ptr->partition_info[l_p_info.curr_partition_idx[core_idx]].pid, SIGCONT);

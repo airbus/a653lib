@@ -77,6 +77,7 @@ typedef struct {
   int pid;
   int running;
   int init;
+  int core;
   sem_t sem_lock;
   char name[64];
 } partition_info_t;

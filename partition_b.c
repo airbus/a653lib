@@ -17,7 +17,7 @@
 /* a653_process_config_t A653_PROCESS_CONFIG[] = A653_PROCESS_CONFIG_DEF; */
 /* a653_sampling_port_config_t A653_SP_CONFIG[] = A653_SP_CONFIG_DEF; */
 /* a653_queuing_port_config_t A653_QP_CONFIG[] = A653_QP_CONFIG_DEF; */
-char semaphore_name[] = "myTestSem                     ";
+char semaphore_name[] = "myTestSem                       ";
 SEMAPHORE_VALUE_TYPE current_value = 1;
 SEMAPHORE_VALUE_TYPE maximum_value = 1;
 QUEUING_DISCIPLINE_TYPE queuing_discipline = 0;

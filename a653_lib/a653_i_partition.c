@@ -118,7 +118,15 @@ int a653_init_partition(void){
 }
 
 void a653_act_partition(void){
-    a653_act_prcs();
+#ifdef S_DEBUG
+  static int count = 0;
+
+  if((++count % 100) == 0 ) {
+    printDebug(0,"a653 partition <%s> act (%d)\n",shm_ptr->partition_info[own_partition_idx].name,getpid());
+      count = 0;
+  }
+#endif
+  a653_act_prcs();
 }
 
 

@@ -43,22 +43,24 @@ void beforeMain (void)
 {
   int idx = 0;
   
-  setDebug(3);
+  setDebug(5);
   
   printDebug(1,"a653 partition init (%d)\n",getpid());
   a653_init_partition();
   pertition_status.OPERATING_MODE = COLD_START;
   shm_ptr->partition_info[own_partition_idx].init = 2;
 
-  printDebug(1,"a653 partition wait (%d)\n",getpid());
+  printDebug(0,"a653 partition <%s> start (%d)\n",shm_ptr->partition_info[own_partition_idx].name,getpid());
   
   initTime();
   
   while (shm_ptr->partition_info[own_partition_idx].init == 2){
-    if((idx++ % 0x100000) == 0){
-      printDebug(1,"a653 partition wait (%d)\n",getpid());
+    if((++idx % 10) == 0){
+      printDebug(0,"a653 partition <%s> wait (%d)\n",shm_ptr->partition_info[own_partition_idx].name,getpid());
       idx = 0;
     }
     usleep(5000);
   }
+  printDebug(0,"a653 partition <%s> go (%d)\n",shm_ptr->partition_info[own_partition_idx].name,getpid());
+  
 }

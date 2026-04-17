@@ -38,19 +38,15 @@
 
 extern void initTime(void);
 
-extern void TIMED_WAIT (
-       /*in */ SYSTEM_TIME_TYPE         DELAY_TIME,
-       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+extern void TIMED_WAIT (SYSTEM_TIME_TYPE DELAY_TIME, /* 64bit - 1 nanosecond LSB */
+			RETURN_CODE_TYPE * RETURN_CODE);
 
-extern void PERIODIC_WAIT (
-       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+extern void PERIODIC_WAIT (RETURN_CODE_TYPE * RETURN_CODE);
 
-extern void GET_TIME (
-       /*out*/ SYSTEM_TIME_TYPE         *SYSTEM_TIME, /* 64bit - 1 nanosecond LSB */
-       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
+extern void GET_TIME (SYSTEM_TIME_TYPE * SYSTEM_TIME, /* 64bit - 1 nanosecond LSB */
+		      RETURN_CODE_TYPE * RETURN_CODE);
 
-extern void REPLENISH (
-       /*in */ SYSTEM_TIME_TYPE         BUDGET_TIME,
-       /*out*/ RETURN_CODE_TYPE         *RETURN_CODE);
+extern void REPLENISH (SYSTEM_TIME_TYPE   BUDGET_TIME, 
+                       RETURN_CODE_TYPE * RETURN_CODE);
 
 #endif /* A653_TIME_H  */

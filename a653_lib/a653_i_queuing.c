@@ -269,7 +269,7 @@ void CREATE_QUEUING_PORT (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
 
   while ((!found) && (qp_data[p_idx].PortId != 0)) {
     
-    length = strnlen(qp_data[p_idx].QUEUING_PORT_NAME, 32);
+    length = strnlen(QUEUING_PORT_NAME, MAX_NAME_LENGTH);
 
     if ((strncmp(qp_data[p_idx].QUEUING_PORT_NAME,QUEUING_PORT_NAME,length)) == 0) {
       
@@ -326,28 +326,35 @@ void SEND_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE   QUEUING_PORT_ID,
 			   SYSTEM_TIME_TYPE       TIME_OUT,
 			   RETURN_CODE_TYPE     * RETURN_CODE){
 
-  int p_idx = PortsHash[QUEUING_PORT_ID];
-
-  *RETURN_CODE = NO_ACTION;
-
-  if (p_idx < MAX_Q_PORT){
-
-    if ((qp_data[p_idx].Port->init_done == 0) &&
-	(qp_data[p_idx].Dir != SOURCE) &&
-	(shm_ptr->channel_info[p_idx].maxMsgSize <= LENGTH)){
-      *RETURN_CODE = INVALID_CONFIG;
-    } else {
-				
-      if( 0 == putFifo (qp_data[p_idx].Port,
-			MESSAGE_ADDR, /* src  */
-			LENGTH)){
-	*RETURN_CODE = NO_ERROR;
-      } else {
-	*RETURN_CODE = NOT_AVAILABLE;
-      }
-    }  
-  }
+  if (QUEUING_PORT_ID < QP_START_ID ||
+      QUEUING_PORT_ID >= qp_id_next){
+    
+    *RETURN_CODE = INVALID_CONFIG;
+    
+  } else {
   
+    int p_idx = PortsHash[QUEUING_PORT_ID];
+
+    *RETURN_CODE = NO_ACTION;
+
+    if (p_idx < MAX_Q_PORT){
+
+      if ((qp_data[p_idx].Port->init_done == 0) &&
+	  (qp_data[p_idx].Dir != SOURCE) &&
+	  (shm_ptr->channel_info[p_idx].maxMsgSize <= LENGTH)){
+	*RETURN_CODE = INVALID_CONFIG;
+      } else {
+				
+	if( 0 == putFifo (qp_data[p_idx].Port,
+			  MESSAGE_ADDR, /* src  */
+			  LENGTH)){
+	  *RETURN_CODE = NO_ERROR;
+	} else {
+	  *RETURN_CODE = NOT_AVAILABLE;
+	}
+      }  
+    }
+  }
   if (*RETURN_CODE != NO_ERROR){
     printDebug(3,"%s error: %d\n",__func__,*RETURN_CODE);
   }
@@ -359,26 +366,34 @@ void RECEIVE_QUEUING_MESSAGE (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
 			      MESSAGE_SIZE_TYPE  * LENGTH,
 			      RETURN_CODE_TYPE   * RETURN_CODE){
 
-  int p_idx = PortsHash[QUEUING_PORT_ID];
-
-  *RETURN_CODE = NO_ACTION;
-
-  if (p_idx < MAX_Q_PORT){
-
-    if (( qp_data[p_idx].Port->init_done == 0) &&
-	(qp_data[p_idx].Dir != DESTINATION)) {
-      
-      *RETURN_CODE = INVALID_CONFIG;
-      
-    } else {
+  if (QUEUING_PORT_ID < QP_START_ID ||
+      QUEUING_PORT_ID >= qp_id_next){
+    
+    *RETURN_CODE = INVALID_CONFIG;
+    
+  } else {
   
-      if (0 == getFifo (qp_data[p_idx].Port,
-                        MESSAGE_ADDR, /* dest */
-                        (int *)LENGTH)){
-        *RETURN_CODE = NO_ERROR;
+    int p_idx = PortsHash[QUEUING_PORT_ID];
+
+    *RETURN_CODE = NO_ACTION;
+
+    if (p_idx < MAX_Q_PORT){
+
+      if (( qp_data[p_idx].Port->init_done == 0) &&
+	  (qp_data[p_idx].Dir != DESTINATION)) {
+      
+	*RETURN_CODE = INVALID_CONFIG;
+      
       } else {
-        *LENGTH      = 0;
-        *RETURN_CODE = NO_ACTION;
+  
+	if (0 == getFifo (qp_data[p_idx].Port,
+			  MESSAGE_ADDR, /* dest */
+			  (int *)LENGTH)){
+	  *RETURN_CODE = NO_ERROR;
+	} else {
+	  *LENGTH      = 0;
+	  *RETURN_CODE = NO_ACTION;
+	}
       }
     }
   }
