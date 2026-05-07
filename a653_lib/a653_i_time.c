@@ -39,7 +39,7 @@
 #include <signal.h>
 
 
-
+#include "a653Init.h"
 #include "a653Type.h"
 #include "a653Error.h"
 #include "a653Process.h"
