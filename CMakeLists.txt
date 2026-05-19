@@ -9,9 +9,10 @@
 #
 
 cmake_minimum_required(VERSION 3.23)
-project(a653lib)
+project(a653lib C)
+
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_EXPORT_COMPILE_COMMANDS true)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #
 ### Utility and helper functions
@@ -23,6 +24,116 @@ if(MSVC)
 else()
     add_compile_options(-Wextra -Wpedantic) # TODO add -Werror eventually
 endif()
+
+#
+# Generated ARINC headers
+#
+
+set(
+    ARINC653_ZIP
+    ""
+    CACHE FILEPATH
+          "Path to a pre-fetched arinc653.h.zip archive. If set, CMake copies it into the build tree instead of downloading it."
+)
+
+set(ARINC_URL
+    "https://brx-content.fullsight.org/site/binaries/content/assets/itc/content/support-files/arinc653.h.zip"
+)
+
+set(ARINC_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/download")
+set(ARINC_ZIP "${ARINC_GEN_DIR}/arinc653.h.zip")
+set(ARINC_RAW_HEADER "${ARINC_GEN_DIR}/ARINC653.h")
+set(ARINC_PATCHED_HEADER "${ARINC_GEN_DIR}/ARINC653_patched.h")
+
+set(ARINC_SPLIT_HEADERS
+    "${ARINC_GEN_DIR}/a653Blackboard.h"
+    "${ARINC_GEN_DIR}/a653Buffer.h"
+    "${ARINC_GEN_DIR}/a653Event.h"
+    "${ARINC_GEN_DIR}/a653Mutex.h"
+)
+
+file(MAKE_DIRECTORY "${ARINC_GEN_DIR}")
+
+# If an external archive path is provided (e.g. by Nix), copy it into the
+# location expected by the normal build flow.
+if(ARINC653_ZIP)
+    if(NOT EXISTS "${ARINC653_ZIP}")
+        message(
+            FATAL_ERROR
+            "ARINC653_ZIP was set, but the file does not exist: ${ARINC653_ZIP}"
+        )
+    endif()
+
+    message(STATUS "Using pre-fetched ARINC archive: ${ARINC653_ZIP}")
+    configure_file("${ARINC653_ZIP}" "${ARINC_ZIP}" COPYONLY)
+endif()
+
+# Optional but strongly recommended:
+# set(ARINC_SHA256 "<fill in the real sha256>")
+
+if(NOT EXISTS "${ARINC_ZIP}")
+    message(STATUS "Downloading ${ARINC_URL}")
+    file(
+        DOWNLOAD
+        "${ARINC_URL}"
+        "${ARINC_ZIP}"
+        TLS_VERIFY ON
+        # EXPECTED_HASH SHA256=${ARINC_SHA256}
+        STATUS ARINC_DOWNLOAD_STATUS
+        SHOW_PROGRESS
+    )
+    list(GET ARINC_DOWNLOAD_STATUS 0 ARINC_DOWNLOAD_CODE)
+    if(NOT ARINC_DOWNLOAD_CODE EQUAL 0)
+        list(GET ARINC_DOWNLOAD_STATUS 1 ARINC_DOWNLOAD_MSG)
+        message(FATAL_ERROR "Failed to download ARINC headers: ${ARINC_DOWNLOAD_MSG}")
+    endif()
+endif()
+
+if(NOT EXISTS "${ARINC_RAW_HEADER}")
+    file(ARCHIVE_EXTRACT
+        INPUT "${ARINC_ZIP}"
+        DESTINATION "${ARINC_GEN_DIR}"
+    )
+endif()
+
+find_program(AWK_EXECUTABLE awk REQUIRED)
+
+add_custom_command(
+    OUTPUT "${ARINC_PATCHED_HEADER}"
+    COMMAND "${AWK_EXECUTABLE}"
+            -f "${CMAKE_CURRENT_SOURCE_DIR}/scripts/process-arinc-header.awk"
+            "${ARINC_RAW_HEADER}"
+            > "${ARINC_PATCHED_HEADER}"
+    DEPENDS
+        "${ARINC_RAW_HEADER}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts/process-arinc-header.awk"
+    VERBATIM
+    COMMENT "Generating patched ARINC653 header"
+)
+
+add_custom_command(
+    OUTPUT ${ARINC_SPLIT_HEADERS}
+    COMMAND "${CMAKE_COMMAND}" -E chdir "${ARINC_GEN_DIR}"
+            "${AWK_EXECUTABLE}"
+            -f "${CMAKE_CURRENT_SOURCE_DIR}/scripts/split-arinc-header.awk"
+            "${ARINC_PATCHED_HEADER}"
+    DEPENDS
+        "${ARINC_PATCHED_HEADER}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/scripts/split-arinc-header.awk"
+    BYPRODUCTS ${ARINC_SPLIT_HEADERS}
+    VERBATIM
+    COMMENT "Splitting patched ARINC653 header into per-interface headers"
+)
+
+add_custom_target(arinc_headers DEPENDS ${ARINC_SPLIT_HEADERS})
+
+add_library(arinc_generated_headers INTERFACE)
+add_dependencies(arinc_generated_headers arinc_headers)
+target_include_directories(arinc_generated_headers INTERFACE "${ARINC_GEN_DIR}")
+
+#
+# Existing helper macro
+#
 
 # Function to add a new ARINC 653 Partition executable
 #
@@ -59,7 +170,10 @@ add_library(a653lib)
 target_sources(
     a653lib
     PRIVATE
+        a653_lib/a653_i_blackboard.c
+        a653_lib/a653_i_buffer.c
         a653_lib/a653_i_error.c
+        a653_lib/a653_i_event.c
         a653_lib/a653_i_partition.c
         a653_lib/a653_i_process.c
         a653_lib/a653_i_queuing.c
@@ -69,6 +183,7 @@ target_sources(
         a653_lib/a653_i_sync.c
         a653_lib/a653_i_time.c
         a653_lib/a653_i_time_lib.c
+        a653_lib/a653_i_mutex.c
         a653_lib/a653Init.c
     PUBLIC
         FILE_SET a653lib_headers
@@ -86,6 +201,8 @@ target_sources(
             a653_inc/a653Time.h
             a653_inc/a653Type.h
 )
+
+target_link_libraries(a653lib PUBLIC arinc_generated_headers)
 
 # Implementation dependent initialization code, to be linked into partitions. This lib has no
 # public interface.
