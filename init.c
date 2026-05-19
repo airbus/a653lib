@@ -16,6 +16,7 @@
 #include <errno.h>
 
 #include "a653Init.h"
+#include "a653Time.h"
 #include "a653_config.h"
 
 #include "a653Type.h"
