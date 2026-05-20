@@ -34,13 +34,6 @@
 #include <stdint.h>
 #include <time.h>
 
-#include "a653Type.h"
-#include "a653Error.h"
-#include "a653Process.h"
-#include "a653Partition.h"
-#include "a653Time.h"
-
-
 typedef void *(*__start_routine) (void *);
 typedef void (*func_ptr)(void);
 

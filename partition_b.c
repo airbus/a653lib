@@ -92,7 +92,7 @@ void PeriodicProcess(void){
     			    &return_code);    /* return code */
     if(return_code == NO_ERROR && length !=0){
       
-      printDebug(3,"Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);   
+      printDebug(3,"Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);
 
       SEND_QUEUING_MESSAGE(qp_id_tx,
 			   data_qp_tx,
@@ -126,7 +126,7 @@ void APeriodicProcess(void){
     WAIT_SEMAPHORE(semaphore_id,
     		   0,
     		   &return_code);   
-    printDebug(3,"Prcs D: activated\n");  
+    printDebug(3,"Prcs D: activated\n");
     TIMED_WAIT(1000000,&return_code);
   }
 }
