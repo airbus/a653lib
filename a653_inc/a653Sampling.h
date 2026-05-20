@@ -49,7 +49,7 @@ typedef enum VALIDITY_VALUE_TYPE {
 } VALIDITY_TYPE;
 
 /* sampling port status type */ 
-typedef struct SAMPLING_PORT_STATUS {
+typedef struct SAMPLING_PORT_STATUS_TYPE {
   MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port size */
   PORT_DIRECTION_TYPE     PORT_DIRECTION;     /* port direction */
   SYSTEM_TIME_TYPE        REFRESH_PERIOD;     /* refresh period */
@@ -68,7 +68,7 @@ typedef enum AGE_VALUE_TYPE {
 } AGE_TYPE;
 
 /* sampling port status type */ 
-typedef struct SAMPLING_PORT_CURRENT_STATUS { 
+typedef struct SAMPLING_PORT_CURRENT_STATUS_TYPE { 
   SYSTEM_TIME_TYPE        REFRESH_PERIOD;     /* refresh period */
   SYSTEM_TIME_TYPE        TIME_STAMP;         /* when message was written */
   MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE;   /* port max byte size */
@@ -76,6 +76,8 @@ typedef struct SAMPLING_PORT_CURRENT_STATUS {
   AGE_TYPE                MESSAGE_AGE;        /* message age - is msg is older than ports refresh period */
   UPDATED_TYPE            UPDATED;            /* empty, consumed, or new message */
 } SAMPLING_PORT_CURRENT_STATUS_TYPE;
+
+#ifndef __wasm__ /* Do not expose non APEX functions into WebAssembly */
 
 /*-----------------------------------------------*/
 /*  sampling port access function pointer types  */
@@ -110,7 +112,9 @@ typedef struct sample_port_funcs_s {
 /* function declarations */
 
 void INIT_SAMPLING_PORT (RETURN_CODE_TYPE        *RETURN_CODE);
+#endif /* #ifndef __wasm__ */
 
+WASM_IMPORT_MODULE("arinc653")
 extern void CREATE_SAMPLING_PORT (
        /*in */ SAMPLING_PORT_NAME_TYPE    SAMPLING_PORT_NAME,
        /*in */ MESSAGE_SIZE_TYPE          MAX_MESSAGE_SIZE,
@@ -119,12 +123,14 @@ extern void CREATE_SAMPLING_PORT (
        /*out*/ SAMPLING_PORT_ID_TYPE      *SAMPLING_PORT_ID,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void WRITE_SAMPLING_MESSAGE (
        /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
        /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,     /* by reference */
        /*in */ MESSAGE_SIZE_TYPE          LENGTH,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void READ_SAMPLING_MESSAGE (
        /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
        /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
@@ -134,16 +140,19 @@ extern void READ_SAMPLING_MESSAGE (
        /*out*/ VALIDITY_TYPE              *VALIDITY,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_SAMPLING_PORT_ID (
        /*in */ SAMPLING_PORT_NAME_TYPE    SAMPLING_PORT_NAME,
        /*out*/ SAMPLING_PORT_ID_TYPE      *SAMPLING_PORT_ID,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_SAMPLING_PORT_STATUS (
        /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
        /*out*/ SAMPLING_PORT_STATUS_TYPE  *SAMPLING_PORT_STATUS,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void READ_UPDATED_SAMPLING_MESSAGE (
        /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
        /*in */ MESSAGE_ADDR_TYPE          MESSAGE_ADDR,
@@ -154,12 +163,14 @@ extern void READ_UPDATED_SAMPLING_MESSAGE (
        /*out*/ UPDATED_TYPE               *UPDATED,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_SAMPLING_PORT_CURRENT_STATUS (
        /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
        /*out*/ SAMPLING_PORT_CURRENT_STATUS_TYPE
                                           *SAMPLING_PORT_CURRENT_STATUS,
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void READ_SAMPLING_MESSAGE_CONDITIONAL (
        /*in */ SAMPLING_PORT_ID_TYPE      SAMPLING_PORT_ID,
        /*in */ SYSTEM_TIME_TYPE           REF_TIME_STAMP,
@@ -172,6 +183,7 @@ extern void READ_SAMPLING_MESSAGE_CONDITIONAL (
        /*out*/ RETURN_CODE_TYPE           *RETURN_CODE );
 
 
+#ifndef __wasm__ /* Do not expose non APEX functions into WebAssembly */
 void create_sampling_port_pp (SAMPLING_PORT_NAME_TYPE   SAMPLING_PORT_NAME, 
 			      MESSAGE_SIZE_TYPE         MAX_MESSAGE_SIZE, 
 			      PORT_DIRECTION_TYPE       PORT_DIRECTION, 
@@ -189,5 +201,6 @@ void read_sampling_message_pp(SAMPLING_PORT_ID_TYPE       SAMPLING_PORT_ID,
 			      MESSAGE_SIZE_TYPE      * LENGTH, 
 			      VALIDITY_TYPE          * VALIDITY, 
 			      RETURN_CODE_TYPE       * RETURN_CODE);
+#endif /* #ifndef __wasm__ */
 
 #endif /* A653_SAMPLING_H */

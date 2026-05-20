@@ -21,9 +21,9 @@ BEGIN {
 }
 
 # mark all functions to be importend from the arinc module
-#"extern" == $1 && "void" == $2 && $4 ~/^\(/ {
-#  print "WASM_IMPORT_MODULE(\"arinc653\")"
-#}
+"extern" == $1 && "void" == $2 && $4 ~/^\(/ {
+  print "WASM_IMPORT_MODULE(\"arinc653\")"
+}
 
 
 # make all implementation dependent defines ifndef based

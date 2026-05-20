@@ -12,11 +12,16 @@
 #include "a653Lib.h"
 /* #include "a653_config.h" */
 
+#ifdef __wasm__ /* Do not expose non APEX functions into WebAssembly; in avionic ideally no stdio */
+#define DEBUG_PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+#define DEBUG_PRINT(fmt, ...) printDebug(3, fmt, ##__VA_ARGS__)
+#endif
+
 /* a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; */
 /* a653_process_config_t A653_PROCESS_CONFIG[] = A653_PROCESS_CONFIG_DEF; */
 /* a653_sampling_port_config_t A653_SP_CONFIG[] = A653_SP_CONFIG_DEF; */
 /* a653_queuing_port_config_t A653_QP_CONFIG[] = A653_QP_CONFIG_DEF; */
-
 
 void PeriodicProcess(void){
   RETURN_CODE_TYPE return_code;
@@ -73,7 +78,7 @@ void PeriodicProcess(void){
 			 0, //timeout
 			 &return_code);
     
-    printDebug(3,"%06d Prcs A send %s \n",index++,data_sp_tx);
+    DEBUG_PRINT("%06d Prcs A send %s \n",index++,data_sp_tx);
 
     READ_SAMPLING_MESSAGE(sp_id_rx,
     			  data_sp_rx,
@@ -81,9 +86,9 @@ void PeriodicProcess(void){
     			  &validity,
     			  &return_code);
     if (validity == VALID && length > 0){
-      printDebug(3,"Prcs A: SP we got this : >%s<\n",(char *)data_sp_rx);
+      DEBUG_PRINT("Prcs A: SP we got this : >%s<\n",(char *)data_sp_rx);
     } else {
-      printDebug(3,"Prcs A:  validity >%d< length >%d<\n",validity,length);
+      DEBUG_PRINT("Prcs A:  validity >%d< length >%d<\n",validity,length);
     }
     
     RECEIVE_QUEUING_MESSAGE(qp_id_rx,        
@@ -92,13 +97,13 @@ void PeriodicProcess(void){
     			    &length,          /* received length */
     			    &return_code);    /* return code */
     if(return_code == NO_ERROR && length !=0){
-      printDebug(3,"Prcs A: QP we got this : >%s<\n",(char *)data_qp_rx);
+      DEBUG_PRINT("Prcs A: QP we got this : >%s<\n",(char *)data_qp_rx);
     } else {
-      printDebug(3,"Prcs A: return >%d<\n",return_code);
+      DEBUG_PRINT("Prcs A: return >%d<\n",return_code);
     }
 
     GET_TIME (&system_time, &return_code);
-    printDebug(3,"Prcs A: GET_TIME >%lld<\n",system_time);
+    DEBUG_PRINT("Prcs A: GET_TIME >%lld<\n",system_time);
     
     PERIODIC_WAIT(&return_code);
   }

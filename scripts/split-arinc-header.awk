@@ -1,4 +1,4 @@
-#!/usr/bin/env -S awk -f
+#!/usr/bin/env -S gawk -f
 
 # not the nicest, should be rather on the comment ..
 
