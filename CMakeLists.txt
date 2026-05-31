@@ -503,7 +503,6 @@ rm -f "$tmp"
     foreach(partition IN LISTS A653_WASM_GUESTS)
         set(src "${CMAKE_CURRENT_SOURCE_DIR}/${partition}.c")
         set(out "${CMAKE_CURRENT_BINARY_DIR}/${partition}.wasm")
-        set(layout "${CMAKE_CURRENT_BINARY_DIR}/${partition}.wasm32_struct_layout.txt")
 
         add_custom_command(
             OUTPUT "${out}" "${layout}"
@@ -516,8 +515,6 @@ rm -f "$tmp"
                 --sysroot=${WASI_SYSROOT}
                 -o "${out}"
                 "${src}"
-            COMMAND
-                "${CMAKE_COMMAND}" -E touch "${layout}"
             DEPENDS
                 wasm_headers
                 "${src}"
