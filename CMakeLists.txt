@@ -362,7 +362,7 @@ if(A653LIB_BUILD_WASM)
                 OUTPUT "${C_ABI_LENS_SRC_DIR}/pkgs/c-abi-lens/Cargo.toml"
                 COMMAND "${GIT_EXECUTABLE}" clone
                         "https://github.com/psiegl/arinc653-wasm.git"
-                        --branch psiegl-old
+                        --branch psiegl-patch-1
                         "${C_ABI_LENS_SRC_DIR}"
                 VERBATIM
                 COMMENT "Cloning arinc653-wasm repository"
@@ -389,32 +389,21 @@ if(A653LIB_BUILD_WASM)
         endif()
     endif()
 
-    set(GEN_CAMW32_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/gen_camw32_getset.sh")
-    file(WRITE "${GEN_CAMW32_SCRIPT}" [=[
-#!/bin/sh
-set -eu
-tool="$1"
-header="$2"
-out="$3"
-tmp="${out}.tmp"
-"$tool" "$header" -- --target=wasm32-wasip1 > "$tmp"
-sed 's|camw|camw32|g' "$tmp" > "$out"
-rm -f "$tmp"
-]=])
-    execute_process(COMMAND chmod +x "${GEN_CAMW32_SCRIPT}")
-
     add_custom_command(
         OUTPUT "${CAMW32_GETSET_HEADER}"
-        COMMAND "${GEN_CAMW32_SCRIPT}"
-                "${C_ABI_LENS_BIN}"
-                "${A653_WASM_INCLUDE_DIR}/a653Lib.h"
-                "${CAMW32_GETSET_HEADER}"
+        COMMAND
+            "${C_ABI_LENS_BIN}"
+            "${A653_WASM_INCLUDE_DIR}/a653Lib.h"
+            --prefix camw32
+            --function-decl-prefix "static inline __attribute__((always_inline))"
+            -c -o "${CAMW32_GETSET_HEADER}"
+            -- --target=wasm32-wasip1
         DEPENDS
             wasm_headers
             c_abi_lens_tool
             "${A653_WASM_INCLUDE_DIR}/a653Lib.h"
+        COMMENT "Generating camw32 getters/setters from ${header}"
         VERBATIM
-        COMMENT "Generating camw32_getset.h using c-abi-lens"
     )
 
     add_custom_target(camw32_getset DEPENDS "${CAMW32_GETSET_HEADER}")
