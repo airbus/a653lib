@@ -17,10 +17,10 @@ Refer to [LICENCE](./LICENSE.md) file.
 
 ## Operating system and compilers
 
-The liba653 LIBRARY can be built for the following operating systems and compilers:
+The liba653 LIBRARY can be built for the following operating systems:
+Linux 32/64 bits (RHEL7, ArchLinux, Ubuntu, NixOS)
 
-- Linux 32 bits (RHEL7)
-- Linux 64 bits (RHEL7)
+In case of the WAMR / Wasmtime variant, clang is the compiler of choice.
 
 ## Dependencies
 
@@ -94,4 +94,7 @@ pid: 578773 <1702486050.349254883>: > taskset --cpu-list 1 ./partition_b & :
 
 ## Links
 
-[Required Services](https://www.aviation-ia.com/support-files/arinc653h)
+## Dependencies
+
+- [SAE ARINC653 Header](https://www.aviation-ia.com/support-files/arinc653h)
+- WAMR/Wasmtime variant: [DLR-FT/arinc653-wasm -> c-abi-lens](https://github.com/DLR-FT/arinc653-wasm)
