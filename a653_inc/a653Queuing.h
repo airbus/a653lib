@@ -48,6 +48,8 @@ typedef struct {
   WAITING_RANGE_TYPE     WAITING_PROCESSES; /* max number of processes */
 } QUEUING_PORT_STATUS_TYPE;
 
+/* Below is not even used anywhere */
+#ifndef __wasm__ /* Do not expose non APEX functions into WebAssembly */
 /*-----------------------------------------------*/
 /*  queuing port access function pointer types   */
 /*-----------------------------------------------*/
@@ -77,7 +79,9 @@ typedef struct q_port_funcs_t {
 } Q_PORT_FUNCS_TYPE;
 
 /* function declarations */
+#endif /* #ifndef __wasm__ */
 
+WASM_IMPORT_MODULE("arinc653")
 extern void CREATE_QUEUING_PORT (
        /*in */ QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
        /*in */ MESSAGE_SIZE_TYPE        MAX_MESSAGE_SIZE,
@@ -87,6 +91,7 @@ extern void CREATE_QUEUING_PORT (
        /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void SEND_QUEUING_MESSAGE (
        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
        /*in */ MESSAGE_ADDR_TYPE        MESSAGE_ADDR,       /* by reference */
@@ -94,6 +99,7 @@ extern void SEND_QUEUING_MESSAGE (
        /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void RECEIVE_QUEUING_MESSAGE (
        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
        /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
@@ -103,21 +109,25 @@ extern void RECEIVE_QUEUING_MESSAGE (
        /*out*/ MESSAGE_SIZE_TYPE        *LENGTH,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_QUEUING_PORT_ID (
        /*in */ QUEUING_PORT_NAME_TYPE   QUEUING_PORT_NAME,
        /*out*/ QUEUING_PORT_ID_TYPE     *QUEUING_PORT_ID,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_QUEUING_PORT_STATUS (
        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
        /*out*/ QUEUING_PORT_STATUS_TYPE *QUEUING_PORT_STATUS,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void CLEAR_QUEUING_PORT (
        /*in */ QUEUING_PORT_ID_TYPE     QUEUING_PORT_ID,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
 
+#ifndef __wasm__ /* Do not expose non APEX functions into WebAssembly */
 void create_queuing_port_pp (QUEUING_PORT_NAME_TYPE  QUEUING_PORT_NAME,
 			     MESSAGE_SIZE_TYPE       MAX_MESSAGE_SIZE, 
 			     MESSAGE_RANGE_TYPE      MAX_NB_MESSAGE,
@@ -137,5 +147,6 @@ void receive_queuing_message_pp (QUEUING_PORT_ID_TYPE QUEUING_PORT_ID,
 				 MESSAGE_ADDR_TYPE    MESSAGE_ADDR,
 				 MESSAGE_SIZE_TYPE  * LENGTH,
 				 RETURN_CODE_TYPE   * RETURN_CODE);
+#endif /* #ifndef __wasm__ */
 
 #endif /* A653_QUEUING_H */

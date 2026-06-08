@@ -47,6 +47,7 @@ typedef struct {
   SEMAPHORE_VALUE_TYPE MAXIMUM_VALUE;
   WAITING_RANGE_TYPE WAITING_PROCESSES; } SEMAPHORE_STATUS_TYPE;
 
+WASM_IMPORT_MODULE("arinc653")
 extern void CREATE_SEMAPHORE (
        /*in */ SEMAPHORE_NAME_TYPE      SEMAPHORE_NAME,
        /*in */ SEMAPHORE_VALUE_TYPE     CURRENT_VALUE,
@@ -55,20 +56,24 @@ extern void CREATE_SEMAPHORE (
        /*out*/ SEMAPHORE_ID_TYPE        *SEMAPHORE_ID,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void WAIT_SEMAPHORE (
        /*in */ SEMAPHORE_ID_TYPE        SEMAPHORE_ID,
        /*in */ SYSTEM_TIME_TYPE         TIME_OUT,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void SIGNAL_SEMAPHORE (
        /*in */ SEMAPHORE_ID_TYPE        SEMAPHORE_ID,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_SEMAPHORE_ID (
        /*in */ SEMAPHORE_NAME_TYPE      SEMAPHORE_NAME,
        /*out*/ SEMAPHORE_ID_TYPE        *SEMAPHORE_ID,
        /*out*/ RETURN_CODE_TYPE         *RETURN_CODE );
 
+WASM_IMPORT_MODULE("arinc653")
 extern void GET_SEMAPHORE_STATUS (
        /*in */ SEMAPHORE_ID_TYPE        SEMAPHORE_ID,
        /*out*/ SEMAPHORE_STATUS_TYPE    *SEMAPHORE_STATUS,

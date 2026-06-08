@@ -18,6 +18,84 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Build
         run: nix build .#packages.x86_64-linux.a653lib --print-build-logs
+  x86_64-ubuntu-linux---a653lib-wasm:
+    name: x86_64-ubuntu-linux.a653lib-wasm
+    runs-on:
+      - ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl cmake cargo clang llvm libclang-dev gawk
+
+      - name: Install WebAssembly Micro Runtime (WAMR)
+        run: |
+          git clone https://github.com/bytecodealliance/wasm-micro-runtime.git ~/wasm-micro-runtime
+          cd ~/wasm-micro-runtime
+          git checkout WAMR-2.4.4
+
+          mkdir build && cd build
+          cmake .. \
+            -DWAMR_BUILD_LIBC_BUILTIN=1 \
+            -DWAMR_BUILD_LIBC_WASI=1 \
+            -DWAMR_BUILD_SHARED_MEMORY=1 \
+            -DCMAKE_BUILD_TYPE=Release
+          make
+          sudo make install
+
+      - name: Install Wasmtime C API
+        run: |
+          # Motivated by https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=libwasmtime
+
+          curl -L https://github.com/bytecodealliance/wasmtime/releases/download/v45.0.0/wasmtime-v45.0.0-x86_64-linux-c-api.tar.xz -o wasmtime-v45.0.0-x86_64-linux-c-api.tar.xz
+          tar -xf wasmtime-v45.0.0-x86_64-linux-c-api.tar.xz
+
+          cd wasmtime-v45.0.0-x86_64-linux-c-api
+          sudo cp -a include/. /usr/local/include/
+          sudo cp -a lib/. /usr/local/lib
+          sudo ldconfig
+
+      - name: Install wasi-sdk
+        run: |
+          curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-33/wasi-sdk-33.0-x86_64-linux.deb -o wasi-sdk.deb
+          sudo dpkg -i wasi-sdk.deb
+          rm wasi-sdk.deb
+
+          ls -l /opt/wasi-sdk*
+
+      - name: Configure
+        run: |
+          cmake -S . -B build-wasm \
+            -G "Unix Makefiles" \
+            -DA653LIB_BUILD_WASM=ON \
+            -DWASI_SYSROOT=/opt/wasi-sdk/share/wasi-sysroot \
+            -DWASM_CLANG=/opt/wasi-sdk/bin/clang
+
+      - name: Build
+        run: |
+          cmake --build build-wasm --target wasm
+
+      - name: Exec. a653lib employing WebAssembly Micro Runtime (WAMR) lib. to execute Wasm partition A & B
+        continue-on-error: true
+        run: |
+          cd build-wasm
+
+          # the a653lib main is executing a 'wasm32_rt', which can be any APEX-enabled Wasm interpreter.
+          ln -sf p_wamr wasm32_rt
+          timeout 1m  ./a653_main_wasm
+
+      - name: Exec. a653lib employing Wasmtime lib. to execute Wasm partition A & B
+        continue-on-error: true
+        run: |
+          cd build-wasm
+
+          # the a653lib main is executing a 'wasm32_rt', which can be any APEX-enabled Wasm interpreter.
+          ln -sf p_wasmtime wasm32_rt
+          timeout 1m  ./a653_main_wasm
+
   x86_64-linux---a653lib-aarch64:
     name: x86_64-linux.a653lib-aarch64
     runs-on:

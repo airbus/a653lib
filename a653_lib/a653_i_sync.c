@@ -88,12 +88,52 @@ void set_core_affinity(int pid, int core_id) {
     }
 }
 
+/*
+  In case there are multiple arguments given for the binary to be executed, we need to split them.
+  This is required for the WASM case, where the main calls either p_wamr/p_wasmtime and then the *.wasm
+ */
+static char **split_argv(const char *input, int *argc_out) {
+    char *buf = strdup(input);
+    if (!buf) return NULL;
+
+    int count = 0;
+    for (char *p = buf; *p; ++p) {
+        if (*p == ' ') count++;
+    }
+
+    char **argv = calloc((size_t)count + 2, sizeof(char *));
+    if (!argv) {
+        free(buf);
+        return NULL;
+    }
+
+    int argc = 0;
+    char *save = NULL;
+    for (char *tok = strtok_r(buf, " \t\r\n", &save);
+         tok != NULL;
+         tok = strtok_r(NULL, " \t\r\n", &save)) {
+        argv[argc++] = tok;
+    }
+    argv[argc] = NULL;
+
+    if (argc_out) *argc_out = argc;
+    return argv; // note: argv[0..argc-1] point into buf
+}
+
 pid_t start_partition_process(char *p_name) {
     pid_t pid = -1;
-    char *argv[] = {p_name, NULL}; // argv[0] sollte meist der Programmname sein
+    
+    int argc = 0;
+    char **argv = split_argv(p_name, &argc);  // argv[0] sollte meist der Programmname sein
+    if (!argv || argc == 0) {
+        fprintf(stderr, "bad command line: %s\n", p_name);
+        return -1;
+    }
 
     // Prozess spawnen (file_actions und attrp sind hier NULL für Standardeinstellungen)
-    int status = posix_spawn(&pid, p_name, NULL, NULL, argv, environ);
+    int status = posix_spawn(&pid, argv[0], NULL, NULL, argv, environ);
+    free(argv[0]);
+    free(argv);
 
     if (status == 0) {
         printDebug(0,"child with PID %d started.\n", pid);

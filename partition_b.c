@@ -13,6 +13,12 @@
 #include "a653Lib.h"
 /* #include "a653_config.h" */
 
+#ifdef __wasm__ /* Do not expose non APEX functions into WebAssembly; in avionic ideally no stdio */
+#define DEBUG_PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#else
+#define DEBUG_PRINT(fmt, ...) printDebug(3, fmt, ##__VA_ARGS__)
+#endif
+
 /* a653_global_config_t global_config = A653_PARTITION_CONFIG_DEF; */
 /* a653_process_config_t A653_PROCESS_CONFIG[] = A653_PROCESS_CONFIG_DEF; */
 /* a653_sampling_port_config_t A653_SP_CONFIG[] = A653_SP_CONFIG_DEF; */
@@ -76,7 +82,7 @@ void PeriodicProcess(void){
     
     if (validity == VALID && length > 0){
       
-      printDebug(3,"Prcs B: SP we got this : >%s< validity >%d< length >%d<\n",(char *)data_sp_rx,validity,length);
+      DEBUG_PRINT("Prcs B: SP we got this : >%s< validity >%d< length >%d<\n",(char *)data_sp_rx,validity,length);
       
       WRITE_SAMPLING_MESSAGE(sp_id_tx,          /* sampling port id */
 			     data_sp_tx,        /* pointer to data */
@@ -92,7 +98,7 @@ void PeriodicProcess(void){
     			    &return_code);    /* return code */
     if(return_code == NO_ERROR && length !=0){
       
-      printDebug(3,"Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);
+      DEBUG_PRINT("Prcs B: QP we got this : >%s<\n",(char *)data_qp_rx);
 
       SEND_QUEUING_MESSAGE(qp_id_tx,
 			   data_qp_tx,
@@ -112,7 +118,7 @@ void PeriodicProcess_2(void){
   RETURN_CODE_TYPE return_code;
 
   while (1){
-    printDebug(3,"Prcs C: activated\n");
+    DEBUG_PRINT("Prcs C: activated\n");
     SIGNAL_SEMAPHORE(semaphore_id,
     		     &return_code);
     PERIODIC_WAIT(&return_code);
@@ -126,7 +132,7 @@ void APeriodicProcess(void){
     WAIT_SEMAPHORE(semaphore_id,
     		   0,
     		   &return_code);   
-    printDebug(3,"Prcs D: activated\n");
+    DEBUG_PRINT("Prcs D: activated\n");
     TIMED_WAIT(1000000,&return_code);
   }
 }
@@ -200,7 +206,7 @@ int main (int argc, char *argv[]){
 		       &semaphore_status,
 		       &return_code);
 
-  printDebug(3,"semaphore: %d : %d\n",
+  DEBUG_PRINT("semaphore: %d : %d\n",
 	     semaphore_status.CURRENT_VALUE,
 	     semaphore_status.MAXIMUM_VALUE); 
 

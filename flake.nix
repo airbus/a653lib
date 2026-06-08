@@ -3,14 +3,16 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+#  inputs.arinc653-wasm.url = "github:psiegl/arinc653-wasm/psiegl-old";
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils }: # arinc653-wasm
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux"] (system:
       let
         # import the nixpkgs, passing the current system as arg
         pkgs = import nixpkgs {
           inherit system;
         };
+#        arinc653Packages = arinc653-wasm.packages.${system} or {};
       in
       {
         packages = rec {
@@ -18,20 +20,28 @@
           default = a653lib;
 
           # just call the package with the normal stdenv
-          a653lib = pkgs.callPackage pkgs/a653lib.nix { };
-
+          a653lib = pkgs.callPackage ./pkgs/a653lib.nix { };
+#          a653lib-wasm = pkgs.callPackage ./pkgs/a653lib.nix {
+#            enableWasm = true;
+#
+#            clang = pkgs.clang;
+#            wasiSdk = pkgs.wasi-sdk;
+#            wasmtime = pkgs.wasmtime;
+#            wamr = pkgs.wamr;
+#            cAbiLens = arinc653Packages.c-abi-lens;
+#          };
           # override the stdenv to use an older gcc
           a653lib-gcc11 =
             let
               stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc11;
             in
-            pkgs.callPackage pkgs/a653lib.nix { inherit stdenv; };
+            pkgs.callPackage ./pkgs/a653lib.nix { inherit stdenv; };
 
           # override the build to be with debug symbols (source still missing though)
           a653lib-debug = pkgs.enableDebugging a653lib;
 
           # cross compile for a pre-defined target platform
-          a653lib-aarch64 = pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic.callPackage pkgs/a653lib.nix { };
+          a653lib-aarch64 = pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic.callPackage ./pkgs/a653lib.nix { };
 
          # cross compile for a custom defined target platform
           a653lib-armv7a =
@@ -42,7 +52,7 @@
                 crossSystem.config = "armv7l-unknown-linux-musleabi";
               };
             in
-            pkgsCross.callPackage pkgs/a653lib.nix { };
+            pkgsCross.callPackage ./pkgs/a653lib.nix { };
 
           # cross compile for a custom defined target platform
           a653lib-powerpc64 =
@@ -53,7 +63,7 @@
                 crossSystem.config = "powerpc64-unknown-linux-gnuabielfv2";
               };
             in
-            pkgsCross.pkgsStatic.callPackage pkgs/a653lib.nix { };
+            pkgsCross.pkgsStatic.callPackage ./pkgs/a653lib.nix { };
         };
       }
     );
