@@ -10,7 +10,7 @@
   wasmtime ? null,
   wamr ? null,
   cAbiLens ? null,
-  enableWasm ? false
+  enableWasm ? false,
 }:
 
 assert !enableWasm || clang != null;
@@ -34,24 +34,28 @@ stdenv.mkDerivation {
   version = "unstable-2025-11-26";
   src = ./..;
 
-  nativeBuildInputs =
-    [ cmake gnumake pkg-config ]
-    ++ lib.optionals enableWasm [ clang ];
+  nativeBuildInputs = [
+    cmake
+    gnumake
+    pkg-config
+  ]
+  ++ lib.optionals enableWasm [ clang ];
 
-  buildInputs =
-    lib.optionals enableWasm [ wasmtime wamr ];
+  buildInputs = lib.optionals enableWasm [
+    wasmtime
+    wamr
+  ];
 
-  cmakeFlags =
-    [
-      "-DARINC653_ZIP=${arinc653Zip}"
-    ]
-    ++ lib.optionals enableWasm [
-      "-DA653LIB_BUILD_WASM=ON"
-      "-DA653LIB_FETCH_C_ABI_LENS=OFF"
-      "-DWASM_CLANG=${lib.getExe clang}"
-      "-DWASI_SYSROOT=${wasiSdk}/share/wasi-sysroot"
-      "-DC_ABI_LENS_EXECUTABLE=${lib.getExe cAbiLens}"
-    ];
+  cmakeFlags = [
+    "-DARINC653_ZIP=${arinc653Zip}"
+  ]
+  ++ lib.optionals enableWasm [
+    "-DA653LIB_BUILD_WASM=ON"
+    "-DA653LIB_FETCH_C_ABI_LENS=OFF"
+    "-DWASM_CLANG=${lib.getExe clang}"
+    "-DWASI_SYSROOT=${wasiSdk}/share/wasi-sysroot"
+    "-DC_ABI_LENS_EXECUTABLE=${lib.getExe cAbiLens}"
+  ];
 
   dontStrip = true;
 
