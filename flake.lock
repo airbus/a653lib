@@ -1,5 +1,29 @@
 {
   "nodes": {
+    "arinc653-wasm": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix"
+      },
+      "locked": {
+        "lastModified": 1787314548,
+        "narHash": "sha256-jr9C6E51VLM7f5A9+gsOxWbiC7GHdKsE8VkwM65HMcM=",
+        "owner": "DLR-FT",
+        "repo": "arinc653-wasm",
+        "rev": "4ea31736d6151c146c6771c28b37ea6560db7abb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DLR-FT",
+        "repo": "arinc653-wasm",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -36,6 +60,7 @@
     },
     "root": {
       "inputs": {
+        "arinc653-wasm": "arinc653-wasm",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs"
       }
@@ -52,6 +77,27 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "treefmt-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "arinc653-wasm",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780220602,
+        "narHash": "sha256-eynAfOmbmxJnkp7YewvCEbShNnnYJ9gLLqkzsYtBPeM=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "db947814a175b7ca6ded66e21383d938df01c227",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
         "type": "github"
       }
     }

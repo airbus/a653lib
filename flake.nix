@@ -2,14 +2,20 @@
   description = "An ARINC 653 implementation on top of POSIX";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+
   inputs.flake-utils.url = "github:numtide/flake-utils";
+
+  inputs.arinc653-wasm.url = "github:DLR-FT/arinc653-wasm";
+  inputs.arinc653-wasm.inputs.flake-utils.follows = "flake-utils";
+  inputs.arinc653-wasm.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs =
     {
       self,
       nixpkgs,
       flake-utils,
-    }: # arinc653-wasm
+      arinc653-wasm,
+    }:
     {
       # for CI
       ciJobs =
@@ -35,8 +41,8 @@
         # import the nixpkgs, passing the current system as arg
         pkgs = import nixpkgs {
           inherit system;
+          overlays = [ arinc653-wasm.overlays.default ];
         };
-        #        arinc653Packages = arinc653-wasm.packages.${system} or {};
       in
       {
         packages = rec {
@@ -45,15 +51,7 @@
 
           # just call the package with the normal stdenv
           a653lib = pkgs.callPackage ./pkgs/a653lib.nix { };
-          #          a653lib-wasm = pkgs.callPackage ./pkgs/a653lib.nix {
-          #            enableWasm = true;
-          #
-          #            clang = pkgs.clang;
-          #            wasiSdk = pkgs.wasi-sdk;
-          #            wasmtime = pkgs.wasmtime;
-          #            wamr = pkgs.wamr;
-          #            cAbiLens = arinc653Packages.c-abi-lens;
-          #          };
+
           # override the stdenv to use an older gcc
           a653lib-gcc13 =
             let
