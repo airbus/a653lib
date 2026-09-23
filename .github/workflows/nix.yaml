@@ -129,8 +129,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Build
         run: nix build .#packages.x86_64-linux.a653lib-debug --print-build-logs
-  x86_64-linux---a653lib-gcc11:
-    name: x86_64-linux.a653lib-gcc11
+  x86_64-linux---a653lib-gcc13:
+    name: x86_64-linux.a653lib-gcc13
     runs-on:
       - ubuntu-latest
     needs: []
@@ -139,7 +139,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Build
-        run: nix build .#packages.x86_64-linux.a653lib-gcc11 --print-build-logs
+        run: nix build .#packages.x86_64-linux.a653lib-gcc13 --print-build-logs
   x86_64-linux---default:
     name: x86_64-linux.default
     runs-on:

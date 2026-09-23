@@ -1,9 +1,8 @@
 {
   description = "An ARINC 653 implementation on top of POSIX";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
-#  inputs.arinc653-wasm.url = "github:psiegl/arinc653-wasm/psiegl-old";
 
   outputs = { self, nixpkgs, flake-utils }: # arinc653-wasm
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux"] (system:
@@ -31,9 +30,9 @@
 #            cAbiLens = arinc653Packages.c-abi-lens;
 #          };
           # override the stdenv to use an older gcc
-          a653lib-gcc11 =
+          a653lib-gcc13 =
             let
-              stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc11;
+              stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc13;
             in
             pkgs.callPackage ./pkgs/a653lib.nix { inherit stdenv; };
 
