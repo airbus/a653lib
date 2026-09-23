@@ -38,9 +38,9 @@
 
 /* typedefs */ 
 
-typedef A653_INTEGER    ERROR_MESSAGE_SIZE_TYPE;  /* error message size type */
+typedef APEX_INTEGER    ERROR_MESSAGE_SIZE_TYPE;  /* error message size type */
 
-typedef A653_BYTE       ERROR_MESSAGE_TYPE[MAX_ERROR_MESSAGE_SIZE]; 
+typedef APEX_BYTE       ERROR_MESSAGE_TYPE[MAX_ERROR_MESSAGE_SIZE]; 
 
 /* error types */ 
 typedef

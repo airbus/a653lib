@@ -49,14 +49,14 @@ BEGIN {
 
 # always pick `APEX_LONG_INTEGER` (which ist `int64_t`) where there is a choice
 {
-  gsub("<an APEX integer type>", "A653_INTEGER     ");
+  gsub("<an APEX integer type>", "APEX_LONG_INTEGER     ");
 
   # to fit to Airbus a653lib
-  gsub("APEX_BYTE", "A653_BYTE");
-  gsub("APEX_WORD", "A653_WORD");
-  gsub("APEX_INTEGER", "A653_INTEGER");
-  gsub("APEX_UNSIGNED", "A653_UNSIGNED");
-  gsub("APEX_LONG_INTEGER", "A653_LONG_INTEGER");
+  gsub("APEX_BYTE", "APEX_BYTE");
+  gsub("APEX_WORD", "APEX_WORD");
+  gsub("APEX_INTEGER", "APEX_INTEGER");
+  gsub("APEX_UNSIGNED", "APEX_UNSIGNED");
+  gsub("APEX_LONG_INTEGER", "APEX_LONG_INTEGER");
   print;
 }
 

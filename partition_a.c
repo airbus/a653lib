@@ -32,10 +32,10 @@ void PeriodicProcess(void){
   
   unsigned short  count = 0;  
 
-  A653_BYTE data_sp_tx[32] = "sp_test1234";
-  A653_BYTE data_sp_rx[32] = "           ";
-  A653_BYTE data_qp_tx[32] = "qp_test1234";
-  A653_BYTE data_qp_rx[32] = "           ";
+  APEX_BYTE data_sp_tx[32] = "sp_test1234";
+  APEX_BYTE data_sp_rx[32] = "           ";
+  APEX_BYTE data_qp_tx[32] = "qp_test1234";
+  APEX_BYTE data_qp_rx[32] = "           ";
   
   SAMPLING_PORT_ID_TYPE sp_id_tx;
   SAMPLING_PORT_ID_TYPE sp_id_rx;
@@ -117,7 +117,7 @@ int main (int argc, char *argv[]){
   PROCESS_ID_TYPE                Init_process_ID;
   PROCESS_ATTRIBUTE_TYPE         process_data;
   
-  A653_INTEGER                   PortId;
+  APEX_INTEGER                   PortId;
   
   int ret_val = 0;
 
