@@ -110,7 +110,7 @@ void PeriodicProcess(void){
 }
 
 /* have a look to init.c beforeMain is called before main!!!!! */
-int main (int argc, char *argv[]){
+int main (void){
   
   RETURN_CODE_TYPE               return_code;
   RETURN_CODE_TYPE               Init_Process_ret;

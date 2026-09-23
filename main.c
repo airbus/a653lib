@@ -83,7 +83,7 @@ void sig_handler(int sig){
 
 
 
-int main (int argc, char *argv[]){
+int main (void){
 
   time_t rawtime;
   struct tm * timeinfo;
