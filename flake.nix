@@ -10,7 +10,26 @@
       nixpkgs,
       flake-utils,
     }: # arinc653-wasm
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux" ] (
+    {
+      # for CI
+      ciJobs =
+        let
+          inherit (nixpkgs) lib;
+        in
+        {
+          checks = lib.attrsets.recurseIntoAttrs (self.checks or { });
+          homeConfigurations = lib.attrsets.recurseIntoAttrs (
+            lib.attrsets.mapAttrs (name: value: value.activationPackage) (self.homeConfigurations or { })
+          );
+          nixosConfigurations = lib.attrsets.recurseIntoAttrs (
+            lib.attrsets.mapAttrs (name: value: value.config.system.build.toplevel) (
+              self.nixosConfigurations or { }
+            )
+          );
+          packages = lib.attrsets.recurseIntoAttrs (self.packages or { });
+        };
+    }
+    // flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux" ] (
       system:
       let
         # import the nixpkgs, passing the current system as arg
