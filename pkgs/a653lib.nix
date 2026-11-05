@@ -1,59 +1,85 @@
 {
   lib,
   stdenv,
-  cmake,
   fetchurl,
-  gnumake,
+  pkgsBuildBuild,
+
+  cmake,
   pkg-config,
-  clang ? null,
-  wasiSdk ? null,
-  wasmtime ? null,
-  wamr ? null,
-  cAbiLens ? null,
-  enableWasm ? false
+  pkgsCross,
+
+  # these are only required when Wasm is enabled
+  wamr,
+  wasmtime,
+
+  arinc653HeaderZip ? fetchurl {
+    url = "https://brx-content.fullsight.org/site/binaries/content/assets/itc/content/support-files/arinc653.h.zip";
+    hash = "sha256-4sr+QMkK2tDLFG9O0u9PAKWA7iIL+//K7S3eMOJEtPY=";
+  },
+
+  enableWasm ? (with stdenv.hostPlatform; (!isStatic) && (isx86 || isAarch64)),
 }:
 
-assert !enableWasm || clang != null;
-assert !enableWasm || wasiSdk != null;
-assert !enableWasm || wasmtime != null;
-assert !enableWasm || wamr != null;
-assert !enableWasm || cAbiLens != null;
-
-let
-  arinc653Zip = fetchurl {
-    url = "https://brx-content.fullsight.org/site/binaries/content/assets/itc/content/support-files/arinc653.h.zip";
-    sha256 = "1xml8ki31pidxp5gzyqb4bp819809zpx4kkg2k5x1nhar50gxjp2";
-    curlOptsList = [
-      "--user-agent"
-      "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0"
-    ];
-  };
-in
 stdenv.mkDerivation {
-  pname = if enableWasm then "a653lib-wasm" else "a653lib";
-  version = "unstable-2025-11-26";
+  name = "a653lib";
   src = ./..;
 
-  nativeBuildInputs =
-    [ cmake gnumake pkg-config ]
-    ++ lib.optionals enableWasm [ clang ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ]
+  ++ (lib.lists.optional enableWasm pkgsCross.wasi32.stdenv.cc);
 
-  buildInputs =
-    lib.optionals enableWasm [ wasmtime wamr ];
+  postPatch = lib.strings.optionalString enableWasm ''
+    substituteInPlace  CMakeLists.txt \
+      --replace-fail 'wasm32-wasip1' 'wasm32-unknown-wasi'
+  '';
 
-  cmakeFlags =
-    [
-      "-DARINC653_ZIP=${arinc653Zip}"
-    ]
-    ++ lib.optionals enableWasm [
-      "-DA653LIB_BUILD_WASM=ON"
-      "-DA653LIB_FETCH_C_ABI_LENS=OFF"
-      "-DWASM_CLANG=${lib.getExe clang}"
-      "-DWASI_SYSROOT=${wasiSdk}/share/wasi-sysroot"
-      "-DC_ABI_LENS_EXECUTABLE=${lib.getExe cAbiLens}"
-    ];
+  buildInputs = lib.lists.optionals enableWasm [
+    # Avoid the following error upon linking a653lib
+    #
+    # undefined references to `__aarch64_ldadd4_acq'
+    (wamr.overrideAttrs (_: {
+      env = lib.attrsets.optionalAttrs (stdenv.hostPlatform.isAarch) {
+        NIX_CFLAGS_COMPILE = "-mno-outline-atomics";
+      };
+    }))
+    wasmtime
+  ];
 
-  dontStrip = true;
+  cmakeFlags = [
+    "-DARINC653_ZIP=${arinc653HeaderZip}"
+    "-DA653LIB_BUILD_WASM=off"
+  ]
+  ++ lib.lists.optionals enableWasm [
+    "-DA653LIB_BUILD_WASM=on"
 
-  hardeningDisable = [ "all" ];
+    "-DA653LIB_FETCH_C_ABI_LENS=off"
+    "-DC_ABI_LENS_EXECUTABLE=${lib.meta.getExe pkgsBuildBuild.c-abi-lens}"
+
+    "-DWASM_CLANG=${lib.meta.getExe' pkgsCross.wasi32.stdenv.cc "${pkgsCross.wasi32.stdenv.cc.targetPrefix}cc"}"
+  ];
+
+  makeFlags = lib.lists.optionals enableWasm [
+    "partition_a_wasm"
+    "partition_b_wasm"
+  ];
+
+  postInstall = lib.strings.optionalString enableWasm ''
+    for engine in wamr wasmtime
+    do
+      target_dir="$out/bin/with-$engine"
+      mkdir --parent -- "$target_dir"
+      ln --relative --symbolic --force -- $out/bin/*wasm "$target_dir"
+      ln --relative --symbolic --force -- "$out/bin/p_$engine" "$target_dir/wasm32_rt"
+    done
+  '';
+
+  meta = {
+    description = "AIRBUS' Linux based ARINC 653 playground, now with Wasm";
+    license = lib.licenses.lgpl21Plus;
+    maintainers = with lib.maintainers; [ wucke13 ];
+    mainProgram = "a653lib_main";
+    platforms = lib.platforms.linux;
+  };
 }

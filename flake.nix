@@ -1,18 +1,48 @@
 {
   description = "An ARINC 653 implementation on top of POSIX";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-#  inputs.arinc653-wasm.url = "github:psiegl/arinc653-wasm/psiegl-old";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
-  outputs = { self, nixpkgs, flake-utils }: # arinc653-wasm
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux"] (system:
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+
+  inputs.arinc653-wasm.url = "github:DLR-FT/arinc653-wasm";
+  inputs.arinc653-wasm.inputs.flake-utils.follows = "flake-utils";
+  inputs.arinc653-wasm.inputs.nixpkgs.follows = "nixpkgs";
+
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      arinc653-wasm,
+    }:
+    {
+      # for CI
+      ciJobs =
+        let
+          inherit (nixpkgs) lib;
+        in
+        {
+          checks = lib.attrsets.recurseIntoAttrs (self.checks or { });
+          homeConfigurations = lib.attrsets.recurseIntoAttrs (
+            lib.attrsets.mapAttrs (name: value: value.activationPackage) (self.homeConfigurations or { })
+          );
+          nixosConfigurations = lib.attrsets.recurseIntoAttrs (
+            lib.attrsets.mapAttrs (name: value: value.config.system.build.toplevel) (
+              self.nixosConfigurations or { }
+            )
+          );
+          packages = lib.attrsets.recurseIntoAttrs (self.packages or { });
+        };
+    }
+    // flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "powerpc64-linux" ] (
+      system:
       let
         # import the nixpkgs, passing the current system as arg
         pkgs = import nixpkgs {
           inherit system;
+          overlays = [ arinc653-wasm.overlays.default ];
         };
-#        arinc653Packages = arinc653-wasm.packages.${system} or {};
       in
       {
         packages = rec {
@@ -21,19 +51,11 @@
 
           # just call the package with the normal stdenv
           a653lib = pkgs.callPackage ./pkgs/a653lib.nix { };
-#          a653lib-wasm = pkgs.callPackage ./pkgs/a653lib.nix {
-#            enableWasm = true;
-#
-#            clang = pkgs.clang;
-#            wasiSdk = pkgs.wasi-sdk;
-#            wasmtime = pkgs.wasmtime;
-#            wamr = pkgs.wamr;
-#            cAbiLens = arinc653Packages.c-abi-lens;
-#          };
+
           # override the stdenv to use an older gcc
-          a653lib-gcc11 =
+          a653lib-gcc13 =
             let
-              stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc11;
+              stdenv = pkgs.overrideCC pkgs.stdenv pkgs.gcc13;
             in
             pkgs.callPackage ./pkgs/a653lib.nix { inherit stdenv; };
 
@@ -41,9 +63,11 @@
           a653lib-debug = pkgs.enableDebugging a653lib;
 
           # cross compile for a pre-defined target platform
-          a653lib-aarch64 = pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic.callPackage ./pkgs/a653lib.nix { };
+          a653lib-aarch64 =
+            pkgs.pkgsCross.aarch64-multiplatform-musl.pkgsStatic.callPackage ./pkgs/a653lib.nix
+              { };
 
-         # cross compile for a custom defined target platform
+          # cross compile for a custom defined target platform
           a653lib-armv7a =
             let
               # import nixpkgs, defining a crossSystem via llvm target triple

@@ -72,7 +72,7 @@ typedef struct {
   int core_number;
   int partition_number;
   int time_slice_number;
-  A653_LONG_INTEGER time_slice_size; /* value in nsec */
+  APEX_LONG_INTEGER time_slice_size; /* value in nsec */
   a653_partition_entry_t partition[MAX_PARTITION];
   a653_time_slice_config_t time_slice[MAX_TIME_SLICE_NUM][MAX_CORE_NUM];
   int magic;

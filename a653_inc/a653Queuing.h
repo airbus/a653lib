@@ -36,7 +36,7 @@
 
 /* type definitions */
 
-typedef A653_INTEGER QUEUING_PORT_ID_TYPE;   /* queuing port ident type */
+typedef APEX_INTEGER QUEUING_PORT_ID_TYPE;   /* queuing port ident type */
 typedef NAME_TYPE    QUEUING_PORT_NAME_TYPE;  /* name type */
 
 /* queuing port status type */

@@ -39,10 +39,10 @@ void PeriodicProcess(void){
   MESSAGE_SIZE_TYPE length;
   VALIDITY_TYPE     validity;
 
-  A653_BYTE data_sp_tx[32] = "sp_test1234";
-  A653_BYTE data_sp_rx[32] = "           ";
-  A653_BYTE data_qp_tx[32] = "qp_test1234";
-  A653_BYTE data_qp_rx[32] = "           ";
+  APEX_BYTE data_sp_tx[32] = "sp_test1234";
+  APEX_BYTE data_sp_rx[32] = "           ";
+  APEX_BYTE data_qp_tx[32] = "qp_test1234";
+  APEX_BYTE data_qp_rx[32] = "           ";
   
   SAMPLING_PORT_ID_TYPE sp_id_tx;
   SAMPLING_PORT_ID_TYPE sp_id_rx;
@@ -138,14 +138,14 @@ void APeriodicProcess(void){
 }
 
 /* have a look to init.c beforeMain is called before main!!!!! */
-int main (int argc, char *argv[]){
+int main (void){
 
   RETURN_CODE_TYPE               return_code;
   RETURN_CODE_TYPE               Init_Process_ret;
   PROCESS_ID_TYPE                Init_process_ID;
   PROCESS_ATTRIBUTE_TYPE         process_data;
   
-  A653_INTEGER                   PortId;
+  APEX_INTEGER                   PortId;
   
   int ret_val = 0;
   

@@ -31,6 +31,8 @@
 #ifndef __A653_TYPES_H
 #define __A653_TYPES_H
 
+#include <stdint.h>
+
 /* defines */
 
 /* clang attribute for the WebAssembly target */
@@ -47,14 +49,13 @@
 
 /* Global type definitions */
 
-typedef unsigned char       A653_BYTE;              /*  8 bits unsigned   */
-typedef unsigned short int  A653_WORD;              /* 16 bits unsigned   */
-typedef int                 A653_INTEGER;           /* 32 bits            */
-typedef unsigned int        A653_UNSIGNED;          /* 32 bits unsigned   */
-typedef long long           A653_LONG_INTEGER;      /* 64 bits            */
+typedef uint8_t             APEX_BYTE;              /*  8 bits unsigned   */
+typedef int32_t             APEX_INTEGER;           /* 32 bits            */
+typedef uint32_t            APEX_UNSIGNED;          /* 32 bits unsigned   */
+typedef int64_t             APEX_LONG_INTEGER;      /* 64 bits            */
 
-typedef A653_INTEGER        PROCESS_ID_TYPE;        /* object ident type  */
-typedef A653_INTEGER        PROCESSOR_CORE_ID_TYPE;
+typedef APEX_INTEGER        PROCESS_ID_TYPE;        /* object ident type  */
+typedef APEX_INTEGER        PROCESSOR_CORE_ID_TYPE;
 
 #define NULL_PROCESS_ID     0
 
@@ -81,9 +82,9 @@ typedef enum A653_ACCESS_MODE_TYPE{
 
 typedef char            NAME_TYPE[MAX_NAME_LENGTH];
 typedef void            (*SYSTEM_ADDRESS_TYPE); /* address type       */
-typedef A653_BYTE *     MESSAGE_ADDR_TYPE;  /* message type             */
-typedef A653_INTEGER    MESSAGE_SIZE_TYPE;  /* message size type        */
-typedef A653_INTEGER    MESSAGE_RANGE_TYPE; /* message number type      */
+typedef APEX_BYTE *     MESSAGE_ADDR_TYPE;  /* message type             */
+typedef APEX_INTEGER    MESSAGE_SIZE_TYPE;  /* message size type        */
+typedef APEX_INTEGER    MESSAGE_RANGE_TYPE; /* message number type      */
 
 /* port direction type */
 typedef enum PORT_DIRECTION_VALUE_TYPE {
@@ -97,16 +98,16 @@ typedef enum QUEUING_DISCIPLINE_VALUE_TYPE {
   PRIORITY = 1
 } QUEUING_DISCIPLINE_TYPE;
 
-typedef A653_LONG_INTEGER    SYSTEM_TIME_TYPE;   /* system time type         */
+typedef APEX_LONG_INTEGER    SYSTEM_TIME_TYPE;   /* system time type         */
 
 
-typedef A653_INTEGER     WAITING_RANGE_TYPE; /* priority type      */
-typedef A653_UNSIGNED    STACK_SIZE_TYPE;    /* stack size type    */
-typedef A653_INTEGER     LOCK_LEVEL_TYPE;    /* lock level type    */
-typedef A653_BYTE *         MEMORY_BLOCK_ADDR_TYPE;
-typedef A653_INTEGER        MEMORY_BLOCK_SIZE_TYPE;
+typedef APEX_INTEGER     WAITING_RANGE_TYPE; /* priority type      */
+typedef APEX_UNSIGNED    STACK_SIZE_TYPE;    /* stack size type    */
+typedef APEX_INTEGER     LOCK_LEVEL_TYPE;    /* lock level type    */
+typedef APEX_BYTE *         MEMORY_BLOCK_ADDR_TYPE;
+typedef APEX_INTEGER        MEMORY_BLOCK_SIZE_TYPE;
 typedef NAME_TYPE           MEMORY_BLOCK_NAME_TYPE;
 
-typedef A653_INTEGER     PRIORITY_TYPE;      /* priority type      */
+typedef APEX_INTEGER     PRIORITY_TYPE;      /* priority type      */
 
 #endif /* __A653_TYPES_H */

@@ -41,7 +41,7 @@
 
 typedef NAME_TYPE SAMPLING_PORT_NAME_TYPE; /* port name type */ 
 
-typedef A653_INTEGER SAMPLING_PORT_ID_TYPE; /* sampling port ident type */ 
+typedef APEX_INTEGER SAMPLING_PORT_ID_TYPE; /* sampling port ident type */ 
 
 typedef enum VALIDITY_VALUE_TYPE {
   INVALID = 0,

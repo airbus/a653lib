@@ -36,7 +36,7 @@
 
 
 typedef NAME_TYPE        PROCESS_NAME_TYPE;  /* process name type  */
-typedef A653_INTEGER     PROCESS_INDEX_TYPE;
+typedef APEX_INTEGER     PROCESS_INDEX_TYPE;
 
 /* process state type */
 typedef enum PROCESS_STATE_VALUE_TYPE {
