@@ -361,8 +361,7 @@ if(A653LIB_BUILD_WASM)
             add_custom_command(
                 OUTPUT "${C_ABI_LENS_SRC_DIR}/pkgs/c-abi-lens/Cargo.toml"
                 COMMAND "${GIT_EXECUTABLE}" clone
-                        "https://github.com/psiegl/arinc653-wasm.git"
-                        --branch psiegl-patch-1
+                        "https://github.com/DLR-FT/arinc653-wasm.git"
                         "${C_ABI_LENS_SRC_DIR}"
                 VERBATIM
                 COMMENT "Cloning arinc653-wasm repository"
